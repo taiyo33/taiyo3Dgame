@@ -27,7 +27,7 @@
 #define BLOCK_VERTEX			(4)			// 
 #define VTX_SIZE_X				(375.0f)	// 頂点のX軸サイズ
 #define VTX_SIZE_Y				(25.0f)		// 　　　Y軸サイズ
-#define VTX_SIZE_Z				(135.0f)	// 　　　Z軸サイズ
+#define VTX_SIZE_Z				(115.0f)	// 　　　Z軸サイズ
 #define BLOCK_DAMAGE			(1)		// ブロックへのダメージ
 #define INIT_LIFE				(10)			// 寿命の初期値	
 
@@ -68,7 +68,7 @@ HRESULT InitBlock(int type)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	HRESULT hr;
 	// 頂点情報の作成
-	//hr = MakeVertexBlock(pDevice);
+	hr = MakeVertexBlock(pDevice);
 	
 	// ブロックの初期位置を設定
 	SetPosBlock();
@@ -103,7 +103,7 @@ HRESULT InitBlock(int type)
 	//						HANDGUM_TEXTURE,	// ファイルの名前
 	//					&D3DTextureBlock[TEX_TYPE01]);	// 読み込むメモリー
 	//}	
-
+	
 	return S_OK;
 }
 
@@ -464,6 +464,48 @@ void InitVertexBlock(void)
 		// 頂点データをアンロックする
 		D3DVtxBuffBlock->Unlock();
 	}
+}
+
+//=============================================================================
+// 壁との当たり判定
+// pos0:始点（移動前）
+// pos1:終点（移動後）
+//=============================================================================
+bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1)
+{
+	D3DXVECTOR3		pos[NUM_VERTEX]; // 頂点座標の保存
+	bool			ans;
+	VERTEX_3D	    *pVtx;
+
+	// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
+	D3DVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
+
+	for (int i = 0; i < BLOCK_VERTEX; i++, pVtx += 4)
+	{
+		// 頂点座標の設定
+		pos[0] = pVtx[0].vtx;
+		pos[1] = pVtx[1].vtx;
+		pos[2] = pVtx[2].vtx;
+		pos[3] = pVtx[3].vtx;
+
+		// 左下側ポリゴンと線分の当たり判定
+		ans = CheckHitPolygon(pos[0], pos[2], pos[3], pos0, pos1);
+		if (!ans)
+		{
+			break;
+		}
+		// 右上側ポリゴンと線分の当たり判定
+		ans = CheckHitPolygon(pos[0], pos[3], pos[1], pos0, pos1);
+		if (!ans)
+		{
+			break;
+		}
+	}
+
+	// 頂点データをアンロックする
+	D3DVtxBuffBlock->Unlock();
+
+	return ans;
 }
 
 ////=============================================================================

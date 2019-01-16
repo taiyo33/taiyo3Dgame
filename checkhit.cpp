@@ -58,8 +58,8 @@ void CheckHit(void)
 		// プレイヤーのフィール内外判定
 		if (!CheckFieldInPlayer(i))
 		{
-			player->pos.y -= 5.0f;
 			PlayerDamageManager(i);
+			player->pos.y -= 5.0f;
 		}
 
 		// ブロックとの当たり判定
@@ -67,13 +67,13 @@ void CheckHit(void)
 		for (j = 0; j < BLOCK_MAX; j++, block++)
 		{
 			if (!block->use) continue;
-			
+
 			if (CheckHitBB(player->pos, block->pos,
 				D3DXVECTOR3(25.0f, 25.0f, 25.0f), D3DXVECTOR3(25.0f, 100.0f, 25.0f)))
 			{
-				player->pos = player->prevPos;
+				player->move = WallShear(player->pos, D3DXVECTOR3(0.0f, 0.0f, -1.0f), i) * player->speed;
 			}
-		}
+ 		}
 
 		BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
 		for (j = 0; j < BULLET_SET_MAX; j++)
@@ -239,18 +239,22 @@ D3DXVECTOR3 GetNormal(void)
 //}
 
 
-////========================================================================
-//// 壁ずり
-////
-////
-////========================================================================
+//========================================================================
+// 壁ずり
 //
-//D3DXVECTOR3 WallShear(D3DXVECTOR3* out, const D3DXVECTOR3& front, const D3DXVECTOR3& normal) {
-//	D3DXVECTOR3 normal_n;
-//	D3DXVec3Normalize(&normal_n, &normal);
-//	return D3DXVec3Normalize(out, &(front - D3DXVec3Dot(&front, &normal_n) * normal_n));
-//}
 //
+//========================================================================
+D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
+{
+	PLAYER *player = GetPlayer(index);
+	D3DXVECTOR3 normal_n;
+	D3DXVECTOR3 frontVec;
+	frontVec = player->pos - player->prevPos;
+	D3DXVec3Normalize(&normal_n, &normal);
+	D3DXVec3Normalize(&player->move ,&(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
+	return player->move;
+}
+
 ////////////////////////////////////
 //// 反射ベクトル
 ////

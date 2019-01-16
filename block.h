@@ -34,5 +34,6 @@ void DrawBlock(void);
 
 BLOCK *GetBlock(int bno);
 void BlockDamageManager(int bno);
+bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1);
 
 #endif
