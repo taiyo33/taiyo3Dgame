@@ -68,11 +68,16 @@ void CheckHit(void)
 		{
 			if (!block->use) continue;
 
-			if (CheckHitBB(player->pos, block->pos,
-				D3DXVECTOR3(25.0f, 25.0f, 25.0f), D3DXVECTOR3(25.0f, 100.0f, 25.0f)))
+			if (HitCheckBlock(player->pos, player->prevPos))
 			{
-				player->move = WallShear(player->pos, D3DXVECTOR3(0.0f, 0.0f, -1.0f), i) * player->speed;
+				player->move = WallShear(D3DXVECTOR3(0.0f, 0.0f, 0.0f), GetNormal(), i);
 			}
+			
+			//if (CheckHitBB(player->pos, block->pos,
+			//	D3DXVECTOR3(25.0f, 25.0f, 25.0f), D3DXVECTOR3(25.0f, 100.0f, 25.0f)))
+			//{
+			//	player->move = WallShear(player->pos, D3DXVECTOR3(0.0f, 0.0f, -1.0f), i) * player->speed;
+			//}
  		}
 
 		BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得

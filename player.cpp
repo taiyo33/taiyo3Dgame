@@ -54,7 +54,7 @@ HRESULT InitPlayer(int type)
 	player[P1].pos = D3DXVECTOR3(-200.0f, 10.0f, 0.0f);	// ˆÊ’u‚Ì‰Šú‰»
 	player[P2].pos = D3DXVECTOR3(200.0f, 10.0f, 0.0f);	//
 	player[P1].use = true;								// g—pó‘Ô‚ğ‰Šú‰»
-	player[P2].use = true;								//
+	player[P2].use = false;								//
 	
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{

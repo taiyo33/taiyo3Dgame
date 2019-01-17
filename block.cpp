@@ -27,9 +27,10 @@
 #define BLOCK_VERTEX			(4)			// 
 #define VTX_SIZE_X				(375.0f)	// 頂点のX軸サイズ
 #define VTX_SIZE_Y				(25.0f)		// 　　　Y軸サイズ
-#define VTX_SIZE_Z				(115.0f)	// 　　　Z軸サイズ
-#define BLOCK_DAMAGE			(1)		// ブロックへのダメージ
-#define INIT_LIFE				(10)			// 寿命の初期値	
+#define VTX_SIZE_Z				(128.0f)	// 　　　Z軸サイズ
+#define BLOCK_DAMAGE			(1)			// ブロックへのダメージ
+#define INIT_LIFE				(10)		// 寿命の初期値	
+#define BLOCK_SIZE				(25.0f)		// ブロックの1辺のサイズ
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -56,6 +57,7 @@ LPD3DXBUFFER			D3DXBuffMatBlock;	// メッシュのマテリアル情報を格納
 DWORD					numMat;				// 属性情報の総数
 LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBlock;	// 頂点バッファへのポインタ
 D3DXMATRIX				mtxWorld;			// ワールドマトリックス
+D3DXMATRIX				mtxWorldVtx;			// ワールドマトリックス
 int						textureNum;			// テクスチャーの番号
 BLOCK					block[BLOCK_MAX];	// ブロック構造体
 //=============================================================================
@@ -192,6 +194,24 @@ void DrawBlock(void)
 
 			// マテリアルをデフォルトに戻す
 			pDevice->SetMaterial(&matDef);
+
+			// ワールドマトリックスの初期化
+			D3DXMatrixIdentity(&mtxWorldVtx);
+
+			// ワールドマトリックスの設定
+			pDevice->SetTransform(D3DTS_WORLD, &mtxWorldVtx);
+
+			// 頂点バッファをデバイスのデータストリームにバインド
+			pDevice->SetStreamSource(0, D3DVtxBuffBlock, 0, sizeof(VERTEX_3D));
+
+			// 頂点フォーマットの設定
+			pDevice->SetFVF(FVF_VERTEX_3D);
+
+			// テクスチャの設定
+			pDevice->SetTexture(0, D3DTextureBlock[0]);
+
+			// ポリゴンの描画
+			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
 		}
 	}
 }
@@ -324,7 +344,7 @@ void BlockDamageManager(int bno)
 HRESULT MakeVertexBlock(LPDIRECT3DDEVICE9 pDevice)
 {
 	// オブジェクトの頂点バッファを生成
-	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * 4,	// 頂点データ用に確保するバッファサイズ(バイト単位)
+	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * BLOCK_MAX,	// 頂点データ用に確保するバッファサイズ(バイト単位)
 		D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
 		FVF_VERTEX_3D,				// 使用する頂点フォーマット
 		D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
@@ -347,25 +367,28 @@ HRESULT MakeVertexBlock(LPDIRECT3DDEVICE9 pDevice)
 //============================================================================
 void InitVertexBlock(void)
 {
+	int i = 0;
+	float size = 0.0f;
+
 	// BOXの頂点情報の設定
 	{	//頂点バッファの中身を埋める
 		VERTEX_3D			   *pVtx;
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
 
-		// 手前側
+		for (i = 0; i < 9; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
-			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z);
-			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z);
-			pVtx[2].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, -VTX_SIZE_Z);
-			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, -VTX_SIZE_Z);
+			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z - BLOCK_SIZE - size);
+			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z - size);
+			pVtx[2].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z - BLOCK_SIZE - size);
+			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z - size);
 
 			// 法線ベクトルの設定
-			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-			pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-			pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+			pVtx[0].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+			pVtx[1].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+			pVtx[2].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+			pVtx[3].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
 
 			// 反射光の設定
 			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -380,86 +403,175 @@ void InitVertexBlock(void)
 			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 		}
 
-		// 奥側
+		size = 25.0f;
+
+		for (i = 10; i < 40; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
-			pVtx[4].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z);
-			pVtx[5].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y , VTX_SIZE_Z);
-			pVtx[6].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
-			pVtx[7].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
+			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X - BLOCK_SIZE + size, VTX_SIZE_Y, -VTX_SIZE_Z);
+			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X + size, VTX_SIZE_Y, -VTX_SIZE_Z);
+			pVtx[2].vtx = D3DXVECTOR3(-VTX_SIZE_X - BLOCK_SIZE + size, 0.0f, -VTX_SIZE_Z);
+			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X + size, 0.0f, -VTX_SIZE_Z);
 
 			// 法線ベクトルの設定
-			pVtx[4].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-			pVtx[5].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-			pVtx[6].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-			pVtx[7].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
+			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
 			// 反射光の設定
-			pVtx[4].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[5].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[6].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[7].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 			// テクスチャ座標の設定
-			pVtx[4].tex = D3DXVECTOR2(0.0f, 0.0f);
-			pVtx[5].tex = D3DXVECTOR2(1.0f, 0.0f);
-			pVtx[6].tex = D3DXVECTOR2(0.0f, 1.0f);
-			pVtx[7].tex = D3DXVECTOR2(1.0f, 1.0f);
+			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
 		}
 
-		// 左面
+		size = 25.0f;
+
+		for (i = 41; i < 50; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
-			pVtx[8] = pVtx[1];
-			pVtx[9] = pVtx[4];
-			pVtx[10] = pVtx[3];
-			pVtx[11] = pVtx[6];
+			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z + size);
+			pVtx[1].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z - BLOCK_SIZE + size);
+			pVtx[2].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, -VTX_SIZE_Z + size);
+			pVtx[3].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, -VTX_SIZE_Z - BLOCK_SIZE + size);
 
 			// 法線ベクトルの設定
-			pVtx[8].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-			pVtx[9].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-			pVtx[10].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-			pVtx[11].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+			pVtx[0].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+			pVtx[1].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+			pVtx[2].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+			pVtx[3].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
 
 			// 反射光の設定
-			pVtx[8].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[9].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[10].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[11].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 			// テクスチャ座標の設定
-			pVtx[8].tex = D3DXVECTOR2(0.0f, 0.0f);
-			pVtx[9].tex = D3DXVECTOR2(1.0f, 0.0f);
-			pVtx[10].tex = D3DXVECTOR2(0.0f, 1.0f);
-			pVtx[11].tex = D3DXVECTOR2(1.0f, 1.0f);
+			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 		}
 
-		// 右面
+		size = 25.0f;
+
+		for (i = 51; i < BLOCK_MAX; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
-			pVtx[12] = pVtx[5];
-			pVtx[13] = pVtx[0];
-			pVtx[14] = pVtx[7];
-			pVtx[15] = pVtx[2];
+			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X - size, VTX_SIZE_Y, VTX_SIZE_Z);
+			pVtx[1].vtx = D3DXVECTOR3(VTX_SIZE_X + BLOCK_SIZE - size, VTX_SIZE_Y, VTX_SIZE_Z);
+			pVtx[2].vtx = D3DXVECTOR3(VTX_SIZE_X - size, 0.0f, VTX_SIZE_Z);
+			pVtx[3].vtx = D3DXVECTOR3(VTX_SIZE_X + BLOCK_SIZE - size, 0.0f, VTX_SIZE_Z);
 
 			// 法線ベクトルの設定
-			pVtx[12].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
-			pVtx[13].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
-			pVtx[14].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
-			pVtx[15].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
 			// 反射光の設定
-			pVtx[12].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[13].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[14].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[15].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 			// テクスチャ座標の設定
-			pVtx[12].tex = D3DXVECTOR2(0.0f, 0.0f);
-			pVtx[13].tex = D3DXVECTOR2(1.0f, 0.0f);
-			pVtx[14].tex = D3DXVECTOR2(0.0f, 1.0f);
-			pVtx[15].tex = D3DXVECTOR2(1.0f, 1.0f);
+			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
 		}
+
+		//// 奥側
+		//{
+		//	// 頂点座標の設定
+		//	pVtx[4].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z);
+		//	pVtx[5].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y , VTX_SIZE_Z);
+		//	pVtx[6].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
+		//	pVtx[7].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
+
+		//	// 法線ベクトルの設定
+		//	pVtx[4].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
+		//	pVtx[5].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
+		//	pVtx[6].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
+		//	pVtx[7].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
+
+		//	// 反射光の設定
+		//	pVtx[4].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[5].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[6].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[7].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+		//	// テクスチャ座標の設定
+		//	pVtx[4].tex = D3DXVECTOR2(0.0f, 0.0f);
+		//	pVtx[5].tex = D3DXVECTOR2(1.0f, 0.0f);
+		//	pVtx[6].tex = D3DXVECTOR2(0.0f, 1.0f);
+		//	pVtx[7].tex = D3DXVECTOR2(1.0f, 1.0f);
+		//}
+
+		//// 左面
+		//{
+		//	// 頂点座標の設定
+		//	pVtx[8] = pVtx[1];
+		//	pVtx[9] = pVtx[4];
+		//	pVtx[10] = pVtx[3];
+		//	pVtx[11] = pVtx[6];
+
+		//	// 法線ベクトルの設定
+		//	pVtx[8].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		//	pVtx[9].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		//	pVtx[10].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		//	pVtx[11].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+
+		//	// 反射光の設定
+		//	pVtx[8].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[9].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[10].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[11].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+		//	// テクスチャ座標の設定
+		//	pVtx[8].tex = D3DXVECTOR2(0.0f, 0.0f);
+		//	pVtx[9].tex = D3DXVECTOR2(1.0f, 0.0f);
+		//	pVtx[10].tex = D3DXVECTOR2(0.0f, 1.0f);
+		//	pVtx[11].tex = D3DXVECTOR2(1.0f, 1.0f);
+		//}
+
+		//// 右面
+		//{
+		//	// 頂点座標の設定
+		//	pVtx[12] = pVtx[5];
+		//	pVtx[13] = pVtx[0];
+		//	pVtx[14] = pVtx[7];
+		//	pVtx[15] = pVtx[2];
+
+		//	// 法線ベクトルの設定
+		//	pVtx[12].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+		//	pVtx[13].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+		//	pVtx[14].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+		//	pVtx[15].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+
+		//	// 反射光の設定
+		//	pVtx[12].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[13].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[14].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		//	pVtx[15].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+		//	// テクスチャ座標の設定
+		//	pVtx[12].tex = D3DXVECTOR2(0.0f, 0.0f);
+		//	pVtx[13].tex = D3DXVECTOR2(1.0f, 0.0f);
+		//	pVtx[14].tex = D3DXVECTOR2(0.0f, 1.0f);
+		//	pVtx[15].tex = D3DXVECTOR2(1.0f, 1.0f);
+		//}
 
 		// 頂点データをアンロックする
 		D3DVtxBuffBlock->Unlock();
@@ -480,7 +592,7 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1)
 	// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 	D3DVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int i = 0; i < BLOCK_VERTEX; i++, pVtx += 4)
+	for (int i = 0; i < BLOCK_MAX; i++, pVtx += 4)
 	{
 		// 頂点座標の設定
 		pos[0] = pVtx[0].vtx;
