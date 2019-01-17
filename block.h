@@ -12,8 +12,13 @@
 //=============================================================================
 //マクロ定義
 //=============================================================================
-#define	BLOCK_MAX		(84)	// ブロックの最大数
-
+#define	BLOCK_MAX				(84)	// ブロックの最大数
+#define VTX_MAX					(83)	// ポリゴン枚数
+#define BLOCK_NUM_CORNER		(4)		// ４つ角
+#define BLOCK_NUM_LEFTSIDE		(12)	// ポリゴンのナンバリング
+#define BLOCK_NUM_NEARSIDE		(42)	// 
+#define BLOCK_NUM_RIGHTSIDE		(54)	// 
+#define BLOCK_NUM_FEARSIDE		(84)	// 
 
 typedef struct {
 	
@@ -35,5 +40,6 @@ void DrawBlock(void);
 BLOCK *GetBlock(int bno);
 void BlockDamageManager(int bno);
 bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1);
+bool HitCheckCornerBlock(D3DXVECTOR3 pos0);
 
 #endif

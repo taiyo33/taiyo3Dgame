@@ -27,7 +27,7 @@
 #define BLOCK_VERTEX			(4)			// 
 #define VTX_SIZE_X				(375.0f)	// 頂点のX軸サイズ
 #define VTX_SIZE_Y				(25.0f)		// 　　　Y軸サイズ
-#define VTX_SIZE_Z				(128.0f)	// 　　　Z軸サイズ
+#define VTX_SIZE_Z				(125.0f)	// 　　　Z軸サイズ
 #define BLOCK_DAMAGE			(1)			// ブロックへのダメージ
 #define INIT_LIFE				(10)		// 寿命の初期値	
 #define BLOCK_SIZE				(25.0f)		// ブロックの1辺のサイズ
@@ -233,12 +233,12 @@ BLOCK *GetBlock(int bno)
 void SetPosBlock(void)
 {
 	block[0].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[1].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE,INIT_POS_Y, 113.5f);
-	block[2].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE,INIT_POS_Y, 88.5f);
-	block[3].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE,INIT_POS_Y, 63.5f);
-	block[4].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE,INIT_POS_Y, 38.5f);
-	block[5].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE,INIT_POS_Y, 13.5f);
-	block[6].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE,INIT_POS_Y, -11.5f);
+	block[1].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, 113.5f);
+	block[2].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, 88.5f);
+	block[3].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, 63.5f);
+	block[4].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, 38.5f);
+	block[5].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, 13.5f);
+	block[6].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, -11.5f);
 	block[7].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, -36.5f);
 	block[8].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, -61.5f);
 	block[9].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, -86.5f);
@@ -286,36 +286,36 @@ void SetPosBlock(void)
 	block[51].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE, INIT_POS_Y, 86.5f);
 	block[52].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE, INIT_POS_Y, 111.5f);
 	block[53].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[54].pos = D3DXVECTOR3(-363.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[55].pos = D3DXVECTOR3(-338.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[56].pos = D3DXVECTOR3(-313.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[57].pos = D3DXVECTOR3(-288.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[58].pos = D3DXVECTOR3(-263.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[59].pos = D3DXVECTOR3(-238.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[60].pos = D3DXVECTOR3(-213.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[61].pos = D3DXVECTOR3(-188.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[62].pos = D3DXVECTOR3(-163.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[63].pos = D3DXVECTOR3(-138.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[64].pos = D3DXVECTOR3(-113.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[65].pos = D3DXVECTOR3(-88.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[66].pos = D3DXVECTOR3(-63.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[67].pos = D3DXVECTOR3(-38.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[68].pos = D3DXVECTOR3(-13.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[69].pos = D3DXVECTOR3(11.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[70].pos = D3DXVECTOR3(36.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[71].pos = D3DXVECTOR3(61.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[72].pos = D3DXVECTOR3(86.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[73].pos = D3DXVECTOR3(111.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[74].pos = D3DXVECTOR3(136.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[75].pos = D3DXVECTOR3(161.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[76].pos = D3DXVECTOR3(186.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[77].pos = D3DXVECTOR3(211.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[78].pos = D3DXVECTOR3(236.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[79].pos = D3DXVECTOR3(261.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[80].pos = D3DXVECTOR3(286.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[81].pos = D3DXVECTOR3(311.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[82].pos = D3DXVECTOR3(336.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
-	block[83].pos = D3DXVECTOR3(361.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[54].pos = D3DXVECTOR3(361.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[55].pos = D3DXVECTOR3(336.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[56].pos = D3DXVECTOR3(311.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[57].pos = D3DXVECTOR3(286.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[58].pos = D3DXVECTOR3(261.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[59].pos = D3DXVECTOR3(236.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[60].pos = D3DXVECTOR3(211.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[61].pos = D3DXVECTOR3(186.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[62].pos = D3DXVECTOR3(161.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[63].pos = D3DXVECTOR3(136.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[64].pos = D3DXVECTOR3(111.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[65].pos = D3DXVECTOR3(86.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[66].pos = D3DXVECTOR3(61.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[67].pos = D3DXVECTOR3(36.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[68].pos = D3DXVECTOR3(11.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[69].pos = D3DXVECTOR3(-13.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[70].pos = D3DXVECTOR3(-38.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[71].pos = D3DXVECTOR3(-63.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[72].pos = D3DXVECTOR3(-88.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[73].pos = D3DXVECTOR3(-113.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[74].pos = D3DXVECTOR3(-138.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[75].pos = D3DXVECTOR3(-163.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[76].pos = D3DXVECTOR3(-188.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[77].pos = D3DXVECTOR3(-213.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[78].pos = D3DXVECTOR3(-238.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[79].pos = D3DXVECTOR3(-263.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[80].pos = D3DXVECTOR3(-288.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[81].pos = D3DXVECTOR3(-313.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[82].pos = D3DXVECTOR3(-338.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+	block[83].pos = D3DXVECTOR3(-363.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
 }
 
 //================================================================================
@@ -376,13 +376,13 @@ void InitVertexBlock(void)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
 
-		for (i = 0; i < 9; i++, pVtx += 4, size += BLOCK_SIZE)
+		for (i = 0; i < BLOCK_NUM_LEFTSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
-			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z - BLOCK_SIZE - size);
-			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z - size);
-			pVtx[2].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z - BLOCK_SIZE - size);
-			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z - size);
+			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z - size);
+			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z + BLOCK_SIZE - size);
+			pVtx[2].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z - size);
+			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z + BLOCK_SIZE - size);
 
 			// 法線ベクトルの設定
 			pVtx[0].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
@@ -405,7 +405,7 @@ void InitVertexBlock(void)
 
 		size = 25.0f;
 
-		for (i = 10; i < 40; i++, pVtx += 4, size += BLOCK_SIZE)
+		for (i = BLOCK_NUM_LEFTSIDE; i < BLOCK_NUM_NEARSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
 			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X - BLOCK_SIZE + size, VTX_SIZE_Y, -VTX_SIZE_Z);
@@ -433,9 +433,9 @@ void InitVertexBlock(void)
 
 		}
 
-		size = 25.0f;
+		size = 0.0f;
 
-		for (i = 41; i < 50; i++, pVtx += 4, size += BLOCK_SIZE)
+		for (i = BLOCK_NUM_NEARSIDE; i < BLOCK_NUM_RIGHTSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
 			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z + size);
@@ -464,7 +464,7 @@ void InitVertexBlock(void)
 
 		size = 25.0f;
 
-		for (i = 51; i < BLOCK_MAX; i++, pVtx += 4, size += BLOCK_SIZE)
+		for (i = BLOCK_NUM_RIGHTSIDE; i < BLOCK_NUM_FEARSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
 			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X - size, VTX_SIZE_Y, VTX_SIZE_Z);
@@ -492,94 +492,13 @@ void InitVertexBlock(void)
 
 		}
 
-		//// 奥側
-		//{
-		//	// 頂点座標の設定
-		//	pVtx[4].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z);
-		//	pVtx[5].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y , VTX_SIZE_Z);
-		//	pVtx[6].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
-		//	pVtx[7].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
-
-		//	// 法線ベクトルの設定
-		//	pVtx[4].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-		//	pVtx[5].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-		//	pVtx[6].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-		//	pVtx[7].nor = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-
-		//	// 反射光の設定
-		//	pVtx[4].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[5].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[6].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[7].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-		//	// テクスチャ座標の設定
-		//	pVtx[4].tex = D3DXVECTOR2(0.0f, 0.0f);
-		//	pVtx[5].tex = D3DXVECTOR2(1.0f, 0.0f);
-		//	pVtx[6].tex = D3DXVECTOR2(0.0f, 1.0f);
-		//	pVtx[7].tex = D3DXVECTOR2(1.0f, 1.0f);
-		//}
-
-		//// 左面
-		//{
-		//	// 頂点座標の設定
-		//	pVtx[8] = pVtx[1];
-		//	pVtx[9] = pVtx[4];
-		//	pVtx[10] = pVtx[3];
-		//	pVtx[11] = pVtx[6];
-
-		//	// 法線ベクトルの設定
-		//	pVtx[8].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-		//	pVtx[9].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-		//	pVtx[10].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-		//	pVtx[11].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
-
-		//	// 反射光の設定
-		//	pVtx[8].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[9].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[10].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[11].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-		//	// テクスチャ座標の設定
-		//	pVtx[8].tex = D3DXVECTOR2(0.0f, 0.0f);
-		//	pVtx[9].tex = D3DXVECTOR2(1.0f, 0.0f);
-		//	pVtx[10].tex = D3DXVECTOR2(0.0f, 1.0f);
-		//	pVtx[11].tex = D3DXVECTOR2(1.0f, 1.0f);
-		//}
-
-		//// 右面
-		//{
-		//	// 頂点座標の設定
-		//	pVtx[12] = pVtx[5];
-		//	pVtx[13] = pVtx[0];
-		//	pVtx[14] = pVtx[7];
-		//	pVtx[15] = pVtx[2];
-
-		//	// 法線ベクトルの設定
-		//	pVtx[12].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
-		//	pVtx[13].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
-		//	pVtx[14].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
-		//	pVtx[15].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
-
-		//	// 反射光の設定
-		//	pVtx[12].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[13].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[14].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		//	pVtx[15].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-		//	// テクスチャ座標の設定
-		//	pVtx[12].tex = D3DXVECTOR2(0.0f, 0.0f);
-		//	pVtx[13].tex = D3DXVECTOR2(1.0f, 0.0f);
-		//	pVtx[14].tex = D3DXVECTOR2(0.0f, 1.0f);
-		//	pVtx[15].tex = D3DXVECTOR2(1.0f, 1.0f);
-		//}
-
 		// 頂点データをアンロックする
 		D3DVtxBuffBlock->Unlock();
 	}
 }
 
 //=============================================================================
-// 壁との当たり判定
+// ブロックの透明ポリゴンとの当たり判定
 // pos0:始点（移動前）
 // pos1:終点（移動後）
 //=============================================================================
@@ -592,7 +511,7 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1)
 	// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 	D3DVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int i = 0; i < BLOCK_MAX; i++, pVtx += 4)
+	for (int i = 0; i < 79; i++, pVtx += 4)
 	{
 		// 頂点座標の設定
 		pos[0] = pVtx[0].vtx;
@@ -618,6 +537,44 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1)
 	D3DVtxBuffBlock->Unlock();
 
 	return ans;
+}
+
+//=============================================================================
+// 4つ角との当たり判定
+// 引　数：D3DXVECTOR3 pos0(判定対象の位置）
+// 戻り値：bool型　trueだと当たっている、falseだと当たっていない
+//=============================================================================
+bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
+{
+	if (CheckHitBB(pos0, block[0].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+	if (CheckHitBB(pos0, block[1].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+	if (CheckHitBB(pos0, block[83].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+
+	if (CheckHitBB(pos0, block[11].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+	if (CheckHitBB(pos0, block[12].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+	if (CheckHitBB(pos0, block[13].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+
+	if (CheckHitBB(pos0, block[42].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+	if (CheckHitBB(pos0, block[41].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+	if (CheckHitBB(pos0, block[43].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+
+	if (CheckHitBB(pos0, block[53].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+	if (CheckHitBB(pos0, block[52].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+	if (CheckHitBB(pos0, block[54].pos,
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+
+	return false;
 }
 
 ////=============================================================================

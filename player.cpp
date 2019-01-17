@@ -11,6 +11,8 @@
 #include "debugproc.h"
 #include "bullet.h"
 #include "field.h"
+#include "block.h"
+#include "checkhit.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -139,8 +141,15 @@ void UpdatePlayer(void)
 		
 		InputPlayer2();
 
+		if (!HitCheckBlock(player[i].prevPos + player[i].move, player[i].prevPos))
+		{
+			player[i].move = WallShear(player[i].pos + player[i].move, GetNormal(), i);
+			CheckNorPlayer(GetNormal(), i);
+		}
+
 		// プレイヤーの操作
 		MovePlayer(i);
+
 	}
 }
 
@@ -313,6 +322,11 @@ void InputPlayer1(void)
 		{
 			SetBullet(player[P1].pos, player[P1].rot, 0, P1);
 		}
+
+		if (GetKeyboardTrigger(DIK_O))
+		{
+			player[P1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		}
 	}
 }
 
@@ -465,6 +479,30 @@ bool CheckFieldInPlayer(int index)
 	if (player[index].pos.x < -FIELD_SIZE_X) return false;
 	if (player[index].pos.z > FIELD_SIZE_Z) return false;
 	if (player[index].pos.z < -FIELD_SIZE_Z) return false;
+
+	return true;
+}
+
+//==========================================================================
+// 弾痕エフェクトの向き
+// 引　数：D3DXVECTOR3 nor0(弾痕の法線), D3DXVECTOR3 nor1(ポリゴンの法線), 
+//		   D3DXVECTOR3 *rot(弾痕の回転量)
+// 戻り値：な　し
+//==========================================================================
+bool CheckNorPlayer(D3DXVECTOR3 nor1, int index)
+{
+	// 法線がX軸方向なら
+	if (nor1.x != 0.0f)
+	{
+		player[index].pos.x = player[index].prevPos.x;
+		return false;
+	}
+	// 法線がZ軸方向なら
+	else if (nor1.z != 0.0f)
+	{
+		player[index].pos.z = player[index].prevPos.z;
+		return false;
+	}
 
 	return true;
 }

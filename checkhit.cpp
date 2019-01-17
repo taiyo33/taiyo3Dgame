@@ -62,23 +62,22 @@ void CheckHit(void)
 			player->pos.y -= 5.0f;
 		}
 
-		// ブロックとの当たり判定
-		BLOCK *block = GetBlock(0);
-		for (j = 0; j < BLOCK_MAX; j++, block++)
+		if (HitCheckCornerBlock(player->pos))
 		{
-			if (!block->use) continue;
+			player->pos = player->prevPos;
+		}
 
-			if (HitCheckBlock(player->pos, player->prevPos))
-			{
-				player->move = WallShear(D3DXVECTOR3(0.0f, 0.0f, 0.0f), GetNormal(), i);
-			}
-			
-			//if (CheckHitBB(player->pos, block->pos,
-			//	D3DXVECTOR3(25.0f, 25.0f, 25.0f), D3DXVECTOR3(25.0f, 100.0f, 25.0f)))
-			//{
-			//	player->move = WallShear(player->pos, D3DXVECTOR3(0.0f, 0.0f, -1.0f), i) * player->speed;
-			//}
- 		}
+		//// ブロックとの当たり判定
+		//BLOCK *block = GetBlock(0);
+		//for (j = 0; j < BLOCK_NUM_CORNER; j++)
+		//{
+		//	if (CheckHitBB(player->pos, block->pos,
+		//		D3DXVECTOR3(15.0f, 100.0f, 15.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
+		//	{
+		//		player->pos = player->prevPos;
+		//	}
+		//	
+ 	//	}
 
 		BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
 		for (j = 0; j < BULLET_SET_MAX; j++)
@@ -253,11 +252,13 @@ D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 {
 	PLAYER *player = GetPlayer(index);
 	D3DXVECTOR3 normal_n;
-	D3DXVECTOR3 frontVec;
-	frontVec = player->pos - player->prevPos;
+	D3DXVECTOR3 frontVec, out;
+
+	frontVec = pos - player->prevPos;
 	D3DXVec3Normalize(&normal_n, &normal);
-	D3DXVec3Normalize(&player->move ,&(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
-	return player->move;
+	D3DXVec3Normalize(&out ,&(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
+
+	return out;
 }
 
 ////////////////////////////////////
