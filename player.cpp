@@ -31,6 +31,7 @@
 void MovePlayer(int index);
 void InputPlayer1(void);
 void InputPlayer2(void);
+D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index);
 
 //*****************************************************************************
 // グローバル変数
@@ -484,25 +485,42 @@ bool CheckFieldInPlayer(int index)
 }
 
 //==========================================================================
-// 弾痕エフェクトの向き
-// 引　数：D3DXVECTOR3 nor0(弾痕の法線), D3DXVECTOR3 nor1(ポリゴンの法線), 
-//		   D3DXVECTOR3 *rot(弾痕の回転量)
-// 戻り値：な　し
+// 壁ずりのすり抜け予防処理(ブロック使用中にマップ外へ出ないように)
+// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
+// 戻り値：bool型
 //==========================================================================
-bool CheckNorPlayer(D3DXVECTOR3 nor1, int index)
+void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 {
 	// 法線がX軸方向なら
-	if (nor1.x != 0.0f)
+	if (nor0.x != 0.0f)
 	{
+		player[index].move.x = 0.0f;
 		player[index].pos.x = player[index].prevPos.x;
-		return false;
+		return;
 	}
 	// 法線がZ軸方向なら
-	else if (nor1.z != 0.0f)
+	else if (nor0.z != 0.0f)
 	{
+		player[index].move.z = 0.0f;
 		player[index].pos.z = player[index].prevPos.z;
-		return false;
+		return;
 	}
+}
 
-	return true;
+//========================================================================
+// 壁ずり
+//
+//
+//========================================================================
+D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
+{
+	PLAYER *player = GetPlayer(index);
+	D3DXVECTOR3 normal_n;
+	D3DXVECTOR3 frontVec, out;
+
+	frontVec = pos - player->prevPos;
+	D3DXVec3Normalize(&normal_n, &normal);
+	D3DXVec3Normalize(&out, &(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
+
+	return out;
 }

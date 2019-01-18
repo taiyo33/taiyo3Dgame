@@ -243,37 +243,6 @@ D3DXVECTOR3 GetNormal(void)
 //}
 
 
-//========================================================================
-// 壁ずり
-//
-//
-//========================================================================
-D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
-{
-	PLAYER *player = GetPlayer(index);
-	D3DXVECTOR3 normal_n;
-	D3DXVECTOR3 frontVec, out;
-
-	frontVec = pos - player->prevPos;
-	D3DXVec3Normalize(&normal_n, &normal);
-	D3DXVec3Normalize(&out ,&(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
-
-	return out;
-}
-
-////////////////////////////////////
-//// 反射ベクトル
-////
-//// out : 正規化反射ベクトル（戻り値）
-//// front : 進行ベクトル
-//// normal: 衝突点での法線ベクトル
-////
-//D3DXVECTOR3* calcReflectVector(D3DXVECTOR3* out, const D3DXVECTOR3& front, const D3DXVECTOR3& normal) {
-//	D3DXVECTOR3 normal_n;
-//	D3DXVec3Normalize(&normal_n, &normal);
-//	return D3DXVec3Normalize(out, &(front - 2.0f * D3DXVec3Dot(&front, &normal_n) * normal_n));
-//}
-
 
 //=============================================================================
 // 当たり判定

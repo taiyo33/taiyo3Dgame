@@ -53,6 +53,6 @@ void DrawPlayer(void);
 PLAYER *GetPlayer(int index);
 bool PlayerDamageManager(int index);
 bool CheckFieldInPlayer(int index);
-bool CheckNorPlayer(D3DXVECTOR3 nor1, int index);
+void CheckNorPlayer(D3DXVECTOR3 nor0, int index);
 
 #endif

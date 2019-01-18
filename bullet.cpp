@@ -10,6 +10,7 @@
 #include "player.h"
 #include "field.h"
 #include "checkhit.h"
+#include "block.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -27,9 +28,10 @@
 //*****************************************************************************
 HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice);
 void SetVertexBullet(int Index, float fSizeX, float fSizeY);
-void SetDiffuseBullet(int Index, float val);
 bool DeleteBullet(int index,int bno);
 void MoveBullet(int index, int bno);
+D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bno);
+//void SetDiffuseBullet(int Index, float val);
 
 //*****************************************************************************
 // グローバル変数
@@ -116,8 +118,16 @@ void UpdateBullet(void)
 			// 使用中ならば
 			if (bullet[i].use[j])
 			{
+				// 現在位置を保存
+				bullet[i].prevPos[j] = bullet[i].pos[j];
+
 				// 移動処理
 				MoveBullet(i, j);
+
+				if (!HitCheckBlock(bullet[i].pos[j], bullet[i].prevPos[j]))
+				{
+					bullet[i].pos[j] = ReflectBullet(bullet[i].pos[j], GetNormal(), i, j);
+				}
 
 				// 消滅処理
 				bullet[i].use[j] = DeleteBullet(i, j);
@@ -147,8 +157,8 @@ void DrawBullet(void)
 	{
 		for (int j = 0; j < BULLET_MAX; j++)
 		{
-			// 透過処理
-			SetDiffuseBullet(i, dif_mi[i]);
+			//// 透過処理
+			//SetDiffuseBullet(i, dif_mi[i]);
 
 			// ラインティングを無効にする
 			pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -303,31 +313,6 @@ void SetVertexBullet(int Index, float fSizeX, float fSizeY)
 	}
 }
 
-//==============================================================================
-// バレットの透過処理
-// 引　数：int Index(バレットのアドレス番号)、float val(α値)
-// 戻り値：なし
-//==============================================================================
-void SetDiffuseBullet(int Index, float val)
-{
-	{//頂点バッファの中身を埋める
-		VERTEX_3D *pVtx;
-
-		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-		g_pD3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
-
-		pVtx += (Index * 4);
-
-		// 反射光の設定
-		pVtx[0].diffuse =
-			pVtx[1].diffuse =
-			pVtx[2].diffuse =
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, val);
-
-		// 頂点データをアンロックする
-		g_pD3DVtxBuffBullet->Unlock();
-	}
-}
 
 //=========================================================================
 // バレットのアドレスを取得
@@ -375,8 +360,6 @@ void MoveBullet(int index, int bno)
 {
 	BULLET *bullet = &bulletWk[index];
 
-	bullet[index].prevPos[bno] = bullet[index].pos[bno];	// 前回位置を保存
-
 	// 移動量
 	bullet[index].pos[bno].x += sinf(bullet[index].rot[bno].y) * BULLET_SPEED;
 	bullet[index].pos[bno].y -= tanf(bullet[index].rot[bno].x) * BULLET_SPEED;
@@ -400,3 +383,46 @@ bool DeleteBullet(int index, int bno)
 	return true;
 }
 
+//==============================================================================
+// バレットの反射
+// 引　数：D3DXVECTOR3 pos(バレットの位置)、D3DXVECTOR3 normal(ブロックの法線)、
+//		   int Index(使用者のアドレス番号)、int bno(バレットのアドレス)
+// 戻り値：D3DXVECTOR3型
+//==============================================================================
+D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bno)
+{
+	BULLET *bullet = &bulletWk[index];
+	D3DXVECTOR3 normal_n;
+	D3DXVECTOR3 frontVec = pos - bullet->prevPos[bno];
+	D3DXVECTOR3	out;
+
+	D3DXVec3Normalize(&normal_n, &normal);
+	D3DXVec3Normalize(&out, &(frontVec - 2.0f * D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
+	return out;
+}
+
+////==============================================================================
+//// バレットの透過処理
+//// 引　数：int Index(バレットのアドレス番号)、float val(α値)
+//// 戻り値：なし
+////==============================================================================
+//void SetDiffuseBullet(int Index, float val)
+//{
+//	{//頂点バッファの中身を埋める
+//		VERTEX_3D *pVtx;
+//
+//		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
+//		g_pD3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
+//
+//		pVtx += (Index * 4);
+//
+//		// 反射光の設定
+//		pVtx[0].diffuse =
+//			pVtx[1].diffuse =
+//			pVtx[2].diffuse =
+//			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, val);
+//
+//		// 頂点データをアンロックする
+//		g_pD3DVtxBuffBullet->Unlock();
+//	}
+//}

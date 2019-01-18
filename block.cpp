@@ -25,9 +25,9 @@
 #define INIT_POS_Z_NEARSIDE		(-136.5f)	// 手前のブロックの初期Z座標
 #define INIT_POS_Z_FEARSIDE		(138.5f)	// 奥のブロックの初期Z座標
 #define BLOCK_VERTEX			(4)			// 
-#define VTX_SIZE_X				(375.0f)	// 頂点のX軸サイズ
+#define VTX_SIZE_X				(370.0f)	// 頂点のX軸サイズ
 #define VTX_SIZE_Y				(25.0f)		// 　　　Y軸サイズ
-#define VTX_SIZE_Z				(125.0f)	// 　　　Z軸サイズ
+#define VTX_SIZE_Z				(120.0f)	// 　　　Z軸サイズ
 #define BLOCK_DAMAGE			(1)			// ブロックへのダメージ
 #define INIT_LIFE				(10)		// 寿命の初期値	
 #define BLOCK_SIZE				(25.0f)		// ブロックの1辺のサイズ
@@ -141,13 +141,7 @@ void UninitBlock(void)
 //=============================================================================
 void UpdateBlock(void)
 {
-	//for (int i = 0; i < BLOCK_MAX; i++)
-	//{
-	//	if (block[i].use)
-	//	{
-	//		BlockDamageManager(i);
-	//	}
-	//}
+
 }
 
 //=============================================================================
@@ -511,25 +505,28 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1)
 	// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 	D3DVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int i = 0; i < 79; i++, pVtx += 4)
+	for (int i = 0; i < BLOCK_NUM_FEARSIDE; i++, pVtx += 4)
 	{
-		// 頂点座標の設定
-		pos[0] = pVtx[0].vtx;
-		pos[1] = pVtx[1].vtx;
-		pos[2] = pVtx[2].vtx;
-		pos[3] = pVtx[3].vtx;
+		if (block[i].use)
+		{
+			// 頂点座標の設定
+			pos[0] = pVtx[0].vtx;
+			pos[1] = pVtx[1].vtx;
+			pos[2] = pVtx[2].vtx;
+			pos[3] = pVtx[3].vtx;
 
-		// 左下側ポリゴンと線分の当たり判定
-		ans = CheckHitPolygon(pos[0], pos[2], pos[3], pos0, pos1);
-		if (!ans)
-		{
-			break;
-		}
-		// 右上側ポリゴンと線分の当たり判定
-		ans = CheckHitPolygon(pos[0], pos[3], pos[1], pos0, pos1);
-		if (!ans)
-		{
-			break;
+			// 左下側ポリゴンと線分の当たり判定
+			ans = CheckHitPolygon(pos[0], pos[2], pos[3], pos0, pos1);
+			if (!ans)
+			{
+				break;
+			}
+			// 右上側ポリゴンと線分の当たり判定
+			ans = CheckHitPolygon(pos[0], pos[3], pos[1], pos0, pos1);
+			if (!ans)
+			{
+				break;
+			}
 		}
 	}
 
@@ -548,75 +545,15 @@ bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 {
 	if (CheckHitBB(pos0, block[0].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
-	if (CheckHitBB(pos0, block[1].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
-	if (CheckHitBB(pos0, block[83].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	if (CheckHitBB(pos0, block[11].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
-	if (CheckHitBB(pos0, block[12].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
-	if (CheckHitBB(pos0, block[13].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	if (CheckHitBB(pos0, block[42].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
-	if (CheckHitBB(pos0, block[41].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
-	if (CheckHitBB(pos0, block[43].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	if (CheckHitBB(pos0, block[53].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
-	if (CheckHitBB(pos0, block[52].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
-	if (CheckHitBB(pos0, block[54].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	return false;
 }
-
-////=============================================================================
-//// 壁との当たり判定
-//// pos0:始点（移動前）
-//// pos1:終点（移動後）
-////=============================================================================
-//bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1)
-//{
-//	D3DXVECTOR3		pos[NUM_VERTEX]; // 頂点座標の保存
-//	bool			ans;
-//	VERTEX_3D	    *pVtx;
-//
-//	// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-//	D3DVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
-//
-//	for (int i = 0; i < BLOCK_VERTEX; i++, pVtx += 4)
-//	{
-//		// 頂点座標の設定
-//		pos[0] = pVtx[0].vtx;
-//		pos[1] = pVtx[1].vtx;
-//		pos[2] = pVtx[2].vtx;
-//		pos[3] = pVtx[3].vtx;
-//
-//		// 左下側ポリゴンと線分の当たり判定
-//		ans = CheckHitPolygon(pos[0], pos[2], pos[3], pos0, pos1);
-//		if (!ans)
-//		{
-//			Setexplosion(GetP3(), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0.0f, GetNormal());
-//			break;
-//		}
-//		// 右上側ポリゴンと線分の当たり判定
-//		ans = CheckHitPolygon(pos[0], pos[3], pos[1], pos0, pos1);
-//		if (!ans)
-//		{
-//			Setexplosion(GetP3(), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0.0f, GetNormal());
-//			break;
-//		}
-//	}
-//
-//	// 頂点データをアンロックする
-//	D3DVtxBuffBlock->Unlock();
-//
-//	return ans;
-//}
