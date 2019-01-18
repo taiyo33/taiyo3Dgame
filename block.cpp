@@ -408,10 +408,10 @@ void InitVertexBlock(void)
 			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X + size, 0.0f, -VTX_SIZE_Z);
 
 			// 法線ベクトルの設定
-			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
-			pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
-			pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
-			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+			pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+			pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
 
 			// 反射光の設定
 			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);

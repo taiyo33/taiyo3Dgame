@@ -28,9 +28,11 @@
 //*****************************************************************************
 HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice);
 void SetVertexBullet(int Index, float fSizeX, float fSizeY);
-bool DeleteBullet(int index,int bno);
+bool CheckFieldInBullet(int index, int bno);
 void MoveBullet(int index, int bno);
 D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bno);
+bool CheckReflectBullet(int index, int bno);
+
 //void SetDiffuseBullet(int Index, float val);
 
 //*****************************************************************************
@@ -69,10 +71,10 @@ HRESULT InitBullet(int type)
 		for (int j = 0; j < BULLET_MAX; j++)
 		{	
 			bullet[i].use[j] = false;							// 使用状態を初期化
+			bullet[i].reflect[j] = false;
 			bullet[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 位置を初期化
 			bullet[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転を初期化
 			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);	// 拡大率を初期化
-			bullet[i].mass[j] =
 			bullet[i].time[j] = DELET_TIME;						// 寿命を初期化
 			dif_mi[i] = INIT_ALPHA;								// α値の初期化
 		}
@@ -121,16 +123,30 @@ void UpdateBullet(void)
 				// 現在位置を保存
 				bullet[i].prevPos[j] = bullet[i].pos[j];
 
+				if (!bullet[i].reflect[j])
+				{
+					bullet[i].move[j].x = sinf(bullet[i].rot[j].y) * BULLET_SPEED;
+					bullet[i].move[j].y = tanf(bullet[i].rot[j].x) * BULLET_SPEED;
+					bullet[i].move[j].z = cosf(bullet[i].rot[j].y) * BULLET_SPEED;
+					
+					// バレットとブロックの当たり判定
+					if (!HitCheckBlock(bullet[i].pos[j] + bullet[i].move[j], bullet[i].prevPos[j]))
+					{
+ 						bullet[i].refVec[j] = ReflectBullet(bullet[i].pos[j] + bullet[i].move[j], GetNormal(), i, j);
+						bullet[i].reflect[j] = true;
+					}
+				}
+				if (bullet[i].reflect[j])
+				{
+					bullet[i].move[j] = bullet[i].refVec[j] * BULLET_SPEED;
+				}
+
 				// 移動処理
 				MoveBullet(i, j);
 
-				if (!HitCheckBlock(bullet[i].pos[j] , bullet[i].prevPos[j]))
-				{
-					bullet[i].pos[j] = bullet[i].pos[j] + (ReflectBullet(bullet[i].pos[j], GetNormal(), i, j) * BULLET_SPEED);
-				}
-
 				// 消滅処理
-				bullet[i].use[j] = DeleteBullet(i, j);
+				bullet[i].use[j] = CheckFieldInBullet(i, j);
+				bullet[i].use[j] = CheckReflectBullet(i, j);
 			}
 		}
 	}
@@ -326,7 +342,7 @@ BULLET *GetBullet(int bno)
 
 //=========================================================================
 // バレットの生成
-// 引　数：D3DXVECTOR3 pos[j](位置)、D3DXVECTOR3 rot(角度)、float Dest(距離)
+// 引　数：D3DXVECTOR3 pos(位置)、D3DXVECTOR3 rot(角度)、float Dest(距離)
 // 戻り値：bool型　未使用の場合 true、使用中の場合 false
 //=========================================================================
 bool SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, int index)
@@ -361,9 +377,9 @@ void MoveBullet(int index, int bno)
 	BULLET *bullet = &bulletWk[index];
 
 	// 移動量
-	bullet[index].pos[bno].x += sinf(bullet[index].rot[bno].y) * BULLET_SPEED;
-	bullet[index].pos[bno].y -= tanf(bullet[index].rot[bno].x) * BULLET_SPEED;
-	bullet[index].pos[bno].z += cosf(bullet[index].rot[bno].y) * BULLET_SPEED;
+	bullet[index].pos[bno].x += bullet[index].move[bno].x;
+	bullet[index].pos[bno].y -= bullet[index].move[bno].y;
+	bullet[index].pos[bno].z += bullet[index].move[bno].z;
 }
 
 //========================================================================
@@ -371,7 +387,7 @@ void MoveBullet(int index, int bno)
 // 引　数：int index(組バレットのアドレス), int bno(バレット単体のアドレス)
 // 戻り値：bool型　trueであれば画面内にある、falseならば画面外にある
 //========================================================================
-bool DeleteBullet(int index, int bno)
+bool CheckFieldInBullet(int index, int bno)
 {
 	BULLET *bullet = &bulletWk[index];
 	
@@ -379,6 +395,25 @@ bool DeleteBullet(int index, int bno)
 	if (bullet[index].pos[bno].x < -SCREEN_WIDTH / 2)	return false;
 	if (bullet[index].pos[bno].z > SCREEN_HEIGHT / 2)	return false;
 	if (bullet[index].pos[bno].z < -SCREEN_HEIGHT / 2)	return false;
+
+	return true;
+}
+
+//========================================================================
+// バレットの反射回数判定処理
+// 引　数：int index(組バレットのアドレス), int bno(バレット単体のアドレス)
+// 戻り値：bool型　trueであれば、falseならば消滅
+//========================================================================
+bool CheckReflectBullet(int index, int bno)
+{
+	BULLET *bullet = &bulletWk[index];
+
+	// ブロックのポリゴンと当たり判定
+	if (!HitCheckBlock(bullet->pos[bno], bullet->prevPos[bno]))
+	{
+		bullet->reflect[bno] = false;
+		return false;
+	}
 
 	return true;
 }
@@ -393,11 +428,11 @@ D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bn
 {
 	BULLET *bullet = &bulletWk[index];
 	D3DXVECTOR3 normal_n;
-	D3DXVECTOR3 frontVec = pos - bullet[index].prevPos[bno];
+	D3DXVECTOR3 frontVec = pos - bullet->prevPos[bno];
 	D3DXVECTOR3	out;
 
 	D3DXVec3Normalize(&normal_n, &normal);
-	D3DXVec3Normalize(&out, &(frontVec - 2.0f * D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
+	D3DXVec3Normalize(&out, &(frontVec - (2.0f * D3DXVec3Dot(&frontVec, &normal_n)) * normal_n));
 	return out;
 }
 

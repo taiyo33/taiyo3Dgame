@@ -16,17 +16,20 @@
 
 typedef struct
 {
-	D3DXMATRIX		mtxWorld;	 // ワールドマトリックス
-	LPD3DXMESH		D3DXMesh;	 // ID3DXMeshインターフェイスへのポインタ
-	LPD3DXBUFFER	D3DXBuffMat; // メッシュのマテリアル情報を格納
-	DWORD			NumMat;		 // 属性情報の総数
-	D3DXVECTOR3		pos[BULLET_MAX];		 // 位置
-	D3DXVECTOR3		prevPos[BULLET_MAX];	 // 前回の位置
-	D3DXVECTOR3		rot[BULLET_MAX];		 // 回転量
-	D3DXVECTOR3		scl[BULLET_MAX];		 // スケール
-	float			mass[BULLET_MAX];		 // 質量
-	bool			use[BULLET_MAX];		 // 使用しているかどうか
-	int				time[BULLET_MAX];		 // 寿命
+	D3DXMATRIX		mtxWorld;				// ワールドマトリックス
+	LPD3DXMESH		D3DXMesh;				// ID3DXMeshインターフェイスへのポインタ
+	LPD3DXBUFFER	D3DXBuffMat;			// メッシュのマテリアル情報を格納
+	DWORD			NumMat;					// 属性情報の総数
+	D3DXVECTOR3		pos[BULLET_MAX];		// 位置
+	D3DXVECTOR3		prevPos[BULLET_MAX];	// 前回の位置
+	D3DXVECTOR3		move[BULLET_MAX];		// 移動量
+	D3DXVECTOR3		refVec[BULLET_MAX];		// 反射ベクトル
+	D3DXVECTOR3		rot[BULLET_MAX];		// 回転量
+	D3DXVECTOR3		scl[BULLET_MAX];		// スケール
+	D3DXVECTOR3		front[BULLET_MAX];		// 移動方向
+	bool			use[BULLET_MAX];		// 使用しているかどうか
+	bool			reflect[BULLET_MAX];
+	int				time[BULLET_MAX];		// 寿命
 	
 } BULLET;
 
