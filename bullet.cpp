@@ -124,9 +124,9 @@ void UpdateBullet(void)
 				// ˆÚ“®ˆ—
 				MoveBullet(i, j);
 
-				if (!HitCheckBlock(bullet[i].pos[j], bullet[i].prevPos[j]))
+				if (!HitCheckBlock(bullet[i].pos[j] , bullet[i].prevPos[j]))
 				{
-					bullet[i].pos[j] = ReflectBullet(bullet[i].pos[j], GetNormal(), i, j);
+					bullet[i].pos[j] = bullet[i].pos[j] + (ReflectBullet(bullet[i].pos[j], GetNormal(), i, j) * BULLET_SPEED);
 				}
 
 				// Á–Åˆ—
@@ -393,7 +393,7 @@ D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bn
 {
 	BULLET *bullet = &bulletWk[index];
 	D3DXVECTOR3 normal_n;
-	D3DXVECTOR3 frontVec = pos - bullet->prevPos[bno];
+	D3DXVECTOR3 frontVec = pos - bullet[index].prevPos[bno];
 	D3DXVECTOR3	out;
 
 	D3DXVec3Normalize(&normal_n, &normal);
