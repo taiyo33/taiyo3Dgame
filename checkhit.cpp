@@ -30,14 +30,13 @@ void CheckHit(void)
 		BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
 		for (i = 0; i < BULLET_SET_MAX; i++)
 		{
-			//// プレイヤー１のバレット
-			//if (!bullet[P1].use[i]) continue;
-			//if (CheckHitBB(bullet[P1].pos[i], block->pos,
-			//	D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
-			//{
-			//	BlockDamageManager(j);
-			//	bullet[P1].use[i] = false;
-			//}
+			// プレイヤー１のバレット
+			if (!bullet[P1].use[i]) continue;
+			if (!HitCheckBlock(bullet[P1].pos[i], bullet[P1].prevPos[i]))
+			{
+				BlockDamageManager(j);
+				bullet[P1].use[i] = false;
+			}
 			// プレイヤー２のバレット
 			if (!bullet[P2].use[i]) continue;
 			if (CheckHitBB(bullet[P2].pos[i], block->pos,
@@ -67,23 +66,11 @@ void CheckHit(void)
 			player->pos = player->prevPos;
 		}
 
-		//// ブロックとの当たり判定
-		//BLOCK *block = GetBlock(0);
-		//for (j = 0; j < BLOCK_NUM_CORNER; j++)
-		//{
-		//	if (CheckHitBB(player->pos, block->pos,
-		//		D3DXVECTOR3(15.0f, 100.0f, 15.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
-		//	{
-		//		player->pos = player->prevPos;
-		//	}
-		//	
- 	//	}
-
 		BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
 		for (j = 0; j < BULLET_SET_MAX; j++)
 		{
 			// プレイヤー１のバレット
-			if (!bullet[P1].use[i]) continue;
+			if (!player[P2].use) continue;
 			if (CheckHitBB(bullet[P1].pos[j], player[P2].pos,
 				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 			{
@@ -91,7 +78,7 @@ void CheckHit(void)
 				bullet[P1].use[i] = false;
 			}
 			// プレイヤー２のバレット
-			if (!bullet[P2].use[i]) continue;
+			if (!player[P1].use) continue;
 			if (CheckHitBB(bullet[P2].pos[j],player[P1].pos,
 				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 			{

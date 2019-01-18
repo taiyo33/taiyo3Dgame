@@ -25,9 +25,9 @@
 #define INIT_POS_Z_NEARSIDE		(-136.5f)	// 手前のブロックの初期Z座標
 #define INIT_POS_Z_FEARSIDE		(138.5f)	// 奥のブロックの初期Z座標
 #define BLOCK_VERTEX			(4)			// 
-#define VTX_SIZE_X				(370.0f)	// 頂点のX軸サイズ
+#define VTX_SIZE_X				(373.0f)	// 頂点のX軸サイズ
 #define VTX_SIZE_Y				(25.0f)		// 　　　Y軸サイズ
-#define VTX_SIZE_Z				(120.0f)	// 　　　Z軸サイズ
+#define VTX_SIZE_Z				(125.0f)	// 　　　Z軸サイズ
 #define BLOCK_DAMAGE			(1)			// ブロックへのダメージ
 #define INIT_LIFE				(10)		// 寿命の初期値	
 #define BLOCK_SIZE				(25.0f)		// ブロックの1辺のサイズ
@@ -312,25 +312,6 @@ void SetPosBlock(void)
 	block[83].pos = D3DXVECTOR3(-363.5f, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
 }
 
-//================================================================================
-// ブロックへのダメージ処理
-// 引　数：int bno(ブロックのアドレス番号)
-// 戻り値：なし
-//================================================================================
-void BlockDamageManager(int bno)
-{
-	block[bno].life -= BLOCK_DAMAGE;
-
-	if (block[bno].life == 3)
-	{
-		//textureNum = TEX_TYPE02;
-	}
-	else if (block[bno].life == 0)
-	{
-		block[bno].use = false;
-		SetExplosion(block[bno].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0.0f);
-	}
-}
 
 //=============================================================================
 // 頂点の作成
@@ -353,8 +334,6 @@ HRESULT MakeVertexBlock(LPDIRECT3DDEVICE9 pDevice)
 
 	return S_OK;
 }
-
-
 
 //============================================================================
 // ゲームフィールドの作成
@@ -556,4 +535,24 @@ bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	return false;
+}
+
+//================================================================================
+// ブロックへのダメージ処理
+// 引　数：int bno(ブロックのアドレス番号)
+// 戻り値：なし
+//================================================================================
+void BlockDamageManager(int bno)
+{
+	block[bno].life -= BLOCK_DAMAGE;
+
+	if (block[bno].life == 3)
+	{
+		//textureNum = TEX_TYPE02;
+	}
+	else if (block[bno].life == 0)
+	{
+		block[bno].use = false;
+		SetExplosion(block[bno].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0.0f);
+	}
 }

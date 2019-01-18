@@ -32,6 +32,7 @@ void MovePlayer(int index);
 void InputPlayer1(void);
 void InputPlayer2(void);
 D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index);
+void WallShearPlayer(int index);
 
 //*****************************************************************************
 // グローバル変数
@@ -139,18 +140,13 @@ void UpdatePlayer(void)
 
 		// 操作の処理
 		InputPlayer1();
-		
 		InputPlayer2();
-
-		if (!HitCheckBlock(player[i].prevPos + player[i].move, player[i].prevPos))
-		{
-			player[i].move = WallShear(player[i].pos + player[i].move, GetNormal(), i);
-			CheckNorPlayer(GetNormal(), i);
-		}
+		
+		// 壁ずり処理
+		WallShearPlayer(i);
 
 		// プレイヤーの操作
 		MovePlayer(i);
-
 	}
 }
 
@@ -217,7 +213,6 @@ PLAYER *GetPlayer(int index)
 {
 	return &player[index];
 }
-
 
 //=============================================================================
 // プレイヤー1の操作処理
@@ -457,6 +452,20 @@ void MovePlayer(int index)
 
 }
  
+//==========================================================================
+// 壁ずりのすり抜け予防処理(ブロック使用中にマップ外へ出ないように)
+// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
+// 戻り値：な　し
+//==========================================================================
+void WallShearPlayer(int index)
+{
+	if (!HitCheckBlock(player[index].prevPos + player[index].move, player[index].prevPos))
+	{
+		player[index].move = WallShear(player[index].pos + player[index].move, GetNormal(), index);
+		CheckNorPlayer(GetNormal(), index);
+	}
+}
+
 //=============================================================================
 // プレイヤーのダメージ処理
 // 引　数：なし
@@ -487,7 +496,7 @@ bool CheckFieldInPlayer(int index)
 //==========================================================================
 // 壁ずりのすり抜け予防処理(ブロック使用中にマップ外へ出ないように)
 // 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
-// 戻り値：bool型
+// 戻り値：な　し
 //==========================================================================
 void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 {
@@ -507,11 +516,12 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 	}
 }
 
-//========================================================================
-// 壁ずり
-//
-//
-//========================================================================
+//===========================================================================
+// 壁ずりのベクトル計算処理
+// 引　数：D3DXVECTOR3 pos(次の移動位置)、D3DXVECTOR3 normal(ポリゴンの法線)
+//		   int index(プレイヤーのアドレス番号)
+// 戻り値：D3DXVECTOR3型 out
+//==========================================================================
 D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 {
 	PLAYER *player = GetPlayer(index);
@@ -521,6 +531,5 @@ D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 	frontVec = pos - player->prevPos;
 	D3DXVec3Normalize(&normal_n, &normal);
 	D3DXVec3Normalize(&out, &(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
-
 	return out;
 }
