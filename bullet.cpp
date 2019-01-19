@@ -19,9 +19,8 @@
 #define	BULLET_SIZE_X		(20.0f)							// バレットの幅
 #define	BULLET_SIZE_Y		(20.0f)							// バレットの高さ
 #define	BULLET_SPEED		(10.0f)							// 移動速度
-#define DELET_TIME			(120)							// 消滅時間
 #define BULLET_RADY_FRAME	(10)							// 発射間隔
-#define BULLET_MASS			(5.0f)							// 質量
+#define INIT_REFLECT_CNT	(2)								// 反射回数
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -30,7 +29,6 @@ HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice);
 void SetVertexBullet(int Index, float fSizeX, float fSizeY);
 bool CheckFieldInBullet(int index, int bno);
 void MoveBullet(int index, int bno);
-D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bno);
 //bool CheckReflectBullet(int index, int bno);
 //void SetDiffuseBullet(int Index, float val);
 
@@ -74,8 +72,7 @@ HRESULT InitBullet(int type)
 			bullet[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 位置を初期化
 			bullet[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転を初期化
 			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);	// 拡大率を初期化
-			bullet[i].time[j] = DELET_TIME;						// 寿命を初期化
-			dif_mi[i] = INIT_ALPHA;								// α値の初期化
+			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;			// 反発の初期化
 		}
 	}
 	cntFrame = BULLET_RADY_FRAME;							// フレームを初期化
@@ -132,7 +129,6 @@ void UpdateBullet(void)
 
 				// 消滅処理
 				bullet[i].use[j] = CheckFieldInBullet(i, j);
-				//bullet[i].use[j] = CheckReflectBullet(i, j);
 			}
 		}
 	}
@@ -374,17 +370,12 @@ void MoveBullet(int index, int bno)
 			bullet->refVec[bno] = ReflectBullet(bullet->pos[bno] + bullet->move[bno], GetNormal(), index, bno);
 			bullet->move[bno] = bullet->refVec[bno] * BULLET_SPEED;
 			bullet->reflect[bno] = true;
+			bullet->cntReflect[bno]--;
 		}
 	}
 	else if (bullet->reflect[bno])
 	{
 		bullet->move[bno] = bullet->refVec[bno] * BULLET_SPEED;
-		// ブロックのポリゴンと当たり判定
-
-		if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno]))
-		{
-			bullet->reflect[bno] = false;
-		}
 	}
 }
 

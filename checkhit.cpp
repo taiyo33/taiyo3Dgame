@@ -32,10 +32,12 @@ void CheckHit(void)
 		{
 			// プレイヤー１のバレット
 			if (!bullet[P1].use[i]) continue;
-			if (!HitCheckBlock(bullet[P1].pos[i], bullet[P1].prevPos[i]))
+			if (CheckHitBB(bullet[P1].pos[i], block->pos,
+				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 			{
 				BlockDamageManager(j);
 				bullet[P1].use[i] = false;
+				bullet[P1].reflect[i] = false;
 			}
 			// プレイヤー２のバレット
 			if (!bullet[P2].use[i]) continue;

@@ -26,10 +26,10 @@ typedef struct
 	D3DXVECTOR3		refVec[BULLET_MAX];		// 反射ベクトル
 	D3DXVECTOR3		rot[BULLET_MAX];		// 回転量
 	D3DXVECTOR3		scl[BULLET_MAX];		// スケール
-	D3DXVECTOR3		front[BULLET_MAX];		// 移動方向
+	int				time[BULLET_MAX];		// 寿命
+	int				cntReflect[BULLET_MAX];	// 移動方向
 	bool			use[BULLET_MAX];		// 使用しているかどうか
 	bool			reflect[BULLET_MAX];
-	int				time[BULLET_MAX];		// 寿命
 	
 } BULLET;
 
@@ -42,5 +42,6 @@ void UpdateBullet(void);
 void DrawBullet(void);
 BULLET *GetBullet(int bno);
 bool SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, int index);
+D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bno);
 
 #endif
