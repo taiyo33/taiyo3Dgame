@@ -1,37 +1,35 @@
 //=============================================================================
 //
-// チュートリアル処理 [Tutorial.h]
+// チュートリアル処理 [LifeGauge.h]
 // Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
 //
 //=============================================================================
-#ifndef _TUTORIAL_H_
-#define _TUTORIAL_H_
-
+#ifndef _LIFEGAUGE_H_
+#define _LIFEGAUGE_H_
 
 // マクロ定義
-#define TEXTURE_TUTORIAL1	("data/TEXTURE/tutorial1.png")		// 歩行用画像
-#define TEXTURE_TUTORIAL2	("data/TEXTURE/tutorial2.png")		// 歩行用画像
-#define TEXTURE_TUTORIAL3	("data/TEXTURE/tutorial3.png")		// 歩行用画像
+#define TEXTURE_LIFEGAUGE_SIZE_X	 (500)	 // テクスチャサイズ
+#define TEXTURE_LIFEGAUGE_SIZE_Y	 (100)	 // 
+#define TEXTURE_LIFEICON_SIZE_X		 (100)	 // テクスチャサイズ
+#define TEXTURE_LIFEICON_SIZE_Y		 (100)	 // 
+#define LIFEGAUGE_POS_X_01			 (100)	 // 初期X座標 
+#define LIFEGAUGE_POS_Y_01			 (0)	 // 初期Y座標
+#define LIFEGAUGE_POS_X_02			 (650)	 // 初期X座標 
+#define LIFEGAUGE_POS_Y_02			 (0)	 // 初期Y座標
+#define LIFEICON_POS_X_01			 (0)	 // P1アイコン初期X座標 
+#define LIFEICON_POS_Y_01			 (0)	 // P1アイコン初期Y座標
+#define LIFEICON_POS_X_02			 (1170)	 // P2アイコン初期X座標 
+#define LIFEICON_POS_Y_02			 (0)	 // P2アイコン初期Y座標
 
-
-
-#define TEXTURE_MAX				 (10)	 // 画像枚数
-#define TEXTURE_TUTORIAL_SIZE_X	 (800)	 // テクスチャサイズ
-#define TEXTURE_TUTORIAL_SIZE_Y	 (600)	 // 
-
-#define TUTORIAL_POS_X	 (0)	 // 初期X座標 
-#define TUTORIAL_POS_Y	 (0)	 // 初期Y座標
-
-#define	NUM_TUTORIAL				 (2)	 // ポリゴン数
-#define TUTORIAL_MAX			 	 (3)	 // プレイヤー人数
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-HRESULT InitTutorial(int type);
-void UninitTutorial(void);
-void UpdateTutorial(void);
-void DrawTutorial(void);
+HRESULT InitLifeGauge(int type);
+void UninitLifeGauge(void);
+void UpdateLifeGauge(void);
+void DrawLifeGauge(void);
+void SetTextureLifeGauge(int index, float x);
 
 
 #endif

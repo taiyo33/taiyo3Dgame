@@ -29,6 +29,8 @@
 #include "rightReg.h"
 #include "head.h"
 #include "block.h"
+#include "bulletGauge.h"
+#include "lifeGauge.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -359,6 +361,12 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//
 	InitBlock(0);
 
+	//
+	InitBulletGauge(0);
+
+	//
+	InitLifeGauge(0);
+
 	// 
 	//ImGui_ImplDX9_Init(g_pD3DDevice);
 
@@ -430,6 +438,12 @@ void Uninit(void)
 
 	//
 	UninitBlock();
+
+	//
+	UninitBulletGauge();
+
+	//
+	UninitLifeGauge();
 
 	//ImGui_ImplDX9_Shutdown();
 
@@ -556,6 +570,12 @@ void Update(void)
 			// スコアの更新
 			UpdateScore();
 			
+			// 
+			UpdateBulletGauge();
+
+			//
+			UpdateLifeGauge();
+
 			// 当たり判定
 			CheckHit();
 
@@ -687,6 +707,13 @@ void Draw(void)
 
 				// スコアの描画
 				DrawScore();
+
+				//
+				DrawLifeGauge();
+
+				//
+				DrawBulletGauge();
+
 
 				// デバッグ表示処理の描画
 				if (g_bDispDebug)

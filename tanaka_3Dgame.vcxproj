@@ -126,6 +126,7 @@
   <ItemGroup>
     <ClCompile Include="block.cpp" />
     <ClCompile Include="bullet.cpp" />
+    <ClCompile Include="bulletGauge.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="checkhit.cpp" />
     <ClCompile Include="debugproc.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="leftArm.cpp" />
     <ClCompile Include="leftReg.cpp" />
+    <ClCompile Include="lifeGauge.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="explosion.cpp" />
@@ -157,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="block.h" />
     <ClInclude Include="bullet.h" />
+    <ClInclude Include="bulletGauge.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="checkhit.h" />
     <ClInclude Include="debugproc.h" />
@@ -174,6 +177,7 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="leftArm.h" />
     <ClInclude Include="leftReg.h" />
+    <ClInclude Include="lifeGauge.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="explosion.h" />

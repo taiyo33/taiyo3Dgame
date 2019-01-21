@@ -14,6 +14,7 @@
 //=============================================================================
 
 #define PLAYER_MAX				(2)
+#define PLAYER_LIFE_MAX		(100.0f)
 
 
 
@@ -31,6 +32,8 @@ typedef struct {
 	D3DXVECTOR3					rotDest;			// 現在の向き
 	bool						use;				// 使用状態
 	float						speed;				// 移動の速さ
+	float						life;				// 体力
+	float						special;			// 
 	int							IdxShadow;			// 影ID
 	float						SizeShadow;			// 影のサイズ
 	D3DXCOLOR					colShadow;			// 影の色

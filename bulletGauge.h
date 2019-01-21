@@ -1,37 +1,36 @@
 //=============================================================================
 //
-// チュートリアル処理 [Tutorial.h]
-// Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
+// バレットゲージ処理 [bulletGauge.h]
+// Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
-#ifndef _TUTORIAL_H_
-#define _TUTORIAL_H_
+#ifndef _BULLETGAUGE_H_
+#define _BULLETGAUGE_H_
 
 
 // マクロ定義
-#define TEXTURE_TUTORIAL1	("data/TEXTURE/tutorial1.png")		// 歩行用画像
-#define TEXTURE_TUTORIAL2	("data/TEXTURE/tutorial2.png")		// 歩行用画像
-#define TEXTURE_TUTORIAL3	("data/TEXTURE/tutorial3.png")		// 歩行用画像
+#define TEXTURE_BULLETGAUGE_SIZE_X	 (100)	 // テクスチャサイズ
+#define TEXTURE_BULLETGAUGE_SIZE_Y	 (75)	 // 
 
+#define BULLETGAUGE_POS_X_01			 (0)	 // 初期X座標 
+#define BULLETGAUGE_POS_Y_01			 (100)	 // 初期Y座標
+#define BULLETGAUGE_POS_X_02			 (1150)	 // 初期X座標 
+#define BULLETGAUGE_POS_Y_02			 (100)	 // 初期Y座標
 
-
-#define TEXTURE_MAX				 (10)	 // 画像枚数
-#define TEXTURE_TUTORIAL_SIZE_X	 (800)	 // テクスチャサイズ
-#define TEXTURE_TUTORIAL_SIZE_Y	 (600)	 // 
-
-#define TUTORIAL_POS_X	 (0)	 // 初期X座標 
-#define TUTORIAL_POS_Y	 (0)	 // 初期Y座標
-
-#define	NUM_TUTORIAL				 (2)	 // ポリゴン数
-#define TUTORIAL_MAX			 	 (3)	 // プレイヤー人数
+enum {
+	OUTER,
+	INNER
+};
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-HRESULT InitTutorial(int type);
-void UninitTutorial(void);
-void UpdateTutorial(void);
-void DrawTutorial(void);
+HRESULT InitBulletGauge(int type);
+void UninitBulletGauge(void);
+void UpdateBulletGauge(void);
+void DrawBulletGauge(void);
+void SetTextureBulletGauge(int index, float val);
+void SetVertexBulletGauge(int index, float val);
 
 
 #endif

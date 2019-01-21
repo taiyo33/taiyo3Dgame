@@ -1,42 +1,49 @@
 //=============================================================================
 //
-// チュートリアル処理 [Tutorial.cpp]
+// チュートリアル処理 [BulletGauge.cpp]
 // Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
 //
 //=============================================================================
 #include "main.h"
-#include "tutorial.h"
+#include "bulletGauge.h"
 #include "input.h"
-#include "field.h"
+#include "player.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
+#define TEXTURE_BULLETGAUGE1	("data/TEXTURE/bullet_gauge.png")		// ゲージの外枠
+#define TEXTURE_BULLETGAUGE2	("data/TEXTURE/bullet_gauge_01.png")	// ゲージ緑色
+#define TEXTURE_BULLETGAUGE3	("data/TEXTURE/bullet_gauge_02.png")	// ゲージ黄色
+#define TEXTURE_BULLETGAUGE4	("data/TEXTURE/bullet_gauge_03.png")	// ゲージ赤色
+#define BULLETGAUGE_MAX			(2)										// ゲージの数
+#define TEXTURE_MAX				(6)
 
 enum {
-	TUTORIAL001,
-	TUTORIAL002,
-	TUTORIAL003
+	BULLETGAUGE001,
+	BULLETGAUGE002,
+	BULLETGAUGE003,
+	BULLETGAUGE004
 };
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-HRESULT MakeVertexTutorial(void);
+HRESULT MakeVertexBulletGauge(void);
 
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9			D3DTextureTutorial[TEXTURE_MAX];	// テクスチャへのポインタ
-static VERTEX_2D			vertexWk[NUM_VERTEX];				// 頂点情報格納ワーク
+LPDIRECT3DTEXTURE9			D3DTextureBulletGauge[TEXTURE_MAX];		// テクスチャへのポインタ
+static VERTEX_2D			vertexWk[BULLETGAUGE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
 
-static int					TextureNum;							// 
-
+int							TexNumBulletGauge[BULLETGAUGE_MAX];		// 
+bool						BulletGaugeUse[BULLETGAUGE_MAX];		// 
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT InitTutorial(int type)
+HRESULT InitBulletGauge(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
@@ -44,25 +51,34 @@ HRESULT InitTutorial(int type)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_TUTORIAL1,						// ファイルの名前
-			&D3DTextureTutorial[TUTORIAL001]);		// 読み込むメモリー
+			TEXTURE_BULLETGAUGE1,						// ファイルの名前
+			&D3DTextureBulletGauge[BULLETGAUGE001]);		// 読み込むメモリー
 
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_TUTORIAL2,						// ファイルの名前
-			&D3DTextureTutorial[TUTORIAL002]);		// 読み込むメモリー
+			TEXTURE_BULLETGAUGE2,						// ファイルの名前
+			&D3DTextureBulletGauge[BULLETGAUGE002]);		// 読み込むメモリー
+
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
+			TEXTURE_BULLETGAUGE3,						// ファイルの名前
+			&D3DTextureBulletGauge[BULLETGAUGE003]);		// 読み込むメモリー
 		
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_TUTORIAL3,						// ファイルの名前
-			&D3DTextureTutorial[TUTORIAL003]);		// 読み込むメモリー
+			TEXTURE_BULLETGAUGE4,						// ファイルの名前
+			&D3DTextureBulletGauge[BULLETGAUGE004]);		// 読み込むメモリー
 
 	}
 
-	TextureNum = TUTORIAL001;
+	for (int i = 0; i < BULLETGAUGE_MAX; i++)
+	{
+		TexNumBulletGauge[i] = BULLETGAUGE004;
+		BulletGaugeUse[i] = true;		// 外枠の使用状態を初期化
+	}
 
 	// 頂点情報の作成
-	MakeVertexTutorial();
+	MakeVertexBulletGauge();
 
 	return S_OK;
 }
@@ -70,80 +86,193 @@ HRESULT InitTutorial(int type)
 //=============================================================================
 // 終了処理
 //=============================================================================
-void UninitTutorial(void)
+void UninitBulletGauge(void)
 {
-	if (D3DTextureTutorial[TextureNum] != NULL)
-	{	// テクスチャの開放
-		D3DTextureTutorial[TextureNum]->Release();
-		D3DTextureTutorial[TextureNum] = NULL;
+	for (int i = 0; i < TEXTURE_MAX; i++)
+	{
+		if (D3DTextureBulletGauge[i] != NULL)
+		{	// テクスチャの開放
+			D3DTextureBulletGauge[i]->Release();
+			D3DTextureBulletGauge[i] = NULL;
+		}
 	}
 }
 
 //=============================================================================
 // 更新処理
 //=============================================================================
-void UpdateTutorial(void)
+void UpdateBulletGauge(void)
 {
-	if (GetKeyboardTrigger(DIK_M) && TextureNum < TUTORIAL_MAX)
-	{
-		TextureNum++;	// 
-	}
-	else if(TextureNum == TUTORIAL_MAX)
-	{
-		//SetMakeField();
-		SetStage(START);
-	}
+	PLAYER *player = GetPlayer(0);
+
+	float val = player->special / PLAYER_LIFE_MAX;
+
+	SetTextureBulletGauge(2, val);
+	SetVertexBulletGauge(2, val);
+
 }
 
 //=============================================================================
 // 描画処理
 //=============================================================================
-void DrawTutorial(void)
+void DrawBulletGauge(void)
 {
-	//LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	// αテストを有効に
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 1);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 
-	//// 頂点フォーマットの設定
-	//pDevice->SetFVF(FVF_VERTEX_2D);
+	for (int i = 0; i < BULLETGAUGE_MAX; i++)
+	{
+		if (BulletGaugeUse[i])
+		{
+			// 外枠
+			{	// 頂点フォーマットの設定
+				pDevice->SetFVF(FVF_VERTEX_2D);
 
-	//// テクスチャの設定
-	//pDevice->SetTexture( 0, D3DTextureTutorial[TextureNum] );
+				// テクスチャの設定
+				pDevice->SetTexture(0, D3DTextureBulletGauge[BULLETGAUGE001]);
 
-	//// ポリゴンの描画
-	//pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_TUTORIAL, vertexWk, sizeof(VERTEX_2D));
+				// ポリゴンの描画
+				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[BULLETGAUGE001 + i], sizeof(VERTEX_2D));
+			}
 
+			// 中身
+			{	// 頂点フォーマットの設定
+				pDevice->SetFVF(FVF_VERTEX_2D);
+
+				// テクスチャの設定
+				pDevice->SetTexture(0, D3DTextureBulletGauge[TexNumBulletGauge[i]]);
+
+				// ポリゴンの描画
+				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[BULLETGAUGE003 + i], sizeof(VERTEX_2D));
+			}
+		}
+	}
+
+	// αテストを無効に
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 }
+
 
 //=============================================================================
 // 頂点の作成
 //=============================================================================
-HRESULT MakeVertexTutorial(void)
+HRESULT MakeVertexBulletGauge(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	// 頂点座標の設定
-	vertexWk[0].vtx = D3DXVECTOR3(TUTORIAL_POS_X, TUTORIAL_POS_Y, 0.0f);
-	vertexWk[1].vtx = D3DXVECTOR3(TUTORIAL_POS_X + TEXTURE_TUTORIAL_SIZE_X, TUTORIAL_POS_Y, 0.0f);
-	vertexWk[2].vtx = D3DXVECTOR3(TUTORIAL_POS_X, TUTORIAL_POS_Y + TEXTURE_TUTORIAL_SIZE_Y, 0.0f);
-	vertexWk[3].vtx = D3DXVECTOR3(TUTORIAL_POS_X + TEXTURE_TUTORIAL_SIZE_X, TUTORIAL_POS_Y + TEXTURE_TUTORIAL_SIZE_Y, 0.0f);
+	// 外枠
+	{
+		// 頂点座標の設定
+		vertexWk[BULLETGAUGE001][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, BULLETGAUGE_POS_Y_01, 0.0f);
+		vertexWk[BULLETGAUGE001][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_01, 0.0f);
+		vertexWk[BULLETGAUGE001][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+		vertexWk[BULLETGAUGE001][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
 
-	// テクスチャのパースペクティブコレクト用
-	vertexWk[0].rhw =
-	vertexWk[1].rhw =
-	vertexWk[2].rhw =
-	vertexWk[3].rhw = 1.0f;
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[BULLETGAUGE001][0].rhw =
+			vertexWk[BULLETGAUGE001][1].rhw =
+			vertexWk[BULLETGAUGE001][2].rhw =
+			vertexWk[BULLETGAUGE001][3].rhw = 1.0f;
 
-	// 反射光の設定
-	vertexWk[0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		// 反射光の設定
+		vertexWk[BULLETGAUGE001][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE001][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE001][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE001][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
-	// テクスチャ座標の設定
-	vertexWk[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	vertexWk[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	vertexWk[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	vertexWk[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		// テクスチャ座標の設定
+		vertexWk[BULLETGAUGE001][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[BULLETGAUGE001][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[BULLETGAUGE001][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[BULLETGAUGE001][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
+
+	// 外枠
+	{
+		// 頂点座標の設定
+		vertexWk[BULLETGAUGE002][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, BULLETGAUGE_POS_Y_02, 0.0f);
+		vertexWk[BULLETGAUGE002][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_02, 0.0f);
+		vertexWk[BULLETGAUGE002][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+		vertexWk[BULLETGAUGE002][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[BULLETGAUGE002][0].rhw =
+			vertexWk[BULLETGAUGE002][1].rhw =
+			vertexWk[BULLETGAUGE002][2].rhw =
+			vertexWk[BULLETGAUGE002][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk[BULLETGAUGE002][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE002][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE002][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE002][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk[BULLETGAUGE002][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[BULLETGAUGE002][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[BULLETGAUGE002][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[BULLETGAUGE002][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
+
+	// 中身
+	{
+		// 頂点座標の設定
+		vertexWk[BULLETGAUGE003][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, BULLETGAUGE_POS_Y_01, 0.0f);
+		vertexWk[BULLETGAUGE003][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_01, 0.0f);
+		vertexWk[BULLETGAUGE003][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+		vertexWk[BULLETGAUGE003][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[BULLETGAUGE003][0].rhw =
+			vertexWk[BULLETGAUGE003][1].rhw =
+			vertexWk[BULLETGAUGE003][2].rhw =
+			vertexWk[BULLETGAUGE003][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk[BULLETGAUGE003][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE003][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE003][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE003][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk[BULLETGAUGE003][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[BULLETGAUGE003][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[BULLETGAUGE003][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[BULLETGAUGE003][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+	}
+
+	// 中身
+	{
+		// 頂点座標の設定
+		vertexWk[BULLETGAUGE004][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, BULLETGAUGE_POS_Y_02, 0.0f);
+		vertexWk[BULLETGAUGE004][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_02, 0.0f);
+		vertexWk[BULLETGAUGE004][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+		vertexWk[BULLETGAUGE004][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[BULLETGAUGE004][0].rhw =
+			vertexWk[BULLETGAUGE004][1].rhw =
+			vertexWk[BULLETGAUGE004][2].rhw =
+			vertexWk[BULLETGAUGE004][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk[BULLETGAUGE004][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE004][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE004][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[BULLETGAUGE004][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk[BULLETGAUGE004][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[BULLETGAUGE004][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[BULLETGAUGE004][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[BULLETGAUGE004][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+	}
 
 	return S_OK;
 }
@@ -151,16 +280,21 @@ HRESULT MakeVertexTutorial(void)
 //=============================================================================
 // テクスチャ座標の設定
 //=============================================================================
-void SetTextureTutorial1(void)
+void SetTextureBulletGauge(int index, float val)
 {
-	// アニメーションしないテクスチャ座標の設定
-	int x = NULL;
-	int y = NULL;
-	float sizeX = 1.0f;
-	float sizeY = 1.0f;
+	vertexWk[index][0].tex = D3DXVECTOR2(0.0f, 1.0f * (float)(val));
+	vertexWk[index][1].tex = D3DXVECTOR2(1.0f, 1.0f * (float)(val));
+	vertexWk[index][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	vertexWk[index][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+}
 
-	vertexWk[0].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY);
-	vertexWk[1].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY);
-	vertexWk[2].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY + sizeY);
-	vertexWk[3].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY + sizeY);
+//=============================================================================
+// テクスチャ座標の設定
+//=============================================================================
+void SetVertexBulletGauge(int index, float val)
+{
+	vertexWk[index][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, (BULLETGAUGE_POS_Y_01 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+	vertexWk[index][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, (BULLETGAUGE_POS_Y_01 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+	vertexWk[index][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+	vertexWk[index][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
 }

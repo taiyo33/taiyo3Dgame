@@ -100,17 +100,17 @@ void UpdateTutorial(void)
 //=============================================================================
 void DrawTutorial(void)
 {
-	//LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 
-	//// 頂点フォーマットの設定
-	//pDevice->SetFVF(FVF_VERTEX_2D);
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	//// テクスチャの設定
-	//pDevice->SetTexture( 0, D3DTextureTutorial[TextureNum] );
+	// テクスチャの設定
+	pDevice->SetTexture( 0, D3DTextureTutorial[TextureNum] );
 
-	//// ポリゴンの描画
-	//pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_TUTORIAL, vertexWk, sizeof(VERTEX_2D));
+	// ポリゴンの描画
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_TUTORIAL, vertexWk, sizeof(VERTEX_2D));
 
 }
 

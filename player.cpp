@@ -25,6 +25,7 @@
 #define VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
 #define PLAYER_POS_Y_LIMIT	(-200.0f)					// Y軸の上限値
 
+
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
@@ -65,6 +66,8 @@ HRESULT InitPlayer(int type)
 		player[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
+		player[i].life = PLAYER_LIFE_MAX;
+		player[i].special = 100.0f;
 	}
 
 	// Xファイルの読み込み

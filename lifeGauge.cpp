@@ -1,42 +1,56 @@
 //=============================================================================
 //
-// チュートリアル処理 [Tutorial.cpp]
+// ライフゲージ処理 [lifeGauge.cpp]
 // Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
 //
 //=============================================================================
 #include "main.h"
-#include "tutorial.h"
+#include "lifeGauge.h"
 #include "input.h"
-#include "field.h"
+#include "player.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
+#define TEXTURE_LIFEGAUGE1	("data/TEXTURE/gauge00.png")		// 歩行用画像
+#define TEXTURE_LIFEGAUGE2	("data/TEXTURE/gauge_01.png")		// 歩行用画像
+#define TEXTURE_LIFEGAUGE3	("data/TEXTURE/gauge_02.png")	// 歩行用画像
+#define TEXTURE_LIFEGAUGE4	("data/TEXTURE/gauge_03.png")	// 歩行用画像
+#define TEXTURE_LIFEICON01	("data/TEXTURE/player01.png")		// 歩行用画像
+#define TEXTURE_LIFEICON02	("data/TEXTURE/player02.png")		// 歩行用画像
+
+#define LIFEGAUGE_VTX_MAX	(12)
+#define TEXTURE_MAX			(6)
+#define LIFEGAUGE_MAX		(2)
 
 enum {
-	TUTORIAL001,
-	TUTORIAL002,
-	TUTORIAL003
+	LIFEGAUGE001,
+	LIFEGAUGE002,
+	LIFEGAUGE003,
+	LIFEGAUGE004,
+	PLAYERICON01,
+	PLAYERICON02
 };
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-HRESULT MakeVertexTutorial(void);
+HRESULT MakeVertexLifeGauge(void);
+void SetVertexLifeGauge(int index, float val);
 
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9			D3DTextureTutorial[TEXTURE_MAX];	// テクスチャへのポインタ
-static VERTEX_2D			vertexWk[NUM_VERTEX];				// 頂点情報格納ワーク
+LPDIRECT3DTEXTURE9			D3DTextureLifeGauge[TEXTURE_MAX];		// テクスチャへのポインタ
+static VERTEX_2D			vertexWk[TEXTURE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
 
-static int					TextureNum;							// 
-
+static int					TextureNum[LIFEGAUGE_MAX];			// 
+bool						LifeGaugeUse[LIFEGAUGE_MAX];		// 
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT InitTutorial(int type)
+HRESULT InitLifeGauge(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
@@ -44,25 +58,44 @@ HRESULT InitTutorial(int type)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_TUTORIAL1,						// ファイルの名前
-			&D3DTextureTutorial[TUTORIAL001]);		// 読み込むメモリー
+			TEXTURE_LIFEGAUGE1,						// ファイルの名前
+			&D3DTextureLifeGauge[LIFEGAUGE001]);		// 読み込むメモリー
 
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_TUTORIAL2,						// ファイルの名前
-			&D3DTextureTutorial[TUTORIAL002]);		// 読み込むメモリー
+			TEXTURE_LIFEGAUGE2,						// ファイルの名前
+			&D3DTextureLifeGauge[LIFEGAUGE002]);		// 読み込むメモリー
 		
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_TUTORIAL3,						// ファイルの名前
-			&D3DTextureTutorial[TUTORIAL003]);		// 読み込むメモリー
+			TEXTURE_LIFEGAUGE3,						// ファイルの名前
+			&D3DTextureLifeGauge[LIFEGAUGE003]);		// 読み込むメモリー
+
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
+			TEXTURE_LIFEGAUGE4,						// ファイルの名前
+			&D3DTextureLifeGauge[LIFEGAUGE004]);		// 読み込むメモリー
+
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
+			TEXTURE_LIFEICON01,						// ファイルの名前
+			&D3DTextureLifeGauge[PLAYERICON01]);		// 読み込むメモリー
+			
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
+			TEXTURE_LIFEICON02,						// ファイルの名前
+			&D3DTextureLifeGauge[PLAYERICON02]);		// 読み込むメモリー
 
 	}
 
-	TextureNum = TUTORIAL001;
+	for (int i = 0; i < LIFEGAUGE_MAX; i++)
+	{
+		TextureNum[i] = LIFEGAUGE002;
+		LifeGaugeUse[i] = true;
+	}
 
 	// 頂点情報の作成
-	MakeVertexTutorial();
+	MakeVertexLifeGauge();
 
 	return S_OK;
 }
@@ -70,80 +103,256 @@ HRESULT InitTutorial(int type)
 //=============================================================================
 // 終了処理
 //=============================================================================
-void UninitTutorial(void)
+void UninitLifeGauge(void)
 {
-	if (D3DTextureTutorial[TextureNum] != NULL)
-	{	// テクスチャの開放
-		D3DTextureTutorial[TextureNum]->Release();
-		D3DTextureTutorial[TextureNum] = NULL;
+	for (int i = 0; i < TEXTURE_MAX; i++)
+	{
+		if (D3DTextureLifeGauge[i] != NULL)
+		{	// テクスチャの開放
+			D3DTextureLifeGauge[i]->Release();
+			D3DTextureLifeGauge[i] = NULL;
+		}
 	}
 }
 
 //=============================================================================
 // 更新処理
 //=============================================================================
-void UpdateTutorial(void)
+void UpdateLifeGauge(void)
 {
-	if (GetKeyboardTrigger(DIK_M) && TextureNum < TUTORIAL_MAX)
-	{
-		TextureNum++;	// 
-	}
-	else if(TextureNum == TUTORIAL_MAX)
-	{
-		//SetMakeField();
-		SetStage(START);
-	}
+	PLAYER *player = GetPlayer(0);
+	float val = player->life / PLAYER_LIFE_MAX;
+
+	SetTextureLifeGauge(P1, val);
+	SetVertexLifeGauge(P1, val);
+
 }
 
 //=============================================================================
 // 描画処理
 //=============================================================================
-void DrawTutorial(void)
+void DrawLifeGauge(void)
 {
-	//LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	// αテストを有効に
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 1);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 
-	//// 頂点フォーマットの設定
-	//pDevice->SetFVF(FVF_VERTEX_2D);
+	for (int i = 0; i < LIFEGAUGE_MAX; i++)
+	{
+		if (LifeGaugeUse[i])
+		{
+			// 外枠
+			{	// 頂点フォーマットの設定
+				pDevice->SetFVF(FVF_VERTEX_2D);
 
-	//// テクスチャの設定
-	//pDevice->SetTexture( 0, D3DTextureTutorial[TextureNum] );
+				// テクスチャの設定
+				pDevice->SetTexture(0, D3DTextureLifeGauge[LIFEGAUGE001]);
 
-	//// ポリゴンの描画
-	//pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_TUTORIAL, vertexWk, sizeof(VERTEX_2D));
+				// ポリゴンの描画
+				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[LIFEGAUGE001 + i], sizeof(VERTEX_2D));
+			}
 
+			// 中身
+			{	// 頂点フォーマットの設定
+				pDevice->SetFVF(FVF_VERTEX_2D);
+
+				// テクスチャの設定
+				pDevice->SetTexture(0, D3DTextureLifeGauge[TextureNum[i]]);
+
+				// ポリゴンの描画
+				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[LIFEGAUGE003 + i], sizeof(VERTEX_2D));
+			}
+			
+			// アイコン
+			{	// 頂点フォーマットの設定
+				pDevice->SetFVF(FVF_VERTEX_2D);
+
+				// テクスチャの設定
+				pDevice->SetTexture(0, D3DTextureLifeGauge[PLAYERICON01 + i]);
+
+				// ポリゴンの描画
+				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[PLAYERICON01 + i], sizeof(VERTEX_2D));
+			}
+		}
+	}
+
+	// αテストを無効
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 }
 
 //=============================================================================
 // 頂点の作成
 //=============================================================================
-HRESULT MakeVertexTutorial(void)
+HRESULT MakeVertexLifeGauge(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	// 頂点座標の設定
-	vertexWk[0].vtx = D3DXVECTOR3(TUTORIAL_POS_X, TUTORIAL_POS_Y, 0.0f);
-	vertexWk[1].vtx = D3DXVECTOR3(TUTORIAL_POS_X + TEXTURE_TUTORIAL_SIZE_X, TUTORIAL_POS_Y, 0.0f);
-	vertexWk[2].vtx = D3DXVECTOR3(TUTORIAL_POS_X, TUTORIAL_POS_Y + TEXTURE_TUTORIAL_SIZE_Y, 0.0f);
-	vertexWk[3].vtx = D3DXVECTOR3(TUTORIAL_POS_X + TEXTURE_TUTORIAL_SIZE_X, TUTORIAL_POS_Y + TEXTURE_TUTORIAL_SIZE_Y, 0.0f);
+	// 外枠
+	{
+		// 頂点座標の設定
+		vertexWk[LIFEGAUGE001][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01, 0.0f);
+		vertexWk[LIFEGAUGE001][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_01, 0.0f);
+		vertexWk[LIFEGAUGE001][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE001][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
 
-	// テクスチャのパースペクティブコレクト用
-	vertexWk[0].rhw =
-	vertexWk[1].rhw =
-	vertexWk[2].rhw =
-	vertexWk[3].rhw = 1.0f;
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[LIFEGAUGE001][0].rhw =
+			vertexWk[LIFEGAUGE001][1].rhw =
+			vertexWk[LIFEGAUGE001][2].rhw =
+			vertexWk[LIFEGAUGE001][3].rhw = 1.0f;
 
-	// 反射光の設定
-	vertexWk[0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		// 反射光の設定
+		vertexWk[LIFEGAUGE001][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE001][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE001][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE001][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
-	// テクスチャ座標の設定
-	vertexWk[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	vertexWk[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	vertexWk[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	vertexWk[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		// テクスチャ座標の設定
+		vertexWk[LIFEGAUGE001][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[LIFEGAUGE001][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[LIFEGAUGE001][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[LIFEGAUGE001][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
+
+	// 外枠
+	{
+		// 頂点座標の設定
+		vertexWk[LIFEGAUGE002][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02, LIFEGAUGE_POS_Y_02, 0.0f);
+		vertexWk[LIFEGAUGE002][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_02, 0.0f);
+		vertexWk[LIFEGAUGE002][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02, LIFEGAUGE_POS_Y_02 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE002][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_02 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[LIFEGAUGE002][0].rhw =
+			vertexWk[LIFEGAUGE002][1].rhw =
+			vertexWk[LIFEGAUGE002][2].rhw =
+			vertexWk[LIFEGAUGE002][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk[LIFEGAUGE002][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE002][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE002][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE002][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk[LIFEGAUGE002][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[LIFEGAUGE002][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[LIFEGAUGE002][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[LIFEGAUGE002][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
+	
+	// 中身
+	{
+		// 頂点座標の設定
+		vertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01, 0.0f);
+		vertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_01, 0.0f);
+		vertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[LIFEGAUGE003][0].rhw =
+			vertexWk[LIFEGAUGE003][1].rhw =
+			vertexWk[LIFEGAUGE003][2].rhw =
+			vertexWk[LIFEGAUGE003][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk[LIFEGAUGE003][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE003][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE003][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE003][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk[LIFEGAUGE003][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[LIFEGAUGE003][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[LIFEGAUGE003][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[LIFEGAUGE003][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
+
+	// 中身
+	{
+		// 頂点座標の設定
+		vertexWk[LIFEGAUGE004][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02, LIFEGAUGE_POS_Y_02, 0.0f);
+		vertexWk[LIFEGAUGE004][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_02, 0.0f);
+		vertexWk[LIFEGAUGE004][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02, LIFEGAUGE_POS_Y_02 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE004][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_02 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[LIFEGAUGE004][0].rhw =
+			vertexWk[LIFEGAUGE004][1].rhw =
+			vertexWk[LIFEGAUGE004][2].rhw =
+			vertexWk[LIFEGAUGE004][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk[LIFEGAUGE004][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE004][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE004][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[LIFEGAUGE004][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk[LIFEGAUGE004][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[LIFEGAUGE004][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[LIFEGAUGE004][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[LIFEGAUGE004][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
+
+	// アイコン
+	{
+		// 頂点座標の設定
+		vertexWk[PLAYERICON01][0].vtx = D3DXVECTOR3(LIFEICON_POS_X_01, LIFEICON_POS_Y_01, 0.0f);
+		vertexWk[PLAYERICON01][1].vtx = D3DXVECTOR3(LIFEICON_POS_X_01 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_01, 0.0f);
+		vertexWk[PLAYERICON01][2].vtx = D3DXVECTOR3(LIFEICON_POS_X_01, LIFEICON_POS_Y_01 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
+		vertexWk[PLAYERICON01][3].vtx = D3DXVECTOR3(LIFEICON_POS_X_01 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_01 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
+
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[PLAYERICON01][0].rhw =
+			vertexWk[PLAYERICON01][1].rhw =
+			vertexWk[PLAYERICON01][2].rhw =
+			vertexWk[PLAYERICON01][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk[PLAYERICON01][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[PLAYERICON01][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[PLAYERICON01][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[PLAYERICON01][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk[PLAYERICON01][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[PLAYERICON01][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[PLAYERICON01][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[PLAYERICON01][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+	}
+
+	// アイコン
+	{
+		// 頂点座標の設定
+		vertexWk[PLAYERICON02][0].vtx = D3DXVECTOR3(LIFEICON_POS_X_02, LIFEICON_POS_Y_02, 0.0f);
+		vertexWk[PLAYERICON02][1].vtx = D3DXVECTOR3(LIFEICON_POS_X_02 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_02, 0.0f);
+		vertexWk[PLAYERICON02][2].vtx = D3DXVECTOR3(LIFEICON_POS_X_02, LIFEICON_POS_Y_02 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
+		vertexWk[PLAYERICON02][3].vtx = D3DXVECTOR3(LIFEICON_POS_X_02 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_02 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
+
+		// テクスチャのパースペクティブコレクト用
+		vertexWk[PLAYERICON02][0].rhw =
+			vertexWk[PLAYERICON02][1].rhw =
+			vertexWk[PLAYERICON02][2].rhw =
+			vertexWk[PLAYERICON02][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk[PLAYERICON02][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[PLAYERICON02][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[PLAYERICON02][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk[PLAYERICON02][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk[PLAYERICON02][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk[PLAYERICON02][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk[PLAYERICON02][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk[PLAYERICON02][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+	}
 
 	return S_OK;
 }
@@ -151,16 +360,22 @@ HRESULT MakeVertexTutorial(void)
 //=============================================================================
 // テクスチャ座標の設定
 //=============================================================================
-void SetTextureTutorial1(void)
+void SetTextureLifeGauge(int index, float val)
 {
-	// アニメーションしないテクスチャ座標の設定
-	int x = NULL;
-	int y = NULL;
-	float sizeX = 1.0f;
-	float sizeY = 1.0f;
+	vertexWk[LIFEGAUGE003][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+	vertexWk[LIFEGAUGE003][1].tex = D3DXVECTOR2(1.0f * (float)(val), 0.0f);
+	vertexWk[LIFEGAUGE003][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	vertexWk[LIFEGAUGE003][3].tex = D3DXVECTOR2(1.0f * (float)(val), 1.0f);
+}
 
-	vertexWk[0].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY);
-	vertexWk[1].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY);
-	vertexWk[2].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY + sizeY);
-	vertexWk[3].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY + sizeY);
+//=============================================================================
+// テクスチャ座標の設定
+//=============================================================================
+void SetVertexLifeGauge(int index, float val)
+{
+	// 頂点座標の設定
+	vertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01, 0.0f);
+	vertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + (TEXTURE_LIFEGAUGE_SIZE_X * val), LIFEGAUGE_POS_Y_01, 0.0f);
+	vertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+	vertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + (TEXTURE_LIFEGAUGE_SIZE_X * val), LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
 }
