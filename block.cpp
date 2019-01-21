@@ -25,9 +25,9 @@
 #define INIT_POS_Z_NEARSIDE		(-136.5f)	// 手前のブロックの初期Z座標
 #define INIT_POS_Z_FEARSIDE		(138.5f)	// 奥のブロックの初期Z座標
 #define BLOCK_VERTEX			(4)			// 
-#define VTX_SIZE_X				(373.0f)	// 頂点のX軸サイズ
+#define VTX_SIZE_X				(380.0f)	// 頂点のX軸サイズ
 #define VTX_SIZE_Y				(25.0f)		// 　　　Y軸サイズ
-#define VTX_SIZE_Z				(125.0f)	// 　　　Z軸サイズ
+#define VTX_SIZE_Z				(130.0f)	// 　　　Z軸サイズ
 #define BLOCK_DAMAGE			(1)			// ブロックへのダメージ
 #define INIT_LIFE				(10)		// 寿命の初期値	
 #define BLOCK_SIZE				(25.0f)		// ブロックの1辺のサイズ
