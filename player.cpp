@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // プレイヤー処理 [player.cpp]
-// Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
+// Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
 #include "player.h"
@@ -13,6 +13,7 @@
 #include "field.h"
 #include "block.h"
 #include "checkhit.h"
+#include "ai.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -34,6 +35,7 @@ void InputPlayer1(void);
 void InputPlayer2(void);
 D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index);
 void WallShearPlayer(int index);
+void NonePlayerMove(void);
 
 //*****************************************************************************
 // グローバル変数
@@ -59,14 +61,15 @@ HRESULT InitPlayer(int type)
 	player[P1].pos = D3DXVECTOR3(-200.0f, 10.0f, 0.0f);	// 位置の初期化
 	player[P2].pos = D3DXVECTOR3(200.0f, 10.0f, 0.0f);	//
 	player[P1].use = true;								// 使用状態を初期化
-	player[P2].use = false;								//
-	
+	player[P2].use = true;								//
+	player[P1].life = PLAYER_LIFE_MAX;
+	player[P2].life = 0;
+
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		player[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
-		player[i].life = PLAYER_LIFE_MAX;
 		player[i].special = 100.0f;
 	}
 
@@ -144,9 +147,11 @@ void UpdatePlayer(void)
 		// 操作の処理
 		InputPlayer1();
 		InputPlayer2();
-		
+
 		// 壁ずり処理
 		WallShearPlayer(i);
+
+		NonePlayerMove();
 
 		// プレイヤーの操作
 		MovePlayer(i);
@@ -429,7 +434,7 @@ void InputPlayer2(void)
 			player[P2].rot.y += D3DX_PI * 2.0f;
 		}
 
-		if (GetKeyboardPress(DIK_LSHIFT))
+		if (GetKeyboardPress(DIK_P))
 		{
 			SetBullet(player[P2].pos, player[P2].rot, 0, P2);
 		}
@@ -477,7 +482,6 @@ void WallShearPlayer(int index)
 bool PlayerDamageManager(int index)
 {
 	if (player[index].pos.y < PLAYER_POS_Y_LIMIT) return false;
-	
 	return true;
 }
 
@@ -535,4 +539,40 @@ D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 	D3DXVec3Normalize(&normal_n, &normal);
 	D3DXVec3Normalize(&out, &(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
 	return out;
+}
+
+//===========================================================================
+// 計算処理
+// 引　数：D3DXVECTOR3 pos(次の移動位置)、D3DXVECTOR3 normal(ポリゴンの法線)
+//		   int index(プレイヤーのアドレス番号)
+// 戻り値：
+//==========================================================================
+void NonePlayerMove(void)
+{
+	float box,out;
+	float atc, chase, escape;
+	atc = FuzzyRightDown(player[P2].life, 40, 80);
+	chase = FuzzyTrapezoid(player[P2].life, 0, 20, 60, 80);
+	
+	box = Or(atc, chase);
+	escape = FuzzyRightUp(player[P2].life, 50, 80);
+	
+	out = Or(box, escape);
+	
+	if (out == atc)
+	{
+		SetBullet(player[P2].pos, player[P2].rot, 0, P2);
+	}
+	if(out == chase)
+	{
+		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
+		D3DXVec3Normalize(&vec, &vec);
+		player[P2].move.x += vec.x * player[P2].speed;
+		player[P2].move.z += vec.z * player[P2].speed;
+	}
+	if (out == escape)
+	{
+
+	}
+
 }

@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // ブロック処理 [block.cpp]
-// Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
+// Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
 #include "block.h"
@@ -17,7 +17,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	BLOCK_MODEL			"data/MODEL/block001.x"	// 読み込むモデル名
+#define	BLOCK_MODEL				"data/MODEL/block001.x"	// 読み込むモデル名
 #define TEXTURE_MAX				(5)
 #define INIT_POS_X_RIGHTSIDE	(386.5f)	// 右側のブロックの初期X座標
 #define INIT_POS_X_LEFTSIDE		(-388.5f)	// 左側のブロックの初期X座標
@@ -29,8 +29,8 @@
 #define VTX_SIZE_Y				(25.0f)		// 　　　Y軸サイズ
 #define VTX_SIZE_Z				(130.0f)	// 　　　Z軸サイズ
 #define BLOCK_DAMAGE			(1)			// ブロックへのダメージ
-#define INIT_LIFE				(10)		// 寿命の初期値	
 #define BLOCK_SIZE				(25.0f)		// ブロックの1辺のサイズ
+#define INIT_LIFE				(5)			// 寿命の初期値	
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -39,14 +39,6 @@ void SetPosBlock(void);
 HRESULT MakeVertexBlock(LPDIRECT3DDEVICE9 pDevice);
 void InitVertexBlock(void);
 
-enum {
-	TEX_TYPE01,
-	TEX_TYPE02,
-	TEX_TYPE03,
-	TEX_TYPE04,
-	TEX_TYPE05
-};
-
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
@@ -54,11 +46,11 @@ LPDIRECT3DTEXTURE9		D3DTextureBlock[TEXTURE_MAX] = {
 									NULL,NULL,NULL,NULL,NULL }; // テクスチャ読み込み場所
 LPD3DXMESH				D3DXMeshBlock;		// ID3DXMeshBlockインターフェイスへのポインタ
 LPD3DXBUFFER			D3DXBuffMatBlock;	// メッシュのマテリアル情報を格納
-DWORD					numMat;				// 属性情報の総数
+DWORD					NumMat;				// 属性情報の総数
 LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBlock;	// 頂点バッファへのポインタ
-D3DXMATRIX				mtxWorld;			// ワールドマトリックス
-D3DXMATRIX				mtxWorldVtx;			// ワールドマトリックス
-int						textureNum;			// テクスチャーの番号
+D3DXMATRIX				MtxWorld;			// ワールドマトリックス
+D3DXMATRIX				MtxWorldVtx;			// ワールドマトリックス
+static int				TextureNum;			// テクスチャーの番号
 BLOCK					block[BLOCK_MAX];	// ブロック構造体
 //=============================================================================
 // 初期化処理
@@ -69,6 +61,7 @@ HRESULT InitBlock(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	HRESULT hr;
+
 	// 頂点情報の作成
 	hr = MakeVertexBlock(pDevice);
 	
@@ -83,7 +76,7 @@ HRESULT InitBlock(int type)
 
 	D3DXMeshBlock = NULL;			// インターフェースの初期化
 	D3DXBuffMatBlock = NULL;		// マテリアルの初期化
-	textureNum = NULL;				// テクスチャー番号を初期化
+	TextureNum = NULL;				// テクスチャー番号を初期化
 
 	// Xファイルの読み込み
 	if (FAILED(D3DXLoadMeshFromX(BLOCK_MODEL,
@@ -92,7 +85,7 @@ HRESULT InitBlock(int type)
 		NULL,
 		&D3DXBuffMatBlock,
 		NULL,
-		&numMat,
+		&NumMat,
 		&D3DXMeshBlock)))
 	{
 		return E_FAIL;
@@ -159,14 +152,14 @@ void DrawBlock(void)
 		if (block[i].use)
 		{
 			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&mtxWorld);
+			D3DXMatrixIdentity(&MtxWorld);
 
 			// 移動を反映
 			D3DXMatrixTranslation(&mtxTranslate, block[i].pos.x, block[i].pos.y, block[i].pos.z);
-			D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxTranslate);
+			D3DXMatrixMultiply(&MtxWorld, &MtxWorld, &mtxTranslate);
 
 			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &mtxWorld);
+			pDevice->SetTransform(D3DTS_WORLD, &MtxWorld);
 
 			// 現在のマテリアルを取得
 			pDevice->GetMaterial(&matDef);
@@ -174,13 +167,13 @@ void DrawBlock(void)
 			// マテリアル情報に対するポインタを取得
 			pD3DXMat = (D3DXMATERIAL*)D3DXBuffMatBlock->GetBufferPointer();
 
-			for (int nCntMat = 0; nCntMat < (int)numMat; nCntMat++)
+			for (int nCntMat = 0; nCntMat < (int)NumMat; nCntMat++)
 			{
 				// マテリアルの設定
 				pDevice->SetMaterial(&pD3DXMat[nCntMat].MatD3D);
 
 				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTextureBlock[textureNum]);
+				pDevice->SetTexture(0, D3DTextureBlock[TextureNum]);
 
 				// 描画
 				D3DXMeshBlock->DrawSubset(nCntMat);
@@ -190,10 +183,10 @@ void DrawBlock(void)
 			pDevice->SetMaterial(&matDef);
 
 			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&mtxWorldVtx);
+			D3DXMatrixIdentity(&MtxWorldVtx);
 
 			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &mtxWorldVtx);
+			pDevice->SetTransform(D3DTS_WORLD, &MtxWorldVtx);
 
 			// 頂点バッファをデバイスのデータストリームにバインド
 			pDevice->SetStreamSource(0, D3DVtxBuffBlock, 0, sizeof(VERTEX_3D));
@@ -364,10 +357,10 @@ void InitVertexBlock(void)
 			pVtx[3].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
 
 			// 反射光の設定
-			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+				pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
 
 			// テクスチャ座標の設定
 			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -376,7 +369,7 @@ void InitVertexBlock(void)
 			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 		}
 
-		size = 25.0f;
+		size = BLOCK_SIZE;
 
 		for (i = BLOCK_NUM_LEFTSIDE; i < BLOCK_NUM_NEARSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
@@ -393,10 +386,10 @@ void InitVertexBlock(void)
 			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
 
 			// 反射光の設定
-			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
 
 			// テクスチャ座標の設定
 			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -423,10 +416,10 @@ void InitVertexBlock(void)
 			pVtx[3].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
 
 			// 反射光の設定
-			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
 
 			// テクスチャ座標の設定
 			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -435,7 +428,7 @@ void InitVertexBlock(void)
 			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 		}
 
-		size = 25.0f;
+		size = BLOCK_SIZE;
 
 		for (i = BLOCK_NUM_RIGHTSIDE; i < BLOCK_NUM_FEARSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
@@ -452,10 +445,10 @@ void InitVertexBlock(void)
 			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
 			// 反射光の設定
-			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
 
 			// テクスチャ座標の設定
 			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -523,16 +516,16 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1)
 bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 {
 	if (CheckHitBB(pos0, block[0].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(10.0f, 25.0f, 10.0f))) return true;
 
 	if (CheckHitBB(pos0, block[11].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(10.0f, 25.0f, 10.0f))) return true;
 
 	if (CheckHitBB(pos0, block[42].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(10.0f, 25.0f, 10.0f))) return true;
 
 	if (CheckHitBB(pos0, block[53].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(10.0f, 25.0f, 10.0f))) return true;
 
 	return false;
 }
@@ -548,7 +541,7 @@ void BlockDamageManager(int bno)
 
 	if (block[bno].life == 3)
 	{
-		//textureNum = TEX_TYPE02;
+		//TextureNum = TEX_TYPE02;
 	}
 	else if (block[bno].life == 0)
 	{

@@ -50,7 +50,13 @@ void CheckHit(void)
 				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 			{
 				BlockDamageManager(j);
-				bullet[P2].use[i] = false;
+				bullet[P2].cntReflect[i]--;
+				if (bullet[P2].cntReflect[i] < 0)
+				{
+					bullet[P2].use[i] = false;
+					bullet[P2].reflect[i] = false;
+					bullet[P2].cntReflect[i] = 2;
+				}
 			}
 		}
 	}
@@ -81,7 +87,7 @@ void CheckHit(void)
 			if (CheckHitBB(bullet[P1].pos[j], player[P2].pos,
 				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 			{
-				PlayerDamageManager(j);
+				player[P2].life += 1.0f;
 				bullet[P1].use[i] = false;
 			}
 			// プレイヤー２のバレット
@@ -89,7 +95,7 @@ void CheckHit(void)
 			if (CheckHitBB(bullet[P2].pos[j],player[P1].pos,
 				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 			{
-				PlayerDamageManager(j);
+				player[P1].life -= 1.0f;
 				bullet[P2].use[i] = false;
 			}
 		}

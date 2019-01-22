@@ -12,13 +12,16 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define TEXTURE_LIFEGAUGE1	("data/TEXTURE/gauge00.png")		// 歩行用画像
-#define TEXTURE_LIFEGAUGE2	("data/TEXTURE/gauge_01.png")		// 歩行用画像
+#define TEXTURE_LIFEGAUGE1	("data/TEXTURE/gauge00.png")	// 歩行用画像
+#define TEXTURE_LIFEGAUGE2	("data/TEXTURE/gauge_01.png")	// 歩行用画像
 #define TEXTURE_LIFEGAUGE3	("data/TEXTURE/gauge_02.png")	// 歩行用画像
 #define TEXTURE_LIFEGAUGE4	("data/TEXTURE/gauge_03.png")	// 歩行用画像
-#define TEXTURE_LIFEICON01	("data/TEXTURE/player01.png")		// 歩行用画像
-#define TEXTURE_LIFEICON02	("data/TEXTURE/player02.png")		// 歩行用画像
-
+#define TEXTURE_LIFEICON01	("data/TEXTURE/player01.png")	// 歩行用画像
+#define TEXTURE_LIFEICON02	("data/TEXTURE/player02.png")	// 歩行用画像
+#define LIFEGAUGE_RED_P1	(20.0f)
+#define LIFEGAUGE_YELLOW_P1	(50.0f)
+#define LIFEGAUGE_RED_P2	(80.0f)
+#define LIFEGAUGE_YELLOW_P2	(50.0f)
 #define LIFEGAUGE_VTX_MAX	(12)
 #define TEXTURE_MAX			(6)
 #define LIFEGAUGE_MAX		(2)
@@ -36,7 +39,12 @@ enum {
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT MakeVertexLifeGauge(void);
-void SetVertexLifeGauge(int index, float val);
+void SetVertexLifeGauge01(float val);
+void SetTextureLifeGauge01(float val);
+void SetLifeGaugeTextureType01(int index, float life);
+void SetVertexLifeGauge02(float val);
+void SetTextureLifeGauge02(float val);
+void SetLifeGaugeTextureType02(int index, float life);
 
 
 //*****************************************************************************
@@ -45,7 +53,7 @@ void SetVertexLifeGauge(int index, float val);
 LPDIRECT3DTEXTURE9			D3DTextureLifeGauge[TEXTURE_MAX];		// テクスチャへのポインタ
 static VERTEX_2D			vertexWk[TEXTURE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
 
-static int					TextureNum[LIFEGAUGE_MAX];			// 
+int							TextureNumLifeGauge[LIFEGAUGE_MAX];			// 
 bool						LifeGaugeUse[LIFEGAUGE_MAX];		// 
 //=============================================================================
 // 初期化処理
@@ -90,7 +98,7 @@ HRESULT InitLifeGauge(int type)
 
 	for (int i = 0; i < LIFEGAUGE_MAX; i++)
 	{
-		TextureNum[i] = LIFEGAUGE002;
+		TextureNumLifeGauge[i] = LIFEGAUGE002;
 		LifeGaugeUse[i] = true;
 	}
 
@@ -120,12 +128,25 @@ void UninitLifeGauge(void)
 //=============================================================================
 void UpdateLifeGauge(void)
 {
+	float val;
 	PLAYER *player = GetPlayer(0);
-	float val = player->life / PLAYER_LIFE_MAX;
-
-	SetTextureLifeGauge(P1, val);
-	SetVertexLifeGauge(P1, val);
-
+	
+	for (int i = 0; i < LIFEGAUGE_MAX; i++, player++)
+	{
+		val = player->life / PLAYER_LIFE_MAX;
+		if (i == 0)
+		{
+			SetLifeGaugeTextureType01(i, player->life);
+			SetTextureLifeGauge01(val);
+			SetVertexLifeGauge01(val);
+		}
+		if (i == 1)
+		{
+			SetLifeGaugeTextureType02(i, player->life);
+			SetTextureLifeGauge02(val);
+			SetVertexLifeGauge02(val);
+		}
+	}
 }
 
 //=============================================================================
@@ -160,7 +181,7 @@ void DrawLifeGauge(void)
 				pDevice->SetFVF(FVF_VERTEX_2D);
 
 				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTextureLifeGauge[TextureNum[i]]);
+				pDevice->SetTexture(0, D3DTextureLifeGauge[TextureNumLifeGauge[i]]);
 
 				// ポリゴンの描画
 				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[LIFEGAUGE003 + i], sizeof(VERTEX_2D));
@@ -193,10 +214,10 @@ HRESULT MakeVertexLifeGauge(void)
 	// 外枠
 	{
 		// 頂点座標の設定
-		vertexWk[LIFEGAUGE001][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01, 0.0f);
-		vertexWk[LIFEGAUGE001][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_01, 0.0f);
-		vertexWk[LIFEGAUGE001][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
-		vertexWk[LIFEGAUGE001][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE001][0].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01, LIFEGAUGE_OUTERPOS_Y_01, 0.0f);
+		vertexWk[LIFEGAUGE001][1].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X, LIFEGAUGE_OUTERPOS_Y_01, 0.0f);
+		vertexWk[LIFEGAUGE001][2].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01, LIFEGAUGE_OUTERPOS_Y_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE001][3].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X, LIFEGAUGE_OUTERPOS_Y_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
 		vertexWk[LIFEGAUGE001][0].rhw =
@@ -220,10 +241,10 @@ HRESULT MakeVertexLifeGauge(void)
 	// 外枠
 	{
 		// 頂点座標の設定
-		vertexWk[LIFEGAUGE002][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02, LIFEGAUGE_POS_Y_02, 0.0f);
-		vertexWk[LIFEGAUGE002][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_02, 0.0f);
-		vertexWk[LIFEGAUGE002][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02, LIFEGAUGE_POS_Y_02 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
-		vertexWk[LIFEGAUGE002][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_02 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE002][0].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02,LIFEGAUGE_OUTERPOS_Y_02, 0.0f);
+		vertexWk[LIFEGAUGE002][1].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X,LIFEGAUGE_OUTERPOS_Y_02, 0.0f);
+		vertexWk[LIFEGAUGE002][2].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02,LIFEGAUGE_OUTERPOS_Y_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE002][3].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X,LIFEGAUGE_OUTERPOS_Y_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
 		vertexWk[LIFEGAUGE002][0].rhw =
@@ -247,10 +268,10 @@ HRESULT MakeVertexLifeGauge(void)
 	// 中身
 	{
 		// 頂点座標の設定
-		vertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01, 0.0f);
-		vertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_01, 0.0f);
-		vertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
-		vertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
+		vertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
+		vertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
 		vertexWk[LIFEGAUGE003][0].rhw =
@@ -274,10 +295,10 @@ HRESULT MakeVertexLifeGauge(void)
 	// 中身
 	{
 		// 頂点座標の設定
-		vertexWk[LIFEGAUGE004][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02, LIFEGAUGE_POS_Y_02, 0.0f);
-		vertexWk[LIFEGAUGE004][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_02, 0.0f);
-		vertexWk[LIFEGAUGE004][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02, LIFEGAUGE_POS_Y_02 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
-		vertexWk[LIFEGAUGE004][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_02 + TEXTURE_LIFEGAUGE_SIZE_X, LIFEGAUGE_POS_Y_02 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE004][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02,LIFEGAUGE_INNERPOS_Y_02, 0.0f);
+		vertexWk[LIFEGAUGE004][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X,LIFEGAUGE_INNERPOS_Y_02, 0.0f);
+		vertexWk[LIFEGAUGE004][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02,LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+		vertexWk[LIFEGAUGE004][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X,LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
 		vertexWk[LIFEGAUGE004][0].rhw =
@@ -359,8 +380,10 @@ HRESULT MakeVertexLifeGauge(void)
 
 //=============================================================================
 // テクスチャ座標の設定
+// 引　数：float val(テクスチャのX軸の変動率)
+// 戻り値：な　し
 //=============================================================================
-void SetTextureLifeGauge(int index, float val)
+void SetTextureLifeGauge01(float val)
 {
 	vertexWk[LIFEGAUGE003][0].tex = D3DXVECTOR2(0.0f, 0.0f);
 	vertexWk[LIFEGAUGE003][1].tex = D3DXVECTOR2(1.0f * (float)(val), 0.0f);
@@ -369,13 +392,90 @@ void SetTextureLifeGauge(int index, float val)
 }
 
 //=============================================================================
-// テクスチャ座標の設定
+// 頂点座標の設定
+// 引　数：faloat val(頂点のX軸の変動率)
+// 戻り値：な　し
 //=============================================================================
-void SetVertexLifeGauge(int index, float val)
+void SetVertexLifeGauge01(float val)
 {
 	// 頂点座標の設定
-	vertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01, 0.0f);
-	vertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + (TEXTURE_LIFEGAUGE_SIZE_X * val), LIFEGAUGE_POS_Y_01, 0.0f);
-	vertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01, LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
-	vertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_POS_X_01 + (TEXTURE_LIFEGAUGE_SIZE_X * val), LIFEGAUGE_POS_Y_01 + TEXTURE_LIFEGAUGE_SIZE_Y, 0.0f);
+	vertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
+	vertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_01, 0.0f);
+	vertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+	vertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+}
+
+//=============================================================================
+// テクスチャ座標の設定
+// 引　数：float val(テクスチャのX軸の変動率)
+// 戻り値：な　し
+//=============================================================================
+void SetTextureLifeGauge02(float val)
+{
+	vertexWk[LIFEGAUGE004][0].tex = D3DXVECTOR2((float)(val), 0.0f);
+	vertexWk[LIFEGAUGE004][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+	vertexWk[LIFEGAUGE004][2].tex = D3DXVECTOR2((float)(val), 1.0f);
+	vertexWk[LIFEGAUGE004][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+}
+
+//=============================================================================
+// 頂点座標の設定
+// 引　数：faloat val(頂点のX軸の変動率)
+// 戻り値：な　し
+//=============================================================================
+void SetVertexLifeGauge02(float val)
+{
+	// 頂点座標の設定
+	vertexWk[LIFEGAUGE004][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_02, 0.0f);
+	vertexWk[LIFEGAUGE004][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_02, 0.0f);
+	vertexWk[LIFEGAUGE004][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+	vertexWk[LIFEGAUGE004][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+}
+
+//=============================================================================
+// テクスチャタイプの設定
+// 引　数：int LIFEGAUGE003(テクスチャタイプのアドレス番号), faloat life(プレイヤーの体力)
+// 戻り値：な　し
+//=============================================================================
+void SetLifeGaugeTextureType01(int index, float life)
+{
+	// 赤ゲージへ変化
+	if (life < LIFEGAUGE_RED_P1)
+	{
+		TextureNumLifeGauge[index] = LIFEGAUGE004;
+	}
+	// 黄色ゲージへ変化
+	else if (life < LIFEGAUGE_YELLOW_P1)
+	{
+		TextureNumLifeGauge[index] = LIFEGAUGE003;
+	}
+	// 緑ゲージ
+	else
+	{
+		TextureNumLifeGauge[index] = LIFEGAUGE002;
+	}
+}
+
+//=============================================================================
+// テクスチャタイプの設定
+// 引　数：int LIFEGAUGE003(テクスチャタイプのアドレス番号), faloat life(プレイヤーの体力)
+// 戻り値：な　し
+//=============================================================================
+void SetLifeGaugeTextureType02(int index, float life)
+{
+	// 赤ゲージへ変化
+	if (life > LIFEGAUGE_RED_P2)
+	{
+		TextureNumLifeGauge[index] = LIFEGAUGE004;
+	}
+	// 黄色ゲージへ変化
+	else if (life > LIFEGAUGE_YELLOW_P2)
+	{
+		TextureNumLifeGauge[index] = LIFEGAUGE003;
+	}
+	// 緑ゲージ
+	else
+	{
+		TextureNumLifeGauge[index] = LIFEGAUGE002;
+	}
 }

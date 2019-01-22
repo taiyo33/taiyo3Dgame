@@ -17,7 +17,10 @@
 #define TEXTURE_BULLETGAUGE3	("data/TEXTURE/bullet_gauge_02.png")	// ゲージ黄色
 #define TEXTURE_BULLETGAUGE4	("data/TEXTURE/bullet_gauge_03.png")	// ゲージ赤色
 #define BULLETGAUGE_MAX			(2)										// ゲージの数
-#define TEXTURE_MAX				(6)
+#define TEXTURE_MAX				(4)
+#define BULLETGAUGE_RED			(70.0f)
+#define BULLETGAUGE_YELLOW		(30.0f)
+
 
 enum {
 	BULLETGAUGE001,
@@ -30,13 +33,16 @@ enum {
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT MakeVertexBulletGauge(void);
+void SetTextureBulletGauge(int index, float val);
+void SetVertexBulletGauge(int index, float val);
+void SettBulletGaugeTextureType(int index, float life);
 
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9			D3DTextureBulletGauge[TEXTURE_MAX];		// テクスチャへのポインタ
-static VERTEX_2D			vertexWk[BULLETGAUGE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
+static VERTEX_2D			vertexWk[TEXTURE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
 
 int							TexNumBulletGauge[BULLETGAUGE_MAX];		// 
 bool						BulletGaugeUse[BULLETGAUGE_MAX];		// 
@@ -105,10 +111,14 @@ void UpdateBulletGauge(void)
 {
 	PLAYER *player = GetPlayer(0);
 
-	float val = player->special / PLAYER_LIFE_MAX;
-
-	SetTextureBulletGauge(2, val);
-	SetVertexBulletGauge(2, val);
+	for (int i = 0; i < BULLETGAUGE_MAX; i++)
+	{
+		float val = player->special / PLAYER_LIFE_MAX;
+		
+		SettBulletGaugeTextureType(i, player->special);
+		SetTextureBulletGauge(i, val);
+		SetVertexBulletGauge(i, val);
+	}
 
 }
 
@@ -282,10 +292,10 @@ HRESULT MakeVertexBulletGauge(void)
 //=============================================================================
 void SetTextureBulletGauge(int index, float val)
 {
-	vertexWk[index][0].tex = D3DXVECTOR2(0.0f, 1.0f * (float)(val));
-	vertexWk[index][1].tex = D3DXVECTOR2(1.0f, 1.0f * (float)(val));
-	vertexWk[index][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	vertexWk[index][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	vertexWk[BULLETGAUGE003 + index][0].tex = D3DXVECTOR2(0.0f, 1.0f * (float)(val));
+	vertexWk[BULLETGAUGE003 + index][1].tex = D3DXVECTOR2(1.0f, 1.0f * (float)(val));
+	vertexWk[BULLETGAUGE003 + index][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	vertexWk[BULLETGAUGE003 + index][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 }
 
 //=============================================================================
@@ -293,8 +303,43 @@ void SetTextureBulletGauge(int index, float val)
 //=============================================================================
 void SetVertexBulletGauge(int index, float val)
 {
-	vertexWk[index][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, (BULLETGAUGE_POS_Y_01 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
-	vertexWk[index][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, (BULLETGAUGE_POS_Y_01 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
-	vertexWk[index][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
-	vertexWk[index][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+	if (index == 0)
+	{
+		vertexWk[BULLETGAUGE003][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, (BULLETGAUGE_POS_Y_01 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+		vertexWk[BULLETGAUGE003][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, (BULLETGAUGE_POS_Y_01 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+		vertexWk[BULLETGAUGE003][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+		vertexWk[BULLETGAUGE003][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+	}
+	else if (index == 1)
+	{
+		vertexWk[BULLETGAUGE004][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, (BULLETGAUGE_POS_Y_02 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+		vertexWk[BULLETGAUGE004][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, (BULLETGAUGE_POS_Y_02 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+		vertexWk[BULLETGAUGE004][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+		vertexWk[BULLETGAUGE004][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
+	}
+}
+
+//=============================================================================
+// テクスチャタイプの設定
+// 引　数：int index(テクスチャタイプのアドレス番号), faloat life(プレイヤーの体力)
+// 戻り値：な　し
+//=============================================================================
+void SettBulletGaugeTextureType(int index, float life)
+{
+	// 赤ゲージへ変化
+	if (life > BULLETGAUGE_RED)
+	{
+		TexNumBulletGauge[index] = BULLETGAUGE004;
+
+	}
+	// 黄色ゲージへ変化
+	else if (life > BULLETGAUGE_YELLOW)
+	{
+		TexNumBulletGauge[index] = BULLETGAUGE003;
+	}
+	// 緑ゲージ
+	else
+	{
+		TexNumBulletGauge[index] = BULLETGAUGE002;
+	}
 }

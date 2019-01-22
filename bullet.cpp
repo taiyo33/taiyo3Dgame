@@ -65,7 +65,7 @@ HRESULT InitBullet(int type)
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
-		for (int j = 0; j < BULLET_MAX; j++)
+		for (int j = 0; j < BULLET_SET_MAX; j++)
 		{	
 			bullet[i].use[j] = false;							// Žg—pó‘Ô‚ð‰Šú‰»
 			bullet[i].reflect[j] = false;
@@ -153,7 +153,7 @@ void DrawBullet(void)
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
-		for (int j = 0; j < BULLET_MAX; j++)
+		for (int j = 0; j < BULLET_SET_MAX; j++)
 		{
 			//// “§‰ßˆ—
 			//SetDiffuseBullet(i, dif_mi[i]);
@@ -329,7 +329,8 @@ BULLET *GetBullet(int bno)
 //=========================================================================
 bool SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, int index)
 {
-	BULLET *bullet = &bulletWk[index];
+	BULLET *bullet = &bulletWk[0];
+
 	for (int i = 0; i < BULLET_SET_MAX; i++)
 	{
 		if (!bullet[index].use[i] && cntFrame > BULLET_RADY_FRAME)
