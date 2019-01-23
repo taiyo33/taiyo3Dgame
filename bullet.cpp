@@ -128,7 +128,11 @@ void UpdateBullet(void)
 				bullet[i].pos[j].z += bullet[i].move[j].z;
 
 				// è¡ñ≈èàóù
-				bullet[i].use[j] = CheckFieldInBullet(i, j);
+				if (!CheckFieldInBullet(i, j))
+				{
+					bullet[i].use[j] = false;
+					bullet[i].reflect[j] = false;
+				}
 			}
 		}
 	}

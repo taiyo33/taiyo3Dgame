@@ -179,26 +179,26 @@ void DrawBlock(void)
 				D3DXMeshBlock->DrawSubset(nCntMat);
 			}
 
-			// マテリアルをデフォルトに戻す
-			pDevice->SetMaterial(&matDef);
+			//// マテリアルをデフォルトに戻す
+			//pDevice->SetMaterial(&matDef);
 
-			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&MtxWorldVtx);
+			//// ワールドマトリックスの初期化
+			//D3DXMatrixIdentity(&MtxWorldVtx);
 
-			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &MtxWorldVtx);
+			//// ワールドマトリックスの設定
+			//pDevice->SetTransform(D3DTS_WORLD, &MtxWorldVtx);
 
-			// 頂点バッファをデバイスのデータストリームにバインド
-			pDevice->SetStreamSource(0, D3DVtxBuffBlock, 0, sizeof(VERTEX_3D));
+			//// 頂点バッファをデバイスのデータストリームにバインド
+			//pDevice->SetStreamSource(0, D3DVtxBuffBlock, 0, sizeof(VERTEX_3D));
 
-			// 頂点フォーマットの設定
-			pDevice->SetFVF(FVF_VERTEX_3D);
+			//// 頂点フォーマットの設定
+			//pDevice->SetFVF(FVF_VERTEX_3D);
 
-			// テクスチャの設定
-			pDevice->SetTexture(0, D3DTextureBlock[0]);
+			//// テクスチャの設定
+			//pDevice->SetTexture(0, D3DTextureBlock[0]);
 
-			// ポリゴンの描画
-			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
+			//// ポリゴンの描画
+			//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
 		}
 	}
 }
@@ -357,10 +357,10 @@ void InitVertexBlock(void)
 			pVtx[3].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
 
 			// 反射光の設定
-				pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+				pVtx[0].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[1].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[2].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[3].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
 
 			// テクスチャ座標の設定
 			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -386,10 +386,10 @@ void InitVertexBlock(void)
 			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
 
 			// 反射光の設定
-			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[0].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[1].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[2].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[3].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
 
 			// テクスチャ座標の設定
 			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -416,10 +416,10 @@ void InitVertexBlock(void)
 			pVtx[3].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
 
 			// 反射光の設定
-			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[0].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[1].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[2].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[3].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
 
 			// テクスチャ座標の設定
 			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -445,10 +445,10 @@ void InitVertexBlock(void)
 			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
 			// 反射光の設定
-			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+			pVtx[0].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[1].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[2].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+			pVtx[3].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
 
 			// テクスチャ座標の設定
 			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
