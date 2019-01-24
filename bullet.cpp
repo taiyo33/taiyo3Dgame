@@ -38,8 +38,8 @@ void MoveBullet(int index, int bno);
 LPDIRECT3DTEXTURE9		g_pD3DTextureBullet = NULL;	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pD3DVtxBuffBullet = NULL;	// 頂点バッファインターフェースへのポインタ
 static float			dif_mi[BULLET_MAX];
-static int				cntFrame;
-BULLET					bulletWk[PLAYER_MAX];
+static int				cntFrame[BULLET_SET_MAX];
+BULLET					bulletWk[BULLET_SET_MAX];
 
 //===============================================================================
 // 初期化処理
@@ -63,19 +63,21 @@ HRESULT InitBullet(int type)
 	}
 
 
-	for (int i = 0; i < PLAYER_MAX; i++)
+	for (int i = 0; i < BULLET_SET_MAX; i++)
 	{
-		for (int j = 0; j < BULLET_SET_MAX; j++)
+		cntFrame[i] = BULLET_RADY_FRAME;						// フレームを初期化
+
+		for (int j = 0; j < BULLET_ONESET_MAX; j++)
 		{	
-			bullet[i].use[j] = false;							// 使用状態を初期化
+			bullet[i].use[j] = false;									// 使用状態を初期化
 			bullet[i].reflect[j] = false;
-			bullet[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 位置を初期化
-			bullet[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転を初期化
-			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);	// 拡大率を初期化
-			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;			// 反発の初期化
+			bullet[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 位置を初期化
+			bullet[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 回転を初期化
+			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);			// 拡大率を初期化
+			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;					// 反発の初期化
+			bullet[i].sclIncrease[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加量
 		}
 	}
-	cntFrame = BULLET_RADY_FRAME;							// フレームを初期化
 
 	return S_OK;
 }
@@ -107,11 +109,12 @@ void UpdateBullet(void)
 {
 	BULLET *bullet = &bulletWk[0];
 	int i, j;
-	cntFrame++;	// フレームカウントの更新
 
-	for (i = 0; i < PLAYER_MAX; i++)
+	for (i = 0; i < BULLET_SET_MAX; i++)
 	{
-		for (j = 0; j < BULLET_SET_MAX; j++)
+		cntFrame[i]++;	// フレームカウントの更新
+
+		for (j = 0; j < BULLET_ONESET_MAX; j++)
 		{
 			// 使用中ならば
 			if (bullet[i].use[j])
@@ -132,10 +135,13 @@ void UpdateBullet(void)
 				{
 					bullet[i].use[j] = false;
 					bullet[i].reflect[j] = false;
+					bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 				}
 			}
 		}
 	}
+
+	PrintDebugProc("バレットの拡大率[(%f)]\n", bullet[0].sclIncrease[0]);
 }
 
 //===============================================================================
@@ -155,9 +161,9 @@ void DrawBullet(void)
 	pDevice->SetRenderState(D3DRS_ALPHAREF, 0);
 	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 
-	for (int i = 0; i < PLAYER_MAX; i++)
+	for (int i = 0; i < BULLET_SET_MAX; i++)
 	{
-		for (int j = 0; j < BULLET_SET_MAX; j++)
+		for (int j = 0; j < BULLET_ONESET_MAX; j++)
 		{
 			//// 透過処理
 			//SetDiffuseBullet(i, dif_mi[i]);
@@ -190,18 +196,12 @@ void DrawBullet(void)
 				bullet[i].mtxWorld._33 = mtxView._33;
 
 				// スケールを反映
-				D3DXMatrixScaling(&mtxScale, bullet[i].scl[j].x,
-					bullet[i].scl[j].y,
-					bullet[i].scl[j].z);
-				D3DXMatrixMultiply(&bullet[i].mtxWorld,
-					&bullet[i].mtxWorld, &mtxScale);
+				D3DXMatrixScaling(&mtxScale, bullet[i].scl[j].x, bullet[i].scl[j].y, bullet[i].scl[j].z);
+				D3DXMatrixMultiply(&bullet[i].mtxWorld,&bullet[i].mtxWorld, &mtxScale);
 
 				// 移動を反映
-				D3DXMatrixTranslation(&mtxTranslate, bullet[i].pos[j].x,
-					bullet[i].pos[j].y,
-					bullet[i].pos[j].z);
-				D3DXMatrixMultiply(&bullet[i].mtxWorld,
-					&bullet[i].mtxWorld, &mtxTranslate);
+				D3DXMatrixTranslation(&mtxTranslate, bullet[i].pos[j].x, bullet[i].pos[j].y, bullet[i].pos[j].z);
+				D3DXMatrixMultiply(&bullet[i].mtxWorld, &bullet[i].mtxWorld, &mtxTranslate);
 
 				// ワールドマトリックスの設定
 				pDevice->SetTransform(D3DTS_WORLD, &bullet[i].mtxWorld);
@@ -331,27 +331,29 @@ BULLET *GetBullet(int bno)
 // 引　数：D3DXVECTOR3 pos(位置)、D3DXVECTOR3 rot(角度)、float Dest(距離)
 // 戻り値：bool型　未使用の場合 true、使用中の場合 false
 //=========================================================================
-bool SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, int index)
+bool SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 scl, float Dest, int index)
 {
-	BULLET *bullet = &bulletWk[0];
+	BULLET *bullet = &bulletWk[index];
 
-	for (int i = 0; i < BULLET_SET_MAX; i++)
+	for (int i = 0; i < BULLET_ONESET_MAX; i++)
 	{
-		if (!bullet[index].use[i] && cntFrame > BULLET_RADY_FRAME)
+		if (!bullet->use[i] && cntFrame[index] > BULLET_RADY_FRAME)
 		{
-			bullet[index].use[i] = true;							// 使用中へ
-			bullet[index].pos[i].x = pos.x + cosf(rot.y) * Dest;	// プレイヤーの位置へ　
-			bullet[index].pos[i].z = pos.z + sinf(rot.y) * Dest;	//　
-			bullet[index].pos[i].y = pos.y;							//
-			bullet[index].rot[i] = rot;								// 回転量を代入
-			cntFrame = 0;											// フレームカウントを初期化
+			bullet->use[i] = true;									// 使用中へ
+			bullet->pos[i].x = pos.x + cosf(rot.y) * Dest;			// プレイヤーの位置へ　
+			bullet->pos[i].z = pos.z + sinf(rot.y) * Dest;			//　
+			bullet->pos[i].y = pos.y;								//
+			bullet->rot[i] = rot;									// 回転量を代入
+			bullet->scl[i] = scl;									// スケールを代入
 			SetVertexBullet(i, BULLET_SIZE_X, BULLET_SIZE_Y);		// 頂点を作成
-
-			return true;
+			cntFrame[index] = 0;									// フレームカウントを初期化
+			bullet->sclIncrease[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加値を初期化
+			
+			return bullet;
 		}
 	}
 
-	return false;
+	return bullet;
 }
 
 //========================================================================
@@ -393,32 +395,40 @@ bool CheckFieldInBullet(int index, int bno)
 {
 	BULLET *bullet = &bulletWk[index];
 	
-	if (bullet[index].pos[bno].x > SCREEN_WIDTH  / 2)	return false;
-	if (bullet[index].pos[bno].x < -SCREEN_WIDTH / 2)	return false;
-	if (bullet[index].pos[bno].z > SCREEN_HEIGHT / 2)	return false;
-	if (bullet[index].pos[bno].z < -SCREEN_HEIGHT / 2)	return false;
+	if (bullet->pos[bno].x > SCREEN_WIDTH  / 2)	return false;
+	if (bullet->pos[bno].x < -SCREEN_WIDTH / 2)	return false;
+	if (bullet->pos[bno].z > SCREEN_HEIGHT / 2)	return false;
+	if (bullet->pos[bno].z < -SCREEN_HEIGHT / 2)	return false;
 
 	return true;
 }
 
-////========================================================================
-//// バレットの反射回数判定処理
-//// 引　数：int index(組バレットのアドレス), int bno(バレット単体のアドレス)
-//// 戻り値：bool型　trueであれば、falseならば消滅
-////========================================================================
-//bool CheckReflectBullet(int index, int bno)
-//{
-//	BULLET *bullet = &bulletWk[index];
-//
-//	// ブロックのポリゴンと当たり判定
-//	if (!HitCheckBlock(bullet->pos[bno], bullet->prevPos[bno]))
-//	{
-//		bullet->reflect[bno] = false;
-//		return false;
-//	}
-//
-//	return true;
-//}
+//========================================================================
+// バレットの反射回数判定処理
+// 引　数：int index(組バレットのアドレス), int blockNo(ブロックのアドレス)
+//		   D3DXVECTOR3 pos(対象バレットの位置)
+// 戻り値：bool型　trueであれば、falseならば消滅
+//========================================================================
+void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos)
+{
+	BULLET *bullet = GetBullet(index);	//バレットのアドレスを取得
+	for (int i = 0; i < BULLET_ONESET_MAX; i++)
+	{
+		if (!bullet->use[i]) continue;
+		if (CheckHitBB(bullet->pos[i], pos,
+			D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(30.0f, 25.0f, 30.0f)))
+		{
+			BlockDamageManager(blockNo);
+			bullet->cntReflect[i]--;
+			if (bullet->cntReflect[i] < 0)
+			{
+				bullet->use[i] = false;
+				bullet->reflect[i] = false;
+				bullet->cntReflect[i] = 2;
+			}
+		}
+	}
+}
 
 //==============================================================================
 // バレットの反射

@@ -23,44 +23,14 @@ void CheckHit(void)
 
 	/* ブロック対バレットの当たり判定 */
 	BLOCK *block = GetBlock(0);	// ブロックのアドレスを取得
-	for (j = 0; j < BLOCK_MAX; j++, block++)
+	for (i = 0; i < BLOCK_MAX; i++, block++)
 	{
 		if (!block->use) continue;
-
-		BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
-		for (i = 0; i < BULLET_SET_MAX; i++)
+		for (j = 0; j < BULLET_SET_MAX; j++)
 		{
-			// プレイヤー１のバレット
-			if (!bullet[P1].use[i]) continue;
-			if (CheckHitBB(bullet[P1].pos[i], block->pos,
-				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(30.0f, 25.0f, 30.0f)))
-			{
-				BlockDamageManager(j);
-				bullet[P1].cntReflect[i]--;
-				if (bullet[P1].cntReflect[i] < 0)
-				{
-					bullet[P1].use[i] = false;
-					bullet[P1].reflect[i] = false;
-					bullet[P1].cntReflect[i] = 2;
-				}
-			}
-			// プレイヤー２のバレット
-			if (!bullet[P2].use[i]) continue;
-			if (CheckHitBB(bullet[P2].pos[i], block->pos,
-				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
-			{
-				BlockDamageManager(j);
-				bullet[P2].cntReflect[i]--;
-				if (bullet[P2].cntReflect[i] < 0)
-				{
-					bullet[P2].use[i] = false;
-					bullet[P2].reflect[i] = false;
-					bullet[P2].cntReflect[i] = 2;
-				}
-			}
+			CheckBlockHitBullet(i, j, block->pos);
 		}
 	}
-
 	/* 対プレイヤーの当たり判定 */
 	PLAYER *player = GetPlayer(0);
 	for (i = 0; i < PLAYER_MAX; i++, player++)
@@ -80,23 +50,27 @@ void CheckHit(void)
 		}
 
 		BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
-		for (j = 0; j < BULLET_SET_MAX; j++)
+		for (j = 0; j < BULLET_ONESET_MAX; j++)
 		{
 			// プレイヤー１のバレット
-			if (!player[P2].use) continue;
-			if (CheckHitBB(bullet[P1].pos[j], player[P2].pos,
-				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
+			if (bullet[P1].use[j])
 			{
-				player[P2].life += 1.0f;
-				bullet[P1].use[i] = false;
+				if (CheckHitBB(bullet[P1].pos[j], player[P2].pos,
+					D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
+				{
+					player[P2].life += 1.0f;
+					bullet[P1].use[i] = false;
+				}
 			}
 			// プレイヤー２のバレット
-			if (!player[P1].use) continue;
-			if (CheckHitBB(bullet[P2].pos[j],player[P1].pos,
-				D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
+			if (bullet[P2].use[j])
 			{
-				player[P1].life -= 1.0f;
-				bullet[P2].use[i] = false;
+				if (CheckHitBB(bullet[P2].pos[j], player[P1].pos,
+					D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
+				{
+					player[P1].life -= 1.0f;
+					bullet[P2].use[i] = false;
+				}
 			}
 		}
 	}

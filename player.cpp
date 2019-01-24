@@ -40,12 +40,12 @@ void NonePlayerMove(void);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static LPDIRECT3DTEXTURE9			D3DTexture;			// テクスチャ読み込み場所
-static LPD3DXMESH					D3DXMesh;			// ID3DXMeshインターフェイスへのポインタ
-static LPD3DXBUFFER					D3DXBuffMat;		// メッシュのマテリアル情報を格納
-static DWORD						NumMat;				// 属性情報の総数
-
-PLAYER								player[PLAYER_MAX];	// プレイヤー構造体
+static LPDIRECT3DTEXTURE9			D3DTexture;				// テクスチャ読み込み場所
+static LPD3DXMESH					D3DXMesh;				// ID3DXMeshインターフェイスへのポインタ
+static LPD3DXBUFFER					D3DXBuffMat;			// メッシュのマテリアル情報を格納
+static DWORD						NumMat;					// 属性情報の総数
+static int							cntFrame[PLAYER_MAX];	// フレームカウント
+PLAYER								player[PLAYER_MAX];		// プレイヤー構造体
 //=============================================================================
 // 初期化処理
 // 引　数：int type(再初期化２数判定値)
@@ -71,6 +71,7 @@ HRESULT InitPlayer(int type)
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
 		player[i].special = 100.0f;
+		cntFrame[i] = 0;
 	}
 
 	// Xファイルの読み込み
@@ -143,6 +144,7 @@ void UpdatePlayer(void)
 	{
 		// 現在位置を保存
 		player[i].prevPos = player[i].pos;
+		cntFrame[i]++;
 
 		// 操作の処理
 		InputPlayer1();
@@ -229,12 +231,12 @@ PLAYER *GetPlayer(int index)
 //=============================================================================
 void InputPlayer1(void)
 {
-	float fDiffRotY;
-
-	// カメラの向き取得
-	CAMERA *camera = GetCamera();
 	if (player[P1].use)
 	{
+		float fDiffRotY;
+		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
+		BULLET *bullet = GetBullet(0);	// バレットのアドレスを取得
+
 		if (GetKeyboardPress(DIK_RIGHT))
 		{
 			if (GetKeyboardPress(DIK_UP))
@@ -324,7 +326,15 @@ void InputPlayer1(void)
 
 		if (GetKeyboardPress(DIK_SPACE))
 		{
-			SetBullet(player[P1].pos, player[P1].rot, 0, P1);
+			if (cntFrame[P1] % 10 == 0)
+			{
+               bullet->sclIncrease[P1] += D3DXVECTOR3(0.05f, 0.05f, 0.05f);
+			}
+		}
+		else if(GetKeyboardRelease(DIK_SPACE))
+		{
+			SetBullet(player[P1].pos, player[P1].rot, bullet->sclIncrease[P1], 0, P1);
+			cntFrame[P1] = 0;
 		}
 
 		if (GetKeyboardTrigger(DIK_O))
@@ -434,10 +444,10 @@ void InputPlayer2(void)
 			player[P2].rot.y += D3DX_PI * 2.0f;
 		}
 
-		if (GetKeyboardPress(DIK_P))
-		{
-			SetBullet(player[P2].pos, player[P2].rot, 0, P2);
-		}
+		//if (GetKeyboardPress(DIK_P))
+		//{
+		//	SetBullet(player[P2].pos, player[P2].rot, 0, P2);
+		//}
 	}
 }
 
@@ -561,7 +571,7 @@ void NonePlayerMove(void)
 	
 	if (out == atc)
 	{
-		SetBullet(player[P2].pos, player[P2].rot, 0, P2);
+		//SetBullet(player[P2].pos, player[P2].rot,, 0, P2);
 	}
 	if(out == chase)
 	{
