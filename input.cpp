@@ -71,6 +71,7 @@ static LPDIRECTINPUTDEVICE8	pGamePad[GAMEPADMAX] = {NULL,NULL,NULL,NULL};// パッ
 
 static DWORD	padState[GAMEPADMAX];	// パッド情報（複数対応）
 static DWORD	padTrigger[GAMEPADMAX];
+static DWORD	padRelease[GAMEPADMAX];
 static int		padCount = 0;			// 検出したパッドの数
 
 
@@ -545,7 +546,10 @@ void UpdatePad(void)
 		// Trigger設定
 		padTrigger[i] = ((lastPadState ^ padState[i])	// 前回と違っていて
 						& padState[i]);					// しかも今ONのやつ
-		
+		// Release設定
+		padTrigger[i] = ((lastPadState ^ padState[i])	// 前回と違っていて
+						& !padState[i]);					// しかも今ONのやつ
+
 	}
 
 }
@@ -558,6 +562,11 @@ BOOL IsButtonPressed(int padNo,DWORD button)
 BOOL IsButtonTriggered(int padNo,DWORD button)
 {
 	return (button & padTrigger[padNo]);
+}
+
+BOOL IsButtonRelease(int padNo, DWORD button)
+{
+	return (button & padRelease[padNo]);
 }
 
 

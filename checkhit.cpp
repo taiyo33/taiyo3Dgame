@@ -19,7 +19,7 @@ D3DXVECTOR3				nor;
 //=============================================================================
 void CheckHit(void)
 {
-	int i,j;
+	int i, j;
 
 	/* ブロック対バレットの当たり判定 */
 	BLOCK *block = GetBlock(0);	// ブロックのアドレスを取得
@@ -36,7 +36,7 @@ void CheckHit(void)
 	for (i = 0; i < PLAYER_MAX; i++, player++)
 	{
 		if (!player->use) continue;
-		
+
 		// プレイヤーのフィール内外判定
 		if (!CheckFieldInPlayer(i))
 		{
@@ -49,28 +49,30 @@ void CheckHit(void)
 			player->pos = player->prevPos;
 		}
 
-		BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
-		for (j = 0; j < BULLET_ONESET_MAX; j++)
+	}
+	
+	BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
+	player = GetPlayer(0);
+	for (i = 0; i < BULLET_ONESET_MAX; i++)
+	{
+		// プレイヤー１のバレット
+		if (bullet[P1].use[i])
 		{
-			// プレイヤー１のバレット
-			if (bullet[P1].use[j])
+			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos,
+				bullet[P1].size[j].x, 25.0f))
 			{
-				if (CheckHitBB(bullet[P1].pos[j], player[P2].pos,
-					D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
-				{
-					player[P2].life += 1.0f;
-					bullet[P1].use[i] = false;
-				}
+				player[P2].life += 5.0f;
+				bullet[P1].use[i] = false;
 			}
-			// プレイヤー２のバレット
-			if (bullet[P2].use[j])
+		}
+		// プレイヤー２のバレット
+		if (bullet[P2].use[i])
+		{
+			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
+				bullet[P2].size[j].x, 25.0f))
 			{
-				if (CheckHitBB(bullet[P2].pos[j], player[P1].pos,
-					D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
-				{
-					player[P1].life -= 1.0f;
-					bullet[P2].use[i] = false;
-				}
+				player[P1].life -= 5.0f;
+				bullet[P2].use[i] = false;
 			}
 		}
 	}

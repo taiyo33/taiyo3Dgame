@@ -18,6 +18,7 @@
 #define	TEXTURE_BULLET		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
 #define	BULLET_SIZE_X		(20.0f)							// バレットの幅
 #define	BULLET_SIZE_Y		(20.0f)							// バレットの高さ
+#define	BULLET_SIZE_Z		(20.0f)							// バレットの奥行
 #define	BULLET_SPEED		(10.0f)							// 移動速度
 #define BULLET_RADY_FRAME	(10)							// 発射間隔
 #define INIT_REFLECT_CNT	(2)								// 反射回数
@@ -66,6 +67,7 @@ HRESULT InitBullet(int type)
 	for (int i = 0; i < BULLET_SET_MAX; i++)
 	{
 		cntFrame[i] = BULLET_RADY_FRAME;						// フレームを初期化
+		bullet[i].sclIncrease = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加量
 
 		for (int j = 0; j < BULLET_ONESET_MAX; j++)
 		{	
@@ -74,8 +76,8 @@ HRESULT InitBullet(int type)
 			bullet[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 位置を初期化
 			bullet[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 回転を初期化
 			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);			// 拡大率を初期化
+			bullet[i].size[j] = D3DXVECTOR3(BULLET_SIZE_X, BULLET_SIZE_Y, BULLET_SIZE_Z); // 大きさを初期化
 			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;					// 反発の初期化
-			bullet[i].sclIncrease[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加量
 		}
 	}
 
@@ -158,7 +160,7 @@ void DrawBullet(void)
 
 	// αテストを有効に
 	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
-	pDevice->SetRenderState(D3DRS_ALPHAREF, 0);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 150);
 	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 
 	for (int i = 0; i < BULLET_SET_MAX; i++)
@@ -345,9 +347,10 @@ bool SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 scl, float Dest, int
 			bullet->pos[i].y = pos.y;								//
 			bullet->rot[i] = rot;									// 回転量を代入
 			bullet->scl[i] = scl;									// スケールを代入
-			SetVertexBullet(i, BULLET_SIZE_X, BULLET_SIZE_Y);		// 頂点を作成
+			bullet->size[i] = BULLET_SIZE_X * scl;					//
+			SetVertexBullet(i, bullet->size[i].x, bullet->size[i].y);	// 頂点を作成
 			cntFrame[index] = 0;									// フレームカウントを初期化
-			bullet->sclIncrease[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加値を初期化
+			bullet->sclIncrease = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加値を初期化
 			
 			return bullet;
 		}

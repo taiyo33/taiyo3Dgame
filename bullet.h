@@ -13,6 +13,8 @@
 #define BULLET_MAX				(128)
 #define BULLET_ONESET_MAX		(5)
 #define BULLET_SET_MAX			(2)
+#define BULLET_CHARGE_FRAME_CNT	(10)
+#define BULLET_CHARGE_MAX		(2.0f)
 
 typedef struct
 {
@@ -26,9 +28,10 @@ typedef struct
 	D3DXVECTOR3		refVec[BULLET_ONESET_MAX];		// 反射ベクトル
 	D3DXVECTOR3		rot[BULLET_ONESET_MAX];			// 回転量
 	D3DXVECTOR3		scl[BULLET_ONESET_MAX];			// スケール
-	D3DXVECTOR3		sclIncrease[BULLET_ONESET_MAX];	// スケールの増加値
+	D3DXVECTOR3		sclIncrease;	// スケールの増加値
+	D3DXVECTOR3		size[BULLET_ONESET_MAX];		// 大きさ
 	int				time[BULLET_ONESET_MAX];		// 寿命
-	int				cntReflect[BULLET_ONESET_MAX];	// 移動方向
+	int				cntReflect[BULLET_ONESET_MAX];	// 反射回数
 	bool			use[BULLET_ONESET_MAX];			// 使用状態
 	bool			reflect[BULLET_ONESET_MAX];		// 反射の前か後か
 	

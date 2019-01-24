@@ -7,7 +7,7 @@
 #include "main.h"
 #include "bulletGauge.h"
 #include "input.h"
-#include "player.h"
+#include "bullet.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -35,7 +35,7 @@ enum {
 HRESULT MakeVertexBulletGauge(void);
 void SetTextureBulletGauge(int index, float val);
 void SetVertexBulletGauge(int index, float val);
-void SettBulletGaugeTextureType(int index, float life);
+void SettBulletGaugeTextureType(int index, float val);
 
 
 //*****************************************************************************
@@ -109,13 +109,11 @@ void UninitBulletGauge(void)
 //=============================================================================
 void UpdateBulletGauge(void)
 {
-	PLAYER *player = GetPlayer(0);
-
+	BULLET *bullet = GetBullet(0);
 	for (int i = 0; i < BULLETGAUGE_MAX; i++)
-	{
-		float val = player->special / PLAYER_LIFE_MAX;
-		
-		SettBulletGaugeTextureType(i, player->special);
+	{		
+          		float val = bullet[i].sclIncrease.x / 2.0f;
+		SettBulletGaugeTextureType(i, bullet[i].sclIncrease.x);
 		SetTextureBulletGauge(i, val);
 		SetVertexBulletGauge(i, val);
 	}
@@ -292,8 +290,8 @@ HRESULT MakeVertexBulletGauge(void)
 //=============================================================================
 void SetTextureBulletGauge(int index, float val)
 {
-	vertexWk[BULLETGAUGE003 + index][0].tex = D3DXVECTOR2(0.0f, 1.0f * (float)(val));
-	vertexWk[BULLETGAUGE003 + index][1].tex = D3DXVECTOR2(1.0f, 1.0f * (float)(val));
+	vertexWk[BULLETGAUGE003 + index][0].tex = D3DXVECTOR2(0.0f, 1.0f - (1.0f * val));
+	vertexWk[BULLETGAUGE003 + index][1].tex = D3DXVECTOR2(1.0f, 1.0f - (1.0f * val));
 	vertexWk[BULLETGAUGE003 + index][2].tex = D3DXVECTOR2(0.0f, 1.0f);
 	vertexWk[BULLETGAUGE003 + index][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 }
@@ -305,15 +303,15 @@ void SetVertexBulletGauge(int index, float val)
 {
 	if (index == 0)
 	{
-		vertexWk[BULLETGAUGE003][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, (BULLETGAUGE_POS_Y_01 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
-		vertexWk[BULLETGAUGE003][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, (BULLETGAUGE_POS_Y_01 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+		vertexWk[BULLETGAUGE003][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, (BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y - (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+		vertexWk[BULLETGAUGE003][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, (BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y - (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
 		vertexWk[BULLETGAUGE003][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
 		vertexWk[BULLETGAUGE003][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_01 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_01 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
 	}
 	else if (index == 1)
 	{
-		vertexWk[BULLETGAUGE004][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, (BULLETGAUGE_POS_Y_02 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
-		vertexWk[BULLETGAUGE004][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, (BULLETGAUGE_POS_Y_02 + (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+		vertexWk[BULLETGAUGE004][0].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, (BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y - (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
+		vertexWk[BULLETGAUGE004][1].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, (BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y - (TEXTURE_BULLETGAUGE_SIZE_Y * val)), 0.0f);
 		vertexWk[BULLETGAUGE004][2].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02, BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
 		vertexWk[BULLETGAUGE004][3].vtx = D3DXVECTOR3(BULLETGAUGE_POS_X_02 + TEXTURE_BULLETGAUGE_SIZE_X, BULLETGAUGE_POS_Y_02 + TEXTURE_BULLETGAUGE_SIZE_Y, 0.0f);
 	}
@@ -321,24 +319,24 @@ void SetVertexBulletGauge(int index, float val)
 
 //=============================================================================
 // テクスチャタイプの設定
-// 引　数：int index(テクスチャタイプのアドレス番号), faloat life(プレイヤーの体力)
+// 引　数：int index(テクスチャタイプのアドレス番号), faloat val(バレットのチャージ量)
 // 戻り値：な　し
 //=============================================================================
-void SettBulletGaugeTextureType(int index, float life)
+void SettBulletGaugeTextureType(int index, float val)
 {
 	// 赤ゲージへ変化
-	if (life > BULLETGAUGE_RED)
+	if (val > BULLETGAUGE_RED)
 	{
 		TexNumBulletGauge[index] = BULLETGAUGE004;
 
 	}
 	// 黄色ゲージへ変化
-	else if (life > BULLETGAUGE_YELLOW)
+	else if (val > BULLETGAUGE_YELLOW)
 	{
 		TexNumBulletGauge[index] = BULLETGAUGE003;
 	}
 	// 緑ゲージ
-	else
+	else 
 	{
 		TexNumBulletGauge[index] = BULLETGAUGE002;
 	}

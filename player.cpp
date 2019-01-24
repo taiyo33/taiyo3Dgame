@@ -23,7 +23,7 @@
 #define	RATE_MOVE_PLAYER		(0.20f)					// 移動慣性係数
 #define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.02f)			// 回転速度
 #define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
-#define VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
+#define VALUE_MOVE_PLAYER	(0.10f)						// 移動速度
 #define PLAYER_POS_Y_LIMIT	(-200.0f)					// Y軸の上限値
 
 
@@ -235,7 +235,7 @@ void InputPlayer1(void)
 	{
 		float fDiffRotY;
 		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
-		BULLET *bullet = GetBullet(0);	// バレットのアドレスを取得
+		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
 
 		if (GetKeyboardPress(DIK_RIGHT))
 		{
@@ -324,16 +324,24 @@ void InputPlayer1(void)
 			player[P1].rot.y += D3DX_PI * 2.0f;
 		}
 
+		// バレットのチャージ
 		if (GetKeyboardPress(DIK_SPACE))
 		{
-			if (cntFrame[P1] % 10 == 0)
+			// 最大値になった場合
+			if (bullet->sclIncrease.x > BULLET_CHARGE_MAX)
 			{
-               bullet->sclIncrease[P1] += D3DXVECTOR3(0.05f, 0.05f, 0.05f);
+                bullet->sclIncrease = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
+			}
+			// 10フレーム
+			else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
+			{
+				bullet->sclIncrease += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
 			}
 		}
+		// バレットの発射
 		else if(GetKeyboardRelease(DIK_SPACE))
 		{
-			SetBullet(player[P1].pos, player[P1].rot, bullet->sclIncrease[P1], 0, P1);
+			SetBullet(player[P1].pos, player[P1].rot, bullet->sclIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
 
@@ -355,6 +363,8 @@ void InputPlayer2(void)
 
 	// カメラの向き取得
 	CAMERA *camera = GetCamera();
+	BULLET *bullet = GetBullet(P2);
+
 	if (player[P2].use)
 	{
 		if (GetKeyboardPress(DIK_D))
@@ -444,10 +454,25 @@ void InputPlayer2(void)
 			player[P2].rot.y += D3DX_PI * 2.0f;
 		}
 
-		//if (GetKeyboardPress(DIK_P))
-		//{
-		//	SetBullet(player[P2].pos, player[P2].rot, 0, P2);
-		//}
+		if (GetKeyboardPress(DIK_P))
+		{
+			// 最大値になった場合
+			if (bullet->sclIncrease.x > BULLET_CHARGE_MAX)
+			{
+				bullet->sclIncrease = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
+			}
+			// 10フレーム
+			else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
+			{
+				bullet->sclIncrease += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
+			}
+		}
+		else if (GetKeyboardRelease(DIK_P))
+		{
+			SetBullet(player[P2].pos, player[P2].rot, bullet->sclIncrease, 0, P2);
+			cntFrame[P2] = 0;
+		}
+		
 	}
 }
 
@@ -552,15 +577,17 @@ D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 }
 
 //===========================================================================
-// 計算処理
+// NPCの移動処理
 // 引　数：D3DXVECTOR3 pos(次の移動位置)、D3DXVECTOR3 normal(ポリゴンの法線)
 //		   int index(プレイヤーのアドレス番号)
 // 戻り値：
 //==========================================================================
 void NonePlayerMove(void)
 {
+	BULLET *bullet = GetBullet(P2);
 	float box,out;
 	float atc, chase, escape;
+	
 	atc = FuzzyRightDown(player[P2].life, 40, 80);
 	chase = FuzzyTrapezoid(player[P2].life, 0, 20, 60, 80);
 	
@@ -571,7 +598,19 @@ void NonePlayerMove(void)
 	
 	if (out == atc)
 	{
-		//SetBullet(player[P2].pos, player[P2].rot,, 0, P2);
+		// 最大値になった場合
+		if (bullet->sclIncrease.x > BULLET_CHARGE_MAX)
+		{
+			bullet->sclIncrease = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
+			SetBullet(player[P2].pos, player[P2].rot, bullet->sclIncrease, 0, P2);
+			cntFrame[P2] = 0;
+		}
+		// 10フレーム
+		else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
+		{
+			bullet->sclIncrease += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
+		}
+
 	}
 	if(out == chase)
 	{
