@@ -153,6 +153,10 @@ void UpdateTitle(void)
 	{
 		SetStage(TUTORIAL);
 	}
+	else if (IsButtonPressed(0, BUTTON_A))
+	{
+		SetStage(TUTORIAL);
+	}
 	//// コンフィングへ遷移
 	//else if ((GetKeyboardTrigger(DIK_SPACE)) && (SelectNum == SELECT_OPTION))
 	//{

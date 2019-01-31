@@ -547,8 +547,8 @@ void UpdatePad(void)
 		padTrigger[i] = ((lastPadState ^ padState[i])	// ‘O‰ñ‚Æˆá‚Á‚Ä‚¢‚Ä
 						& padState[i]);					// ‚µ‚©‚à¡ON‚Ì‚â‚Â
 		// Releaseİ’è
-		padTrigger[i] = ((lastPadState ^ padState[i])	// ‘O‰ñ‚Æˆá‚Á‚Ä‚¢‚Ä
-						& !padState[i]);					// ‚µ‚©‚à¡ON‚Ì‚â‚Â
+		padRelease[i] = ((lastPadState ^ padState[i])	// ‘O‰ñ‚Æˆá‚Á‚Ä‚¢‚Ä
+						& lastPadState);				// ‚µ‚©‚à¡ON‚Ì‚â‚Â
 
 	}
 

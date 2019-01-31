@@ -77,12 +77,16 @@ void NonePlayerMove(void)
 	{
 		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
 		D3DXVec3Normalize(&vec, &vec);
-		player->move.x += vec.x * player->speed;
-		player->move.z += vec.z * player->speed;
+		player->move.x -= vec.x * player->speed;
+		player->move.z -= vec.z * player->speed;
 	}
 
 	if (out == pattern[PATTERN3])
 	{
+		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
+		D3DXVec3Normalize(&vec, &vec);
+		player->move.x += vec.x * player->speed;
+		player->move.z += vec.z * player->speed;
 
 	}
 

@@ -93,6 +93,17 @@ void UpdateTutorial(void)
 		//SetMakeField();
 		SetStage(START);
 	}
+
+	if (IsButtonTriggered(0, BUTTON_A) && TextureNum < TUTORIAL_MAX)
+	{
+		TextureNum++;	// 
+	}
+	else if (TextureNum == TUTORIAL_MAX)
+	{
+		//SetMakeField();
+		SetStage(START);
+	}
+
 }
 
 //=============================================================================
