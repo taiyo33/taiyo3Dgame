@@ -61,7 +61,11 @@ void CheckHit(void)
 			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos,
 				bullet[P1].size[j].x, 25.0f))
 			{
-				player[P2].life += 5.0f;
+				player[P2].life += 15.0f;
+				if (player[P2].life > 100.0f)
+				{
+					SetStage(RESULT);
+				}
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
 				bullet[P1].cntReflect[i] = 2;
@@ -73,7 +77,11 @@ void CheckHit(void)
 			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
 				bullet[P2].size[j].x, 25.0f))
 			{
-				player[P1].life -= 5.0f;
+				player[P1].life -= 15.0f;
+				if (player[P1].life < 0.0f)
+				{
+					SetStage(RESULT);
+				}
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;
 				bullet[P2].cntReflect[i] = 2;

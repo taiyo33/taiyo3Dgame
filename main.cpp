@@ -20,8 +20,6 @@
 #include "field.h"
 #include "checkhit.h"
 #include "explosion.h"
-#include "imgui.h"
-#include "imgui_impl_dx9.h"
 #include "smoke.h"
 #include "leftArm.h"
 #include "rightArm.h"
@@ -367,9 +365,6 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//
 	InitLifeGauge(0);
 
-	// 
-	//ImGui_ImplDX9_Init(g_pD3DDevice);
-
 	return S_OK;
 }
 
@@ -444,8 +439,6 @@ void Uninit(void)
 
 	//
 	UninitLifeGauge();
-
-	//ImGui_ImplDX9_Shutdown();
 
 }
 
@@ -802,7 +795,7 @@ void InitGame(void)
 	InitScore(INIT_GAME);
 
 	// タイトルの初期化
-	InitTitle(INIT_GAME);
+	InitTitle(0);
 
 	// リザルトの初期化
 	InitResult(INIT_GAME);

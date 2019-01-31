@@ -84,7 +84,7 @@ void UninitTutorial(void)
 //=============================================================================
 void UpdateTutorial(void)
 {
-	if (GetKeyboardTrigger(DIK_M) && TextureNum < TUTORIAL_MAX)
+	if (GetKeyboardTrigger(DIK_RETURN) && TextureNum < TUTORIAL_MAX)
 	{
 		TextureNum++;	// 
 	}

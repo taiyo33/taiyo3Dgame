@@ -43,12 +43,6 @@
     <Filter Include="ヘッダー ファイル\effect">
       <UniqueIdentifier>{43b52ce1-0d1b-4ace-ac1d-01b6ff863e4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\imgui">
-      <UniqueIdentifier>{1a21a80e-69f7-47a2-bf0d-332b9cb04793}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\imgui">
-      <UniqueIdentifier>{ba0c5875-5336-40e0-936c-ceeca0035fe6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\stage">
       <UniqueIdentifier>{ddcd0941-df58-4ed5-9e8e-6fc504e78338}</UniqueIdentifier>
     </Filter>
@@ -101,21 +95,6 @@
     </ClCompile>
     <ClCompile Include="checkhit.cpp">
       <Filter>ソース ファイル\main</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_impl_dx9.cpp">
-      <Filter>ソース ファイル\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui.cpp">
-      <Filter>ソース ファイル\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_demo.cpp">
-      <Filter>ソース ファイル\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_draw.cpp">
-      <Filter>ソース ファイル\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_widgets.cpp">
-      <Filter>ソース ファイル\imgui</Filter>
     </ClCompile>
     <ClCompile Include="field.cpp">
       <Filter>ソース ファイル\stage</Filter>
@@ -199,27 +178,6 @@
     </ClInclude>
     <ClInclude Include="checkhit.h">
       <Filter>ヘッダー ファイル\main</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui.h">
-      <Filter>ヘッダー ファイル\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui_impl_dx9.h">
-      <Filter>ヘッダー ファイル\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imconfig.h">
-      <Filter>ヘッダー ファイル\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui_internal.h">
-      <Filter>ヘッダー ファイル\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imstb_rectpack.h">
-      <Filter>ヘッダー ファイル\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imstb_textedit.h">
-      <Filter>ヘッダー ファイル\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imstb_truetype.h">
-      <Filter>ヘッダー ファイル\imgui</Filter>
     </ClInclude>
     <ClInclude Include="field.h">
       <Filter>ヘッダー ファイル\stage</Filter>
