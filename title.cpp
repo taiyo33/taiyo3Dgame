@@ -15,6 +15,13 @@
 #define LOGOSPACE_OFF				(0)		//
 #define ON_COUNT					(70)	//
 #define OFF_COUNT					(30)	//
+#define	TEXTURE_TITLE		("data/TEXTURE/title_logo01.png")	// 読み込むテクスチャファイル名
+#define	TEXTURE_SPACE		("data/TEXTURE/space.png")	// 読み込むテクスチャファイル名
+#define	TEXTURE_GAMESTART	("data/TEXTURE/gamestart.png")	// 読み込むテクスチャファイル名
+#define	TEXTURE_OPTION		("data/TEXTURE/option.png")	// 読み込むテクスチャファイル名
+#define	TEXTURE_EXIT		("data/TEXTURE/exit.png")	// 読み込むテクスチャファイル名
+#define	TEXTURE_SELECT		("data/TEXTURE/yajirusi.png")	// 読み込むテクスチャファイル名
+
 
 //*****************************************************************************
 // プロトタイプ宣言

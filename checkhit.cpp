@@ -63,6 +63,8 @@ void CheckHit(void)
 			{
 				player[P2].life += 5.0f;
 				bullet[P1].use[i] = false;
+				bullet[P1].reflect[i] = false;
+				bullet[P1].cntReflect[i] = 2;
 			}
 		}
 		// プレイヤー２のバレット
@@ -73,6 +75,8 @@ void CheckHit(void)
 			{
 				player[P1].life -= 5.0f;
 				bullet[P2].use[i] = false;
+				bullet[P2].reflect[i] = false;
+				bullet[P2].cntReflect[i] = 2;
 			}
 		}
 	}

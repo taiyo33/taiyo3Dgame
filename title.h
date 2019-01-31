@@ -10,22 +10,15 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	TEXTURE_TITLE		("data/TEXTURE/title.png")	// 読み込むテクスチャファイル名
-#define	TEXTURE_SPACE		("data/TEXTURE/space.png")	// 読み込むテクスチャファイル名
-#define	TEXTURE_GAMESTART	("data/TEXTURE/gamestart.png")	// 読み込むテクスチャファイル名
-#define	TEXTURE_OPTION		("data/TEXTURE/option.png")	// 読み込むテクスチャファイル名
-#define	TEXTURE_EXIT		("data/TEXTURE/exit.png")	// 読み込むテクスチャファイル名
-#define	TEXTURE_SELECT		("data/TEXTURE/yajirusi.png")	// 読み込むテクスチャファイル名
 
 
+#define	TITLE_POS_X			(350)								// タイトルの表示位置
+#define	TITLE_POS_Y			(250)								// タイトルの表示位置
+#define	TITLE_SIZE_X		(600)							// タイトルの幅
+#define	TITLE_SIZE_Y		(250)							// タイトルの高さ
 
-#define	TITLE_POS_X			(0)								// タイトルの表示位置
-#define	TITLE_POS_Y			(0)								// タイトルの表示位置
-#define	TITLE_SIZE_X		(800)							// タイトルの幅
-#define	TITLE_SIZE_Y		(600)							// タイトルの高さ
-
-#define	TITLE_LOGO_POS_X	(200)							// タイトルロゴの表示位置
-#define	TITLE_LOGO_POS_Y	(300)							// タイトルロゴの表示位置
+#define	TITLE_LOGO_POS_X	(550)							// タイトルロゴの表示位置
+#define	TITLE_LOGO_POS_Y	(500)							// タイトルロゴの表示位置
 #define	TITLE_LOGO_SIZE_X	(200)							// タイトルロゴの幅
 #define	TITLE_LOGO_SIZE_Y	(150)							// タイトルロゴの高さ
 #define SET_LOGO			(50)

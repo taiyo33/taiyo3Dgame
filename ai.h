@@ -21,5 +21,6 @@ float FuzzyTrapezoid(float val, float x0, float x1, float x2, float x3);
 float And(float a, float b);
 float Or(float a, float b);
 float Not(float a, float b);
+void NonePlayerMove(void);
 
 #endif
