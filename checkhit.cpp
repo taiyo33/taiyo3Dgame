@@ -1,3 +1,9 @@
+//=============================================================================
+//
+// Õ“Ë”»’èˆ— [checkhit.cpp]
+// Author : GP11A_341_22_“c’†‘¾—z 
+//
+//=============================================================================
 #include "main.h"
 #include "checkhit.h"
 #include "player.h"
@@ -59,7 +65,7 @@ void CheckHit(void)
 		if (bullet[P1].use[i])
 		{
 			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos,
-				bullet[P1].size[j].x, 25.0f))
+				bullet[P1].size[j].x, 10.0f))
 			{
 				player[P2].life += 15.0f;
 				if (player[P2].life > 100.0f)
@@ -75,7 +81,7 @@ void CheckHit(void)
 		if (bullet[P2].use[i])
 		{
 			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
-				bullet[P2].size[j].x, 25.0f))
+				bullet[P2].size[j].x, 10.0f))
 			{
 				player[P1].life -= 15.0f;
 				if (player[P1].life < 0.0f)

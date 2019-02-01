@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // タイトル画面処理 [title.cpp]
-// Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
+// Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
 #include "main.h"
@@ -146,10 +146,6 @@ void UpdateTitle(void)
 	// ゲームへ遷移
 	//if ((GetKeyboardTrigger(DIK_SPACE)) && (SelectNum == SELECT_START))
 	if ((GetKeyboardTrigger(DIK_SPACE)))
-	{
-		SetStage(TUTORIAL);
-	}
-	else if (IsMouseLeftTriggered())
 	{
 		SetStage(TUTORIAL);
 	}

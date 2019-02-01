@@ -25,7 +25,7 @@
 #define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
 #define VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
 #define PLAYER_POS_Y_LIMIT	(-200.0f)					// Y軸の上限値
-
+#define AI_UPDATE_TIME		(10)						// ＡＩの情報更新時間
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -46,6 +46,7 @@ static LPD3DXMESH					D3DXMesh;				// ID3DXMeshインターフェイスへのポインタ
 static LPD3DXBUFFER					D3DXBuffMat;			// メッシュのマテリアル情報を格納
 static DWORD						NumMat;					// 属性情報の総数
 static int							cntFrame[PLAYER_MAX];	// フレームカウント
+static int							aiTime;
 PLAYER								player[PLAYER_MAX];		// プレイヤー構造体
 //=============================================================================
 // 初期化処理
@@ -63,8 +64,9 @@ HRESULT InitPlayer(int type)
 	player[P2].pos = D3DXVECTOR3(200.0f, 10.0f, 0.0f);	//
 	player[P1].use = true;								// 使用状態を初期化
 	player[P2].use = true;								//
-	player[P1].life = PLAYER_LIFE_MAX;
-	player[P2].life = 0;
+	player[P1].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
+	player[P2].life = 0;								// 
+	aiTime = 0;											// AIの更新カウンをト初期化
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
@@ -132,12 +134,13 @@ void UninitPlayer(void)
 //=============================================================================
 void UpdatePlayer(void)
 {
+	aiTime++; // AIの更新カウント
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		// 現在位置を保存
 		player[i].prevPos = player[i].pos;
 		cntFrame[i]++;
-
+		
 		// 操作の処理
 		InputPlayer1();
 		InputPlayer2();
@@ -146,8 +149,11 @@ void UpdatePlayer(void)
 		// 壁ずり処理
 		WallShearPlayer(i);
 		
-		NonePlayerMove();
-
+		if (aiTime % AI_UPDATE_TIME == 0)
+		{
+			NonePlayerMove();
+			aiTime = 0;
+		}
 		// プレイヤーの操作
 		MovePlayer(i);
 	}
@@ -692,7 +698,6 @@ D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 }
 
 //===========================================================================
-// 計算処理
 // NPCの移動処理
 // 引　数：D3DXVECTOR3 pos(次の移動位置)、D3DXVECTOR3 normal(ポリゴンの法線)
 //		   int index(プレイヤーのアドレス番号)
@@ -705,21 +710,20 @@ void NonePlayerMove(void)
 	float atc, chase, escape;
 
 	atc = FuzzyRightDown(player[P2].life, 40, 80);
-	chase = FuzzyTrapezoid(player[P2].life, 0, 20, 60, 80);
+	chase = FuzzyTrapezoid(player[P2].life, 0, 20, 40, 80);
 
 	box = Or(atc, chase);
 	escape = FuzzyRightUp(player[P2].life, 50, 80);
 
 	out = Or(box, escape);
 
-	if (out == atc)
+	if (0.5f < atc)
 	{
-		//SetBullet(player[P2].pos, player[P2].rot,, 0, P2);
 		// 最大値になった場合
 		if (bullet->sclIncrease.x > BULLET_CHARGE_MAX)
 		{
-
 			bullet->sclIncrease = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
+			
 			SetBullet(player[P2].pos, player[P2].rot, bullet->sclIncrease, 0, P2);
 			cntFrame[P2] = 0;
 		}
@@ -730,10 +734,11 @@ void NonePlayerMove(void)
 		}
 
 	}
-	if (out == chase)
+	if (0.8f < chase)
 	{
 		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
 		D3DXVec3Normalize(&vec, &vec);
+		player[P2].rot.y = atan2f(vec.z, vec.x);
 		player[P2].move.x += vec.x * player[P2].speed;
 		player[P2].move.z += vec.z * player[P2].speed;
 	}

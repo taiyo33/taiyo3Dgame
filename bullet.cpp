@@ -1,7 +1,7 @@
 //===============================================================================
 //
 // バレット処理 [bullet.cpp]
-// Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
+// Author : GP11A_341_22_田中太陽 
 //
 //===============================================================================
 #include "bullet.h"
@@ -333,7 +333,7 @@ BULLET *GetBullet(int bno)
 // 引　数：D3DXVECTOR3 pos(位置)、D3DXVECTOR3 rot(角度)、float Dest(距離)
 // 戻り値：bool型　未使用の場合 true、使用中の場合 false
 //=========================================================================
-bool SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 scl, float Dest, int index)
+void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 scl, float Dest, int index)
 {
 	BULLET *bullet = &bulletWk[index];
 
@@ -352,11 +352,11 @@ bool SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 scl, float Dest, int
 			cntFrame[index] = 0;									// フレームカウントを初期化
 			bullet->sclIncrease = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加値を初期化
 			
-			return bullet;
+			return;
 		}
 	}
 
-	return bullet;
+	return;
 }
 
 //========================================================================

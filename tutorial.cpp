@@ -1,7 +1,7 @@
 //=============================================================================
 //
-// チュートリアル処理 [Tutorial.cpp]
-// Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
+// チュートリアル処理 [tutorial.cpp]
+// Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
 #include "main.h"
@@ -84,26 +84,14 @@ void UninitTutorial(void)
 //=============================================================================
 void UpdateTutorial(void)
 {
-	if (GetKeyboardTrigger(DIK_RETURN) && TextureNum < TUTORIAL_MAX)
+	if (GetKeyboardTrigger(DIK_RETURN))
 	{
-		TextureNum++;	// 
-	}
-	else if(TextureNum == TUTORIAL_MAX)
-	{
-		//SetMakeField();
 		SetStage(START);
 	}
-
-	if (IsButtonTriggered(0, BUTTON_A) && TextureNum < TUTORIAL_MAX)
+	if (IsButtonTriggered(0, BUTTON_A))
 	{
-		TextureNum++;	// 
-	}
-	else if (TextureNum == TUTORIAL_MAX)
-	{
-		//SetMakeField();
 		SetStage(START);
 	}
-
 }
 
 //=============================================================================

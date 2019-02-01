@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // メイン処理 [main.cpp]
-// Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
+// Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
 #include "main.h"
@@ -561,7 +561,7 @@ void Update(void)
 			UpdateBullet();
 
 			// スコアの更新
-			UpdateScore();
+			//UpdateScore();
 			
 			// 
 			UpdateBulletGauge();
@@ -699,7 +699,7 @@ void Draw(void)
 				DrawRightReg();
 
 				// スコアの描画
-				DrawScore();
+				//DrawScore();
 
 				//
 				DrawLifeGauge();

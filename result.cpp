@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // リザルト処理 [result.cpp]
-// Author : GP11A_341_22_田中太陽 GP11A341_22_田中太陽
+// Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
 #include "main.h"
@@ -79,7 +79,13 @@ void UninitResult(void)
 void UpdateResult(void)
 {
 	// アニメーション
-	if (GetKeyboardTrigger(DIK_SPACE))
+	if (GetKeyboardTrigger(DIK_RETURN))
+	{
+		SetStage(TITLE);
+		InitGame();
+	}
+
+	if (IsButtonTriggered(0, BUTTON_A))
 	{
 		SetStage(TITLE);
 		InitGame();

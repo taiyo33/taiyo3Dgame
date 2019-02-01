@@ -18,8 +18,8 @@
 #define	VIEW_FAR_Z			(1000.0f)			// ビュー平面のFarZ値
 #define	VALUE_MOVE_CAMERA	(5.0f)				// カメラの移動量
 #define INIT_POS_X			(0.0f)
-#define INIT_POS_Y			(400.0f)
-#define INIT_POS_Z			(-300.0f)
+#define INIT_POS_Y			(300.0f)
+#define INIT_POS_Z			(-250.0f)
 #define ROT_SPEED_X			(D3DX_PI * 0.01f)	// X軸回転速度の初期値
 #define ROT_SPEED_Y			(D3DX_PI * 0.005f)	// Y軸回転速度の初期値
 
