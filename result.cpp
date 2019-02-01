@@ -79,7 +79,7 @@ void UninitResult(void)
 void UpdateResult(void)
 {
 	// アニメーション
-	if (GetKeyboardTrigger(DIK_RETURN))
+	if (GetKeyboardTrigger(DIK_SPACE))
 	{
 		SetStage(TITLE);
 		InitGame();

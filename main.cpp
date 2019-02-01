@@ -806,5 +806,7 @@ void InitGame(void)
 	// フィールドの初期化
 	InitField(INIT_GAME);
 
+	InitBlock(INIT_GAME);
+
 }
 

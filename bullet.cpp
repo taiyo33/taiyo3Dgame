@@ -143,7 +143,7 @@ void UpdateBullet(void)
 		}
 	}
 
-	PrintDebugProc("バレットの拡大率[(%f)]\n", bullet[0].sclIncrease[0]);
+	//PrintDebugProc("バレットの拡大率[(%f)]\n", bullet[0].sclIncrease[0]);
 }
 
 //===============================================================================

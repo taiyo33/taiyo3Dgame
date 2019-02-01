@@ -150,6 +150,8 @@ void UpdatePlayer(void)
 
 		// ƒvƒŒƒCƒ„[‚Ì‘€ì
 		MovePlayer(i);
+
+		PlayerDamageManager(i);
 	}
 }
 
@@ -631,7 +633,12 @@ void WallShearPlayer(int index)
 //=============================================================================
 bool PlayerDamageManager(int index)
 {
-	if (player[index].pos.y < PLAYER_POS_Y_LIMIT) return false;
+	if (player[index].pos.y < PLAYER_POS_Y_LIMIT)
+	{
+		SetStage(RESULT);
+		return false;
+	}
+
 	return true;
 }
 

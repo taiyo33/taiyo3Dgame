@@ -13,8 +13,8 @@
 #define TEXTURE_GAMEOVER 	("data/TEXTURE/gameover.png")	// サンプル用画像
 
 
-#define TEXTURE_SAMPLE00_SIZE_X_RESULT	(800) // テクスチャサイズ
-#define TEXTURE_SAMPLE00_SIZE_Y_RESULT	(600) // 同上
+#define TEXTURE_SAMPLE00_SIZE_X_RESULT	(1280) // テクスチャサイズ
+#define TEXTURE_SAMPLE00_SIZE_Y_RESULT	(800) // 同上
 
 #define TEXTURE_PATTERN_DIVIDE_X_RESULT	(8)	// アニメパターンのテクスチャ内分割数（X)
 #define TEXTURE_PATTERN_DIVIDE_Y_RESULT	(1)	// アニメパターンのテクスチャ内分割数（Y)

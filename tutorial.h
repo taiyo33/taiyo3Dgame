@@ -9,21 +9,23 @@
 
 
 // マクロ定義
-#define TEXTURE_TUTORIAL1	("data/TEXTURE/tutorial02.png")		// 歩行用画像
-#define TEXTURE_TUTORIAL2	("data/TEXTURE/tutorial2.png")		// 歩行用画像
-#define TEXTURE_TUTORIAL3	("data/TEXTURE/tutorial3.png")		// 歩行用画像
 
 
 
-#define TEXTURE_MAX				 (1)	 // 画像枚数
-#define TEXTURE_TUTORIAL_SIZE_X	 (800)	 // テクスチャサイズ
-#define TEXTURE_TUTORIAL_SIZE_Y	 (600)	 // 
+#define TEXTURE_MAX				 (2)	 // 画像枚数
+#define TEXTURE_TUTORIAL_SIZE_X01	 (800)	 // テクスチャサイズ
+#define TEXTURE_TUTORIAL_SIZE_Y01	 (600)	 // 
 
-#define TUTORIAL_POS_X	 (250)	 // 初期X座標 
-#define TUTORIAL_POS_Y	 (100)	 // 初期Y座標
+#define TUTORIAL_POS_X01	 (250)	 // 初期X座標 
+#define TUTORIAL_POS_Y01	 (100)	 // 初期Y座標
+
+#define TEXTURE_TUTORIAL_SIZE_X02	 (200)	 // テクスチャサイズ
+#define TEXTURE_TUTORIAL_SIZE_Y02	 (150)	 // 
+
+#define TUTORIAL_POS_X02	 (570)	 // 初期X座標 
+#define TUTORIAL_POS_Y02	 (640)	 // 初期Y座標
 
 #define	NUM_TUTORIAL				 (2)	 // ポリゴン数
-#define TUTORIAL_TEXTURE_MAX		 (1)	 // 数
 
 //*****************************************************************************
 // プロトタイプ宣言
