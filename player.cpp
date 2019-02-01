@@ -46,7 +46,6 @@ static LPD3DXMESH					D3DXMesh;				// ID3DXMeshインターフェイスへのポインタ
 static LPD3DXBUFFER					D3DXBuffMat;			// メッシュのマテリアル情報を格納
 static DWORD						NumMat;					// 属性情報の総数
 static int							cntFrame[PLAYER_MAX];	// フレームカウント
-static int							aiTime;
 PLAYER								player[PLAYER_MAX];		// プレイヤー構造体
 //=============================================================================
 // 初期化処理
@@ -66,7 +65,6 @@ HRESULT InitPlayer(int type)
 	player[P2].use = true;								//
 	player[P1].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
 	player[P2].life = 0;								// 
-	aiTime = 0;											// AIの更新カウンをト初期化
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
@@ -134,7 +132,6 @@ void UninitPlayer(void)
 //=============================================================================
 void UpdatePlayer(void)
 {
-	aiTime++; // AIの更新カウント
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		// 現在位置を保存
@@ -149,11 +146,8 @@ void UpdatePlayer(void)
 		// 壁ずり処理
 		WallShearPlayer(i);
 		
-		if (aiTime % AI_UPDATE_TIME == 0)
-		{
-			NonePlayerMove();
-			aiTime = 0;
-		}
+		NonePlayerMove();
+
 		// プレイヤーの操作
 		MovePlayer(i);
 	}
@@ -738,7 +732,6 @@ void NonePlayerMove(void)
 	{
 		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
 		D3DXVec3Normalize(&vec, &vec);
-		player[P2].rot.y = atan2f(vec.z, vec.x);
 		player[P2].move.x += vec.x * player[P2].speed;
 		player[P2].move.z += vec.z * player[P2].speed;
 	}
