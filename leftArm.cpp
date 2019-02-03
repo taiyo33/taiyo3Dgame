@@ -103,7 +103,13 @@ void UninitLeftArm(void)
 //=============================================================================
 void UpdateLeftArm(void)
 {
+	PLAYER *player = GetPlayer(0);
 
+	for (int i = 0; i < PLAYER_MAX; i++)
+	{
+		player[i].angle -= 0.05f;
+		leftArm[i].rot.x += player[i].angle;
+	}
 }
 
 //=============================================================================

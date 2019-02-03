@@ -37,7 +37,7 @@ typedef struct {
 	int							IdxShadow;			// 影ID
 	float						SizeShadow;			// 影のサイズ
 	D3DXCOLOR					colShadow;			// 影の色
-
+	float						angle;
 }PLAYER;
 
 enum {

@@ -14,11 +14,11 @@
 //*****************************************************************************
 // ƒ}ƒNƒ’è‹`
 //*****************************************************************************
-#define	TEXTURE_SMOKE		"data/TEXTURE/shadow.jpg"	// “Ç‚İ‚ŞƒeƒNƒXƒ`ƒƒƒtƒ@ƒCƒ‹–¼
+#define	TEXTURE_SMOKE		"data/TEXTURE/bullet001.png"	// “Ç‚İ‚ŞƒeƒNƒXƒ`ƒƒƒtƒ@ƒCƒ‹–¼
 #define	SMOKE_SIZE_X		(5.0f)						// ƒrƒ‹ƒ{[ƒh‚Ì•
 #define	SMOKE_SIZE_Y		(5.0f)						// ƒrƒ‹ƒ{[ƒh‚Ì‚‚³
-#define SMOKE_MAX			(35)						// ‰ŒƒGƒtƒFƒNƒg‚ÌÅ‘å”
-#define DEL_TIME			(60)						// ƒGƒtƒFƒNƒg‚Ìõ–½
+#define SMOKE_MAX			(60)						// ‰ŒƒGƒtƒFƒNƒg‚ÌÅ‘å”
+#define DEL_TIME			(10)						// ƒGƒtƒFƒNƒg‚Ìõ–½
 
 //*****************************************************************************
 // ƒvƒƒgƒ^ƒCƒvéŒ¾
@@ -26,7 +26,7 @@
 HRESULT MakeVertexSmoke(LPDIRECT3DDEVICE9 pDevice);
 void SetVertexSmoke(int Index, float fSizeX, float fSizeY);
 void SetDiffuseSmoke(int Index, float val);
-void MoveSmoke(int mno);
+//void MoveSmoke(int mno);
 
 //*****************************************************************************
 // ƒOƒ[ƒoƒ‹•Ï”
@@ -36,8 +36,8 @@ LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffSmoke = NULL;	// ’¸“_ƒoƒbƒtƒ@ƒCƒ“ƒ^[ƒtƒF[ƒX‚
 
 float					s_curveAngle[SMOKE_MAX];	// SinƒJ[ƒu‚ÌŠp“x
 static int				cnt_frame;					// ƒtƒŒ[ƒ€”
-static float			dif_mi[SMOKE_MAX];			// “§‰ß’l
-SMOKE					smokeWk[SMOKE_MAX];			// SMOKE\‘¢‘Ì—p•Ï”
+static float			dif_mi[SMOKE_SET_MAX][SMOKE_ONESET_MAX];			// “§‰ß’l
+SMOKE					smokeWk[SMOKE_SET_MAX];	// SMOKE\‘¢‘Ì—p•Ï”
 
 //=============================================================================
 // ‰Šú‰»ˆ—
@@ -58,13 +58,16 @@ HRESULT InitSmoke(int type)
 			&D3DTextureSmoke);			// “Ç‚İ‚Şƒƒ‚ƒŠ[
 	}
 
-	for (int i = 0; i < SMOKE_MAX; i++)
+	for (int i = 0; i < SMOKE_SET_MAX; i++)
 	{
-		smoke[i].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		smoke[i].scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-		smoke[i].time = DEL_TIME;
-		smoke[i].Alpha = 0.0f;
-		dif_mi[i] = INIT_ALPHA;
+		for (int j = 0; j < SMOKE_ONESET_MAX; j++)
+		{
+			smoke[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			smoke[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+			smoke[i].time[j] = DEL_TIME;
+			smoke[i].Alpha[j] = 0.0f;
+			dif_mi[i][j] = INIT_ALPHA;
+		}
 	}
 
 	return S_OK;
@@ -95,28 +98,28 @@ void UpdateSmoke(void)
 {
 	SMOKE *smoke = &smokeWk[0];
 
-	for (int i = 0; i < SMOKE_MAX; i++)
+	for (int i = 0; i < SMOKE_SET_MAX; i++)
 	{
-		if (smoke[i].use == true)
+		for (int j = 0; j < SMOKE_ONESET_MAX; j++)
 		{
-			MoveSmoke(i);			// ‰ŒƒGƒtƒFƒNƒg‚Ì“®‚«
-
+			if (smoke[i].use[j])
+			{
 				// ƒGƒtƒFƒNƒg‚ÌŠg‘å
-			if (smoke[i].time % 5 == 0)
-			{
-				smoke[i].scl += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
-			}
+				if (smoke[i].time[j] % 5 == 0)
+				{
+					smoke[i].scl[j] -= D3DXVECTOR3(0.1f, 0.1f, 0.1f);
+				}
 
-			dif_mi[i] -= 0.01f;		// “§‰ß‚Ì’l
-			smoke[i].time--;		// ¶‘¶ŠÔ‚ğƒfƒNƒŠƒƒ“ƒg
+				dif_mi[i][j] -= 0.01f;		// “§‰ß‚Ì’l
+				smoke[i].time[j]--;		// ¶‘¶ŠÔ‚ğƒfƒNƒŠƒƒ“ƒg
 
-			// Á–ÅŠÔ‚É‚È‚Á‚½‚çÁ–Å
-			if (smoke[i].time % DEL_TIME == 0)
-			{
-				dif_mi[i] = INIT_ALPHA;
-				smoke[i].use = false;
-				smoke[i].scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-				s_curveAngle[i] = 0.0f;
+				// Á–ÅŠÔ‚É‚È‚Á‚½‚çÁ–Å
+				if (smoke[i].time[j] % DEL_TIME == 0)
+				{
+					dif_mi[i][j] = INIT_ALPHA;
+					smoke[i].use[j] = false;
+					smoke[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+				}
 			}
 		}
 	}
@@ -139,65 +142,68 @@ void DrawSmoke(void)
 	pDevice->SetRenderState(D3DRS_ALPHAREF, 128);
 	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 
-	for (int i = 0; i < SMOKE_MAX; i++)
+	for (int i = 0; i < SMOKE_SET_MAX; i++)
 	{
-		SetDiffuseSmoke(i, dif_mi[i]);
-
-		// ƒ‰ƒCƒ“ƒeƒBƒ“ƒO‚ğ–³Œø‚É‚·‚é
-		pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-
-		// ’ÊíƒuƒŒƒ“ƒh
-		pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);		
-		pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-
-		if (smoke[i].use)
+		for (int j = 0; j < SMOKE_ONESET_MAX; j++)
 		{
-			// ƒrƒ…[ƒ}ƒgƒŠƒbƒNƒX‚ğæ“¾
-			mtxView = GetMtxView();
+			SetDiffuseSmoke(i, dif_mi[i][j]);
 
-			// ƒ[ƒ‹ƒhƒ}ƒgƒŠƒbƒNƒX‚Ì‰Šú‰»
-			D3DXMatrixIdentity(&smoke[i].mtxWorld);
+			// ƒ‰ƒCƒ“ƒeƒBƒ“ƒO‚ğ–³Œø‚É‚·‚é
+			pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
-			// ƒ|ƒŠƒSƒ“‚ğ³–Ê‚ÉŒü‚¯‚é
-			smoke[i].mtxWorld._11 = mtxView._11;
-			smoke[i].mtxWorld._12 = mtxView._21;
-			smoke[i].mtxWorld._13 = mtxView._31;
-			smoke[i].mtxWorld._21 = mtxView._12;
-			smoke[i].mtxWorld._22 = mtxView._22;
-			smoke[i].mtxWorld._23 = mtxView._32;
-			smoke[i].mtxWorld._31 = mtxView._13;
-			smoke[i].mtxWorld._32 = mtxView._23;
-			smoke[i].mtxWorld._33 = mtxView._33;
+			// ’ÊíƒuƒŒƒ“ƒh
+			pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+			pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 
-			// ƒXƒP[ƒ‹‚ğ”½‰f
-			D3DXMatrixScaling(&mtxScale, smoke[i].scl.x,
-				smoke[i].scl.y,
-				smoke[i].scl.z);
-			D3DXMatrixMultiply(&smoke[i].mtxWorld,
-				&smoke[i].mtxWorld, &mtxScale);
+			if (smoke[i].use[j])
+			{
+				// ƒrƒ…[ƒ}ƒgƒŠƒbƒNƒX‚ğæ“¾
+				mtxView = GetMtxView();
 
-			// ˆÚ“®‚ğ”½‰f
-			D3DXMatrixTranslation(&mtxTranslate, smoke[i].pos.x,
-				smoke[i].pos.y,
-				smoke[i].pos.z);
-			D3DXMatrixMultiply(&smoke[i].mtxWorld,
-				&smoke[i].mtxWorld, &mtxTranslate);
+				// ƒ[ƒ‹ƒhƒ}ƒgƒŠƒbƒNƒX‚Ì‰Šú‰»
+				D3DXMatrixIdentity(&smoke[i].mtxWorld);
 
-			// ƒ[ƒ‹ƒhƒ}ƒgƒŠƒbƒNƒX‚Ìİ’è
-			pDevice->SetTransform(D3DTS_WORLD, &smoke[i].mtxWorld);
+				// ƒ|ƒŠƒSƒ“‚ğ³–Ê‚ÉŒü‚¯‚é
+				smoke[i].mtxWorld._11 = mtxView._11;
+				smoke[i].mtxWorld._12 = mtxView._21;
+				smoke[i].mtxWorld._13 = mtxView._31;
+				smoke[i].mtxWorld._21 = mtxView._12;
+				smoke[i].mtxWorld._22 = mtxView._22;
+				smoke[i].mtxWorld._23 = mtxView._32;
+				smoke[i].mtxWorld._31 = mtxView._13;
+				smoke[i].mtxWorld._32 = mtxView._23;
+				smoke[i].mtxWorld._33 = mtxView._33;
 
-			// ’¸“_ƒoƒbƒtƒ@‚ğƒfƒoƒCƒX‚Ìƒf[ƒ^ƒXƒgƒŠ[ƒ€‚ÉƒoƒCƒ“ƒh
-			pDevice->SetStreamSource(0, D3DVtxBuffSmoke, 0, sizeof(VERTEX_3D));
+				// ƒXƒP[ƒ‹‚ğ”½‰f
+				D3DXMatrixScaling(&mtxScale, smoke[i].scl[j].x,
+					smoke[i].scl[j].y,
+					smoke[i].scl[j].z);
+				D3DXMatrixMultiply(&smoke[i].mtxWorld,
+					&smoke[i].mtxWorld, &mtxScale);
 
-			// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
-			pDevice->SetFVF(FVF_VERTEX_3D);
+				// ˆÚ“®‚ğ”½‰f
+				D3DXMatrixTranslation(&mtxTranslate, smoke[i].pos[j].x,
+					smoke[i].pos[j].y,
+					smoke[i].pos[j].z);
+				D3DXMatrixMultiply(&smoke[i].mtxWorld,
+					&smoke[i].mtxWorld, &mtxTranslate);
 
-			// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
-			pDevice->SetTexture(0, D3DTextureSmoke);
+				// ƒ[ƒ‹ƒhƒ}ƒgƒŠƒbƒNƒX‚Ìİ’è
+				pDevice->SetTransform(D3DTS_WORLD, &smoke[i].mtxWorld);
 
-			// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
-			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
+				// ’¸“_ƒoƒbƒtƒ@‚ğƒfƒoƒCƒX‚Ìƒf[ƒ^ƒXƒgƒŠ[ƒ€‚ÉƒoƒCƒ“ƒh
+				pDevice->SetStreamSource(0, D3DVtxBuffSmoke, 0, sizeof(VERTEX_3D));
+
+				// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+				pDevice->SetFVF(FVF_VERTEX_3D);
+
+				// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+				pDevice->SetTexture(0, D3DTextureSmoke);
+
+				// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
+			}
 		}
 	}
 
@@ -320,23 +326,23 @@ void SetDiffuseSmoke(int Index, float val)
 
 //==========================================================================
 // ‰ŒƒGƒtƒFƒNƒg‚Ìİ’u
-// ˆø@”FD3DXVECTOR3 pos(ˆÊ’u), D3DXVECTOR3 rot(‰ñ“]), float Dest(‹——£)
+// ˆø@”FD3DXVECTOR3 pos[j](ˆÊ’u), D3DXVECTOR3 rot(‰ñ“]), float Dest(‹——£)
 // –ß‚è’lFboolŒ^@g—p’†‚È‚ç false, –¢g—p‚È‚çtrue@
 //==========================================================================
-bool SetSmoke(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest)
+bool SetSmoke(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, float sizeX, float sizeY, int index)
 {
-	SMOKE *smoke = &smokeWk[0];
+	SMOKE *smoke = &smokeWk[index];
 
-	for (int i = 0; i < SMOKE_MAX; i++)
+	for (int i = 0; i < SMOKE_ONESET_MAX; i++)
 	{
-		if (!smoke[i].use)
+		if (!smoke->use[i])
 		{
-			smoke[i].use = true;	// g—p’†
-			smoke[i].pos.x = pos.x + sinf(rot.y) * Dest;
-			smoke[i].pos.z = pos.z + cosf(rot.y) * Dest;
-			smoke[i].pos.y = pos.y;
+			smoke->use[i] = true;	// g—p’†
+			smoke->pos[i].x = pos.x + sinf(rot.y) * Dest;
+			smoke->pos[i].z = pos.z + cosf(rot.y) * Dest;
+			smoke->pos[i].y = pos.y;
 
-			SetVertexSmoke(i, 5.0f, 5.0f);
+			SetVertexSmoke(i, sizeX, sizeY);
 
 			return true;
 		}
@@ -345,22 +351,22 @@ bool SetSmoke(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest)
 	return false;
 }
 
-//==========================================================================
-// ‰ŒƒGƒtƒFƒNƒg‚Ì‚ä‚ç‚ß‚«‚Ì§Œä
-// ˆø@”F int mno(‰ŒƒGƒtƒFƒNƒg‚ÌƒAƒhƒŒƒX”Ô†)
-// –ß‚è’lF ‚È‚µ
-//==========================================================================
-void MoveSmoke(int mno)
-{
-	SMOKE *smoke = &smokeWk[mno];	// ƒAƒhƒŒƒX‚Ìæ“¾
-
-	// ‚ä‚ç‚¬‚Ì’l‚ğƒ‰ƒ“ƒ_ƒ€‚Åw’è
-	s_curveAngle[mno] = (float)(rand() % 101);
-
-	// ‚ä‚ç‚¬‚Ì”½‰f
-	smoke[mno].pos.x += sinf(s_curveAngle[mno]);
-	smoke[mno].pos.y += 0.2f;
-	smoke[mno].pos.z += cosf(s_curveAngle[mno]);
-
-}
+////==========================================================================
+//// ‰ŒƒGƒtƒFƒNƒg‚Ì‚ä‚ç‚ß‚«‚Ì§Œä
+//// ˆø@”F int mno(‰ŒƒGƒtƒFƒNƒg‚ÌƒAƒhƒŒƒX”Ô†)
+//// –ß‚è’lF ‚È‚µ
+////==========================================================================
+//void MoveSmoke(int mno)
+//{
+//	SMOKE *smoke = &smokeWk[mno];	// ƒAƒhƒŒƒX‚Ìæ“¾
+//
+//	// ‚ä‚ç‚¬‚Ì’l‚ğƒ‰ƒ“ƒ_ƒ€‚Åw’è
+//	s_curveAngle[mno] = (float)(rand() % 101);
+//
+//	// ‚ä‚ç‚¬‚Ì”½‰f
+//	smoke[mno].pos[j].x += sinf(s_curveAngle[mno]);
+//	smoke[mno].pos[j].y += 0.2f;
+//	smoke[mno].pos[j].z += cosf(s_curveAngle[mno]);
+//
+//}
 

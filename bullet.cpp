@@ -11,6 +11,7 @@
 #include "field.h"
 #include "checkhit.h"
 #include "block.h"
+#include "smoke.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -31,7 +32,7 @@ void SetVertexBullet(int Index, float fSizeX, float fSizeY);
 bool CheckFieldInBullet(int index, int bno);
 void MoveBullet(int index, int bno);
 //bool CheckReflectBullet(int index, int bno);
-//void SetDiffuseBullet(int Index, float val);
+void SetDiffuseBullet(int Index, float val);
 
 //*****************************************************************************
 // グローバル変数
@@ -124,6 +125,8 @@ void UpdateBullet(void)
 				// 現在位置を保存
 				bullet[i].prevPos[j] = bullet[i].pos[j];
 
+				SetSmoke(bullet[i].pos[j], bullet[i].rot[j], 0, bullet[i].size[j].x, bullet[i].size[j].y, i);
+				
 				// 移動処理
 				MoveBullet(i, j);
 
@@ -451,28 +454,28 @@ D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bn
 	return out;
 }
 
-////==============================================================================
-//// バレットの透過処理
-//// 引　数：int Index(バレットのアドレス番号)、float val(α値)
-//// 戻り値：なし
-////==============================================================================
-//void SetDiffuseBullet(int Index, float val)
-//{
-//	{//頂点バッファの中身を埋める
-//		VERTEX_3D *pVtx;
-//
-//		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-//		g_pD3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
-//
-//		pVtx += (Index * 4);
-//
-//		// 反射光の設定
-//		pVtx[0].diffuse =
-//			pVtx[1].diffuse =
-//			pVtx[2].diffuse =
-//			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, val);
-//
-//		// 頂点データをアンロックする
-//		g_pD3DVtxBuffBullet->Unlock();
-//	}
-//}
+//==============================================================================
+// バレットの透過処理
+// 引　数：int Index(バレットのアドレス番号)、float val(α値)
+// 戻り値：なし
+//==============================================================================
+void SetDiffuseBullet(int Index, float val)
+{
+	{//頂点バッファの中身を埋める
+		VERTEX_3D *pVtx;
+
+		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
+		g_pD3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
+
+		pVtx += (Index * 4);
+
+		// 反射光の設定
+		pVtx[0].diffuse =
+			pVtx[1].diffuse =
+			pVtx[2].diffuse =
+			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, val);
+
+		// 頂点データをアンロックする
+		g_pD3DVtxBuffBullet->Unlock();
+	}
+}

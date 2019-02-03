@@ -72,6 +72,7 @@ HRESULT InitPlayer(int type)
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ‰ñ“]‚Ì–Ú“IˆÊ’u‚ğ‰Šú‰»
 		player[i].speed = VALUE_MOVE_PLAYER;				// ˆÚ“®‘¬“x‚Ì‰Šú‰»
 		player[i].special = 100.0f;
+		player[i].angle = 0.0f;
 		cntFrame[i] = 0;
 	}
 

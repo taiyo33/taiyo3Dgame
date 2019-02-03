@@ -469,50 +469,6 @@ void Update(void)
 		{
 			// チュートリアルの終了処理
 			UpdateTutorial();
-			//
-			//// 
-			//UpdateField();
-
-			//// 影処理の更新
-			//UpdateShadow();
-
-			//// カメラ更新
-			//UpdateCamera();
-
-			//// エネミーの更新
-			//UpdateTarget();
-
-			//// モデル処理の更新
-			//UpdatePlayer();
-			
-			//// 左腕の更新
-			//UpdateLeftArm();
-
-			//// 左足の更新
-			//UpdateLeftReg();
-
-			//// 右腕の更新
-			//UpdateRightArm();
-
-			//// 右足の更新
-			//UpdateRightReg();
-
-			//// 頭の更新
-			//UpdateHead();
-
-			//// エフェクトの更新
-			//UpdateEffect();
-
-			////
-			//Updateexplosion();
-
-			//// 
-			//UpdateSmoke();
-
-			//// バレットの更新
-			//UpdateBullet();
-
-			//CheckHit();
 
 			break;
 		}
@@ -608,49 +564,6 @@ void Draw(void)
 			{
 				// チュートリアルの終了処理
 				DrawTutorial();
-				
-				//// カメラの設定
-				//SetCamera();
-
-				////
-				//DrawField();
-
-				//// 影処理の描画
-				//DrawShadow();
-
-				//// ターゲットの描画
-				//DrawTarget();
-
-				//// バレットの描画
-				//DrawBullet();
-
-				//// ガンエフェクトの描画
-				//DrawEffect();
-
-				//// 
-				//Drawexplosion();
-
-				////
-				//DrawSmoke();
-
-				//// プレイヤー処理の描画
-				//DrawPlayer();
-
-				//// 左腕の更新
-				//DrawLeftArm();
-
-				//// 左足の更新
-				//DrawLeftReg();
-
-				//// 右腕の更新
-				//DrawRightArm();
-
-				//// 右足の更新
-				//DrawRightReg();
-
-				//// 頭の更新
-				//DrawHead();
-
 
 				break;
 			}
