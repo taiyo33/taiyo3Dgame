@@ -104,8 +104,6 @@ void UpdateSmoke(void)
 		{
 			if (smoke[i].use[j])
 			{
-				// エフェクトの拡大
-				if (smoke[i].time[j] % 5 == 0)
 				{
 					smoke[i].scl[j] -= D3DXVECTOR3(0.1f, 0.1f, 0.1f);
 				}
@@ -329,7 +327,7 @@ void SetDiffuseSmoke(int Index, float val)
 // 引　数：D3DXVECTOR3 pos[j](位置), D3DXVECTOR3 rot(回転), float Dest(距離)
 // 戻り値：bool型　使用中なら false, 未使用ならtrue　
 //==========================================================================
-bool SetSmoke(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, float sizeX, float sizeY, int index)
+bool SetSmoke(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 scl, float Dest, float sizeX, float sizeY, int index)
 {
 	SMOKE *smoke = &smokeWk[index];
 
@@ -341,6 +339,7 @@ bool SetSmoke(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, float sizeX, float s
 			smoke->pos[i].x = pos.x + sinf(rot.y) * Dest;
 			smoke->pos[i].z = pos.z + cosf(rot.y) * Dest;
 			smoke->pos[i].y = pos.y;
+			smoke->scl[i] = scl;
 
 			SetVertexSmoke(i, sizeX, sizeY);
 

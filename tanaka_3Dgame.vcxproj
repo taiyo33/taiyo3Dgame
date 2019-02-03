@@ -141,6 +141,7 @@
     <ClCompile Include="field.cpp" />
     <ClCompile Include="head.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="item.cpp" />
     <ClCompile Include="leftArm.cpp" />
     <ClCompile Include="leftReg.cpp" />
     <ClCompile Include="lifeGauge.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="field.h" />
     <ClInclude Include="head.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="item.h" />
     <ClInclude Include="leftArm.h" />
     <ClInclude Include="leftReg.h" />
     <ClInclude Include="lifeGauge.h" />

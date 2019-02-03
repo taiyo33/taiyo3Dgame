@@ -147,8 +147,6 @@ void UpdatePlayer(void)
 		// 壁ずり処理
 		WallShearPlayer(i);
 		
-		NonePlayerMove();
-
 		// プレイヤーの操作
 		MovePlayer(i);
 
@@ -679,24 +677,6 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 		player[index].pos.z = player[index].prevPos.z;
 		return;
 	}
-}
-
-//===========================================================================
-// 壁ずりのベクトル計算処理
-// 引　数：D3DXVECTOR3 pos(次の移動位置)、D3DXVECTOR3 normal(ポリゴンの法線)
-//		   int index(プレイヤーのアドレス番号)
-// 戻り値：D3DXVECTOR3型 out
-//==========================================================================
-D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
-{
-	PLAYER *player = GetPlayer(index);
-	D3DXVECTOR3 normal_n;
-	D3DXVECTOR3 frontVec, out;
-
-	frontVec = pos - player->prevPos;
-	D3DXVec3Normalize(&normal_n, &normal);
-	D3DXVec3Normalize(&out, &(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
-	return out;
 }
 
 //===========================================================================

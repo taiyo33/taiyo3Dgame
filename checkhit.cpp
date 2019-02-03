@@ -72,6 +72,7 @@ void CheckHit(void)
 				{
 					SetStage(RESULT);
 				}
+				player[P2].pos += bullet[P1].move[i];	// 簡易ノックバック
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
 				bullet[P1].cntReflect[i] = 2;
@@ -88,6 +89,7 @@ void CheckHit(void)
 				{
 					SetStage(RESULT);
 				}
+				player[P1].pos += bullet[P2].move[i];	// 簡易ノックバック
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;
 				bullet[P2].cntReflect[i] = 2;
@@ -197,6 +199,25 @@ bool CheckHitPolygon(D3DXVECTOR3 p0, D3DXVECTOR3 p1, D3DXVECTOR3 p2, D3DXVECTOR3
  	return false;
 }
 
+//===========================================================================
+// 壁ずりのベクトル計算処理
+// 引　数：D3DXVECTOR3 pos(次の移動位置)、D3DXVECTOR3 normal(ポリゴンの法線)
+//		   int index(プレイヤーのアドレス番号)
+// 戻り値：D3DXVECTOR3型 out
+//==========================================================================
+D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
+{
+	PLAYER *player = GetPlayer(index);
+	D3DXVECTOR3 normal_n;
+	D3DXVECTOR3 frontVec, out;
+
+	frontVec = pos - player->prevPos;
+	D3DXVec3Normalize(&normal_n, &normal);
+	D3DXVec3Normalize(&out, &(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
+	return out;
+}
+
+
 //========================================================================
 // 交点の取得
 // 引　数：なし
@@ -227,14 +248,13 @@ D3DXVECTOR3 GetNormal(void)
 //	float totalWeight = weight0 + weight1;	// 総質量
 //	float refRate = 1.10f;					// 反発率
 //	D3DXVECTOR3 c = pos1 - pos0;			// 衝突軸ベクトル
+//	float speed = speed0 - speed1;			// 衝突時の速度		
 //	float dot;
 //	D3DXVECTOR3 vec;
 //	D3DXVec3Normalize(&c, &c);
-//	dot = D3DXVec3Dot(&(speed0 - speed1), &c);
+//	dot = D3DXVec3Dot(&speed, &c);
 //
 //	vec = ((refRate * dot) / totalWeight) * c;
 //	
 //}
-
-
 

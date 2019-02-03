@@ -29,6 +29,7 @@
 #include "block.h"
 #include "bulletGauge.h"
 #include "lifeGauge.h"
+#include "item.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -365,6 +366,9 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//
 	InitLifeGauge(0);
 
+	//
+	InitItem(0);
+
 	return S_OK;
 }
 
@@ -440,6 +444,9 @@ void Uninit(void)
 	//
 	UninitLifeGauge();
 
+	//
+	UninitItem();
+
 }
 
 //=============================================================================
@@ -480,6 +487,7 @@ void Update(void)
 			//
 			UpdateBlock();
 
+
 			// 影処理の更新
 			UpdateShadow();
 
@@ -515,6 +523,9 @@ void Update(void)
 
 			// バレットの更新
 			UpdateBullet();
+
+			//
+			UpdateItem();
 
 			// スコアの更新
 			//UpdateScore();
@@ -577,6 +588,9 @@ void Draw(void)
 
 				//
 				DrawBlock();
+
+				//
+				DrawItem();
 
 				// 影処理の描画
 				DrawShadow();
@@ -721,5 +735,6 @@ void InitGame(void)
 
 	InitBlock(INIT_GAME);
 
+	InitItem(INIT_GAME);
 }
 

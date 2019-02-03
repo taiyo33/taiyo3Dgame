@@ -132,6 +132,9 @@
     <ClCompile Include="ai.cpp">
       <Filter>ソース ファイル\main</Filter>
     </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>ソース ファイル\stage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet.h">
@@ -214,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="ai.h">
       <Filter>ヘッダー ファイル\main</Filter>
+    </ClInclude>
+    <ClInclude Include="item.h">
+      <Filter>ヘッダー ファイル\stage</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
