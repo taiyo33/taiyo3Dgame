@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ソース ファイル\enemy">
-      <UniqueIdentifier>{47b247f9-d603-4d50-a5e5-aaf9eeb3e4fe}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\player">
       <UniqueIdentifier>{f975e10e-9f7f-404d-9ffb-8904b74e1576}</UniqueIdentifier>
     </Filter>
@@ -24,9 +21,6 @@
     </Filter>
     <Filter Include="ソース ファイル\main">
       <UniqueIdentifier>{90b79727-fa11-43ff-b236-49da589c0197}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\enemy">
-      <UniqueIdentifier>{aae9812e-a312-45dc-aa50-ff3fbf3c8a55}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\player">
       <UniqueIdentifier>{01b4b57f-690b-48d7-bacd-1156d1130614}</UniqueIdentifier>
@@ -48,6 +42,12 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\stage">
       <UniqueIdentifier>{882fcc5d-1c9e-4b4b-8689-628b5b443b52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\npc">
+      <UniqueIdentifier>{aae9812e-a312-45dc-aa50-ff3fbf3c8a55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\npc">
+      <UniqueIdentifier>{47b247f9-d603-4d50-a5e5-aaf9eeb3e4fe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -80,9 +80,6 @@
     </ClCompile>
     <ClCompile Include="title.cpp">
       <Filter>ソース ファイル\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="enemy.cpp">
-      <Filter>ソース ファイル\enemy</Filter>
     </ClCompile>
     <ClCompile Include="smoke.cpp">
       <Filter>ソース ファイル\effect</Filter>
@@ -129,11 +126,14 @@
     <ClCompile Include="lifeGauge.cpp">
       <Filter>ソース ファイル\ui</Filter>
     </ClCompile>
-    <ClCompile Include="ai.cpp">
-      <Filter>ソース ファイル\main</Filter>
-    </ClCompile>
     <ClCompile Include="item.cpp">
       <Filter>ソース ファイル\stage</Filter>
+    </ClCompile>
+    <ClCompile Include="child.cpp">
+      <Filter>ソース ファイル\npc</Filter>
+    </ClCompile>
+    <ClCompile Include="ai.cpp">
+      <Filter>ソース ファイル\npc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -169,9 +169,6 @@
     </ClInclude>
     <ClInclude Include="main.h">
       <Filter>ヘッダー ファイル\main</Filter>
-    </ClInclude>
-    <ClInclude Include="enemy.h">
-      <Filter>ヘッダー ファイル\enemy</Filter>
     </ClInclude>
     <ClInclude Include="effect.h">
       <Filter>ヘッダー ファイル\effect</Filter>
@@ -215,11 +212,14 @@
     <ClInclude Include="lifeGauge.h">
       <Filter>ヘッダー ファイル\ui</Filter>
     </ClInclude>
-    <ClInclude Include="ai.h">
-      <Filter>ヘッダー ファイル\main</Filter>
-    </ClInclude>
     <ClInclude Include="item.h">
       <Filter>ヘッダー ファイル\stage</Filter>
+    </ClInclude>
+    <ClInclude Include="child.h">
+      <Filter>ヘッダー ファイル\npc</Filter>
+    </ClInclude>
+    <ClInclude Include="ai.h">
+      <Filter>ヘッダー ファイル\npc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

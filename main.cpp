@@ -30,6 +30,7 @@
 #include "bulletGauge.h"
 #include "lifeGauge.h"
 #include "item.h"
+#include "child.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -369,6 +370,9 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//
 	InitItem(0);
 
+	//
+	InitChild();
+
 	return S_OK;
 }
 
@@ -447,6 +451,8 @@ void Uninit(void)
 	//
 	UninitItem();
 
+	//
+	UninitChild();
 }
 
 //=============================================================================
@@ -511,6 +517,9 @@ void Update(void)
 			
 			// 頭の更新
 			UpdateHead();
+			
+			// 子供の更新
+			UpdateChild();
 
 			// エフェクトの更新
 			UpdateEffect();
@@ -624,6 +633,9 @@ void Draw(void)
 
 				// 右足の描画
 				DrawRightReg();
+
+				// 
+				DrawChild();
 
 				// スコアの描画
 				//DrawScore();

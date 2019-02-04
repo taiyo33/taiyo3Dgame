@@ -7,7 +7,6 @@
 #include "main.h"
 #include "checkhit.h"
 #include "player.h"
-#include "enemy.h"
 #include "bullet.h"
 #include "score.h"
 #include "result.h"
@@ -65,7 +64,7 @@ void CheckHit(void)
 		if (bullet[P1].use[i])
 		{
 			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos,
-				bullet[P1].size[j].x, 10.0f))
+				bullet[P1].size[i].x, 10.0f))
 			{
 				player[P2].life += 15.0f;
 				if (player[P2].life > 100.0f)
@@ -75,14 +74,14 @@ void CheckHit(void)
 				player[P2].pos += bullet[P1].move[i];	// 簡易ノックバック
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
-				bullet[P1].cntReflect[i] = 2;
+				bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
 			}
 		}
 		// プレイヤー２のバレット
 		if (bullet[P2].use[i])
 		{
 			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
-				bullet[P2].size[j].x, 10.0f))
+				bullet[P2].size[i].x, 10.0f))
 			{
 				player[P1].life -= 15.0f;
 				if (player[P1].life < 0.0f)
@@ -92,7 +91,7 @@ void CheckHit(void)
 				player[P1].pos += bullet[P2].move[i];	// 簡易ノックバック
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;
-				bullet[P2].cntReflect[i] = 2;
+				bullet[P2].cntReflect[i] = INIT_REFLECT_CNT;
 			}
 		}
 	}

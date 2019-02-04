@@ -22,7 +22,6 @@
 #define	BULLET_SIZE_Z		(20.0f)							// バレットの奥行
 #define	BULLET_SPEED		(8.0f)							// 移動速度
 #define BULLET_RADY_FRAME	(10)							// 発射間隔
-#define INIT_REFLECT_CNT	(2)								// 反射回数
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -422,7 +421,7 @@ void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos)
 	{
 		if (!bullet->use[i]) continue;
 		if (CheckHitBB(bullet->pos[i], pos,
-			D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(30.0f, 25.0f, 30.0f)))
+			D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 		{
 			BlockDamageManager(blockNo);
 			bullet->cntReflect[i]--;

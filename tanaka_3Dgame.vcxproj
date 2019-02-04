@@ -135,9 +135,9 @@
     <ClCompile Include="bulletGauge.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="checkhit.cpp" />
+    <ClCompile Include="child.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="effect.cpp" />
-    <ClCompile Include="enemy.cpp" />
     <ClCompile Include="field.cpp" />
     <ClCompile Include="head.cpp" />
     <ClCompile Include="input.cpp" />
@@ -165,9 +165,9 @@
     <ClInclude Include="bulletGauge.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="checkhit.h" />
+    <ClInclude Include="child.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="effect.h" />
-    <ClInclude Include="enemy.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="head.h" />
     <ClInclude Include="input.h" />

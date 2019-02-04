@@ -496,16 +496,16 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1)
 bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 {
 	if (CheckHitBB(pos0, block[0].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(10.0f, 25.0f, 10.0f))) return true;
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	if (CheckHitBB(pos0, block[11].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(10.0f, 25.0f, 10.0f))) return true;
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	if (CheckHitBB(pos0, block[42].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(10.0f, 25.0f, 10.0f))) return true;
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	if (CheckHitBB(pos0, block[53].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(10.0f, 25.0f, 10.0f))) return true;
+		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(15.0f, 25.0f, 15.0f))) return true;
 
 	return false;
 }
