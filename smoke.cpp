@@ -137,7 +137,7 @@ void DrawSmoke(void)
 
 	// αテストを有効に
 	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
-	pDevice->SetRenderState(D3DRS_ALPHAREF, 128);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 200);
 	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 
 	for (int i = 0; i < SMOKE_SET_MAX; i++)
