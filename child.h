@@ -9,18 +9,18 @@
 
 #include "main.h"
 
-
-#define CHILD_MAX			(30)
 #define CHILD_SET_MAX		(2)
-#define CHILD_ONESET_MAX	(30)
+#define CHILD_ONESET_MAX	(5)
 
 typedef struct {
 
-D3DXVECTOR3			pos[CHILD_ONESET_MAX];				// モデルの位置
-D3DXVECTOR3			rot[CHILD_ONESET_MAX];				// モデルの向き(回転)
-D3DXVECTOR3			scl[CHILD_ONESET_MAX];				// モデルの大きさ(スケール)
-bool				use[CHILD_ONESET_MAX];
-int					life[CHILD_ONESET_MAX];
+	D3DXVECTOR3			pos[CHILD_ONESET_MAX];		// 位置
+	D3DXVECTOR3			prevPos[CHILD_ONESET_MAX];	// 前回位置
+	D3DXVECTOR3			rot[CHILD_ONESET_MAX];		// 向き(回転)
+	D3DXVECTOR3			scl[CHILD_ONESET_MAX];		// 大きさ(スケール)
+	D3DXVECTOR3			move[CHILD_ONESET_MAX];		// 移動量
+	bool				use[CHILD_ONESET_MAX];		// 使用状態
+	D3DXVECTOR3			vec[CHILD_ONESET_MAX];
 
 }CHILD;
 //*****************************************************************************

@@ -147,6 +147,8 @@ void UpdatePlayer(void)
 		// •Ç‚¸‚èˆ—
 		WallShearPlayer(i);
 		
+		NonePlayerMove();
+
 		// ƒvƒŒƒCƒ„[‚Ì‘€ì
 		MovePlayer(i);
 
@@ -693,10 +695,8 @@ void NonePlayerMove(void)
 
 	atc = FuzzyRightDown(player[P2].life, 40, 80);
 	chase = FuzzyTrapezoid(player[P2].life, 0, 20, 40, 80);
-
 	box = Or(atc, chase);
 	escape = FuzzyRightUp(player[P2].life, 50, 80);
-
 	out = Or(box, escape);
 
 	if (0.5f < atc)
@@ -714,7 +714,6 @@ void NonePlayerMove(void)
 		{
 			bullet->sclIncrease += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
 		}
-
 	}
 	if (0.8f < chase)
 	{

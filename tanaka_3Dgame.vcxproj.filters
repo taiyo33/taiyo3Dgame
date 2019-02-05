@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ソース ファイル\player">
-      <UniqueIdentifier>{f975e10e-9f7f-404d-9ffb-8904b74e1576}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\ui">
       <UniqueIdentifier>{d47945e3-35cd-439e-b1e2-b1eef45ee9fc}</UniqueIdentifier>
     </Filter>
@@ -48,6 +45,9 @@
     </Filter>
     <Filter Include="ソース ファイル\npc">
       <UniqueIdentifier>{47b247f9-d603-4d50-a5e5-aaf9eeb3e4fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\player">
+      <UniqueIdentifier>{f975e10e-9f7f-404d-9ffb-8904b74e1576}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
