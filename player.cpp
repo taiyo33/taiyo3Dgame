@@ -673,7 +673,7 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 		return;
 	}
 	// –@ü‚ªZ²•ûŒü‚È‚ç
-	else if (nor0.z != 0.0f)
+	if (nor0.z != 0.0f)
 	{
 		player[index].move.z = 0.0f;
 		player[index].pos.z = player[index].prevPos.z;

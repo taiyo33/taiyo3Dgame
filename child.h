@@ -10,7 +10,7 @@
 #include "main.h"
 
 #define CHILD_SET_MAX		(2)
-#define CHILD_ONESET_MAX	(5)
+#define CHILD_ONESET_MAX	(10)
 
 typedef struct {
 
@@ -21,6 +21,9 @@ typedef struct {
 	D3DXVECTOR3			move[CHILD_ONESET_MAX];		// à⁄ìÆó 
 	bool				use[CHILD_ONESET_MAX];		// égópèÛë‘
 	D3DXVECTOR3			vec[CHILD_ONESET_MAX];
+	D3DXVECTOR3			v1[CHILD_ONESET_MAX];
+	D3DXVECTOR3			v2[CHILD_ONESET_MAX];
+	D3DXVECTOR3			v3[CHILD_ONESET_MAX];
 
 }CHILD;
 //*****************************************************************************

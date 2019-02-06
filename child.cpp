@@ -9,6 +9,8 @@
 #include "shadow.h"
 #include "player.h"
 #include "checkhit.h"
+#include "debugproc.h"
+#include "block.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -18,6 +20,8 @@
 
 #define RATE_MOVE_CHILD		(0.20f)
 #define CHILD_SIZE			(17.0f)					// モデルサイズ
+#define CENTER_PULL_CHILD	(25.0f)
+
 
 enum {
 	MODEL_TYPE001,
@@ -31,6 +35,7 @@ void ChaseChild(int index, int cno);
 void InitPosChild(void);
 void AlignmentChild(int index, int cno);
 void ChesionChild(int index, int cno);
+void SeparationChild(int index, int cno);
 
 //*****************************************************************************
 // グローバル変数
@@ -72,8 +77,6 @@ HRESULT InitChild(void)
 			child[i].vec[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		}
 	}
-
-	//InitPosChild();
 
 	D3DTexture = NULL;
 
@@ -149,17 +152,20 @@ void UpdateChild(void)
 	for (int i = 0; i < CHILD_SET_MAX; i++)
 	{
 		for (int j = 0; j < CHILD_ONESET_MAX; j++)
-		{		
+		{
 			child[i].prevPos[j] = child[i].pos[j];
 
-			AlignmentChild(i, j);
-
-			ChesionChild(i, j);
-
 			// 追跡
-			//ChaseChild(i, j);
+			ChaseChild(i, j);
+
+			//AlignmentChild(i, j);
+			//ChesionChild(i, j);
 			// 移動
 			MoveChild(i, j);
+
+			//SeparationChild(i, j);
+
+			PrintDebugProc("子供の位置%d(X:[%f] Y:[%f] Z:[%f])\n", j, child[i].pos[j].x, child[i].pos[j].y, child[i].pos[j].z);
 		}
 	}
 }
@@ -278,6 +284,9 @@ void MoveChild(int index, int cno)
 {
 	CHILD *child = &childWk[index];
 
+	//child->move[cno].x = child->move[cno].x + (child->v1[cno].x * 0.1f) + (child->v2[cno].x * 1.0f) + (child->v3[cno].x * 0.8f);
+	//child->move[cno].z = child->move[cno].z + (child->v1[cno].z * 0.1f) + (child->v2[cno].z * 1.0f) + (child->v3[cno].z * 0.8f);
+
 	// 移動量に慣性をかける
 	child->move[cno].x += (0.0f - child->move[cno].x) * RATE_MOVE_CHILD;
 	child->move[cno].y += (0.0f - child->move[cno].y) * RATE_MOVE_CHILD;
@@ -287,6 +296,10 @@ void MoveChild(int index, int cno)
 	child->pos[cno].x += child->move[cno].x;
 	child->pos[cno].y += child->move[cno].y;
 	child->pos[cno].z += child->move[cno].z;
+
+	//child->v1[cno] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	//child->v2[cno] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	//child->v3[cno] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 }
 
@@ -301,9 +314,8 @@ void ChaseChild(int index, int cno)
 	PLAYER *player = GetPlayer(index);
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
-
 	 // プレイヤーと子供の先頭アドレス番号の追従
-	if (cno == 0)
+	if (cno % 5 == 0)
 	{
 		// 追従ベクトルの計算
 		vec = player->pos - child->pos[cno];
@@ -328,37 +340,77 @@ void ChaseChild(int index, int cno)
 			child->move[cno].z = vec.z * 5.0f;
 		}
 	}
+
+	for (int i = 0; i < CHILD_ONESET_MAX; i++)
+	{
+		if (CheckHitBC(child->pos[cno], child->pos[i], CHILD_SIZE, CHILD_SIZE))
+		{
+			child->vec[cno] = child->pos[cno] - child->pos[i];
+			D3DXVec3Normalize(&child->vec[cno], &child->vec[cno]);
+			child->move[cno].x = (child->move[cno].x + child->vec[cno].x);
+			child->move[cno].z = (child->move[cno].z + child->vec[cno].z);
+		}
+	}
 }
 // 整列
 void AlignmentChild(int index, int cno)
 {
 	CHILD *child = &childWk[index];
-	PLAYER *player = GetPlayer(0);
+	PLAYER *player = GetPlayer(index);
 
-	child->vec[cno] = player[index].pos - player[index].prevPos;
-	D3DXVec3Normalize(&child->vec[cno], &child->vec[cno]);
-	child->move[cno].x = child->vec[cno].x;
-	child->move[cno].z = child->vec[cno].z;
+	for (int i = 0; i < CHILD_ONESET_MAX; i++)
+	{
+		if (cno == i) continue;
+		child->v1[cno].x += child->move[i].x;
+		child->v1[cno].z += child->move[i].z;
+	}
+	child->v1[cno].x += player->move.x;
+	child->v1[cno].z += player->move.z;
+
+	child->v1[cno].x /= (CHILD_ONESET_MAX);
+	child->v1[cno].z /= (CHILD_ONESET_MAX);
+
+
+	child->v1[cno].x = (child->v1[cno].x - child->move[cno].x) / 2;
+	child->v1[cno].z = (child->v1[cno].z - child->move[cno].z) / 2;
+
 }
-
 // 結合
 void ChesionChild(int index, int cno)
 {
 	CHILD *child = &childWk[index];
 	PLAYER *player = GetPlayer(index);
-	D3DXVECTOR3 val = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3	ave = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	for (int i = 0; i < CHILD_ONESET_MAX; i++)
 	{
-		val = val + child->pos[i];
+		if (cno == i) continue;
+		child->v2[cno].x += child->pos[i].x;
+		child->v2[cno].z += child->pos[i].z;
 	}
+	child->v2[cno].x += player->pos.x;
+	child->v2[cno].z += player->pos.z;
 
-	val = val + player->pos;
-	ave = val / CHILD_ONESET_MAX;
+	child->v2[cno].x /= (CHILD_ONESET_MAX);
+	child->v2[cno].z /= (CHILD_ONESET_MAX);
 
-	child->vec[cno] = ave - child->pos[cno];
-	D3DXVec3Normalize(&child->vec[cno], &child->vec[cno]);
-	child->move[cno].x = child->vec[cno].x * 5.0f;
-	child->move[cno].z = child->vec[cno].z * 5.0f;
+	child->v2[cno].x = (child->v2[cno].x - child->pos[cno].x) / CENTER_PULL_CHILD;
+	child->v2[cno].z = (child->v2[cno].z - child->pos[cno].z) / CENTER_PULL_CHILD;
+}
+
+
+// 分離
+void SeparationChild(int index, int cno)
+{
+	CHILD *child = &childWk[index];
+	PLAYER *player = GetPlayer(index);
+
+	for (int i = 0; i < CHILD_ONESET_MAX; i++)
+	{
+		if (cno == i) continue;
+		if (CheckHitBC(child->pos[cno], child->pos[i], 15.0f, 15.0f))
+		{
+			child->v3[cno].x -= child->pos[cno].x - child->pos[i].x;
+			child->v3[cno].z -= child->pos[cno].z - child->pos[i].z;
+		}
+	}
 }

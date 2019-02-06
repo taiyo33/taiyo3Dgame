@@ -14,7 +14,7 @@
 #include "block.h" 
 #include "explosion.h"
 #include "field.h"
-
+#include "child.h" 
 D3DXVECTOR3				p3;
 D3DXVECTOR3				nor;
 //=============================================================================
@@ -34,6 +34,16 @@ void CheckHit(void)
 		for (j = 0; j < BULLET_SET_MAX; j++)
 		{
 			CheckBlockHitBullet(i, j, block->pos);
+		}
+		CHILD *child = GetChild(0);
+		for (int s = 0; s < CHILD_ONESET_MAX; s++)
+		{
+			if (!child[P1].use[s]) continue;
+			if (CheckHitBB(block->pos, child[P1].pos[s], D3DXVECTOR3(20.0f, 25.0f, 20.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
+			{
+				child[P1].pos[s] = child[P1].prevPos[s];
+			}
+
 		}
 	}
 	/* 対プレイヤーの当たり判定 */
@@ -76,6 +86,20 @@ void CheckHit(void)
 				bullet[P1].reflect[i] = false;
 				bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
 			}
+
+			CHILD *child = GetChild(0);
+			
+			for (j = 0; j < CHILD_ONESET_MAX; j++)
+			{
+				if (!child[P1].use[j]) continue;
+				if (CheckHitBC(bullet[P1].pos[i], child[P2].pos[j], 15.0f, 15.0f))
+				{
+					child[P2].use[j] = false;
+					bullet[P1].use[i] = false;
+					bullet[P1].reflect[i] = false;
+					bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
+				}
+			}
 		}
 		// プレイヤー２のバレット
 		if (bullet[P2].use[i])
@@ -93,6 +117,21 @@ void CheckHit(void)
 				bullet[P2].reflect[i] = false;
 				bullet[P2].cntReflect[i] = INIT_REFLECT_CNT;
 			}
+
+			CHILD *child = GetChild(0);
+			for (j = 0; j < CHILD_ONESET_MAX; j++)
+			{
+				if (!child[P2].use[j]) continue;
+				if (CheckHitBC(bullet[P2].pos[i], child[P1].pos[j], 15.0f, 15.0f))
+				{
+					child[P1].use[j] = false;
+					bullet[P2].use[i] = false;
+					bullet[P2].reflect[i] = false;
+					bullet[P2].cntReflect[i] = INIT_REFLECT_CNT;
+
+				}
+			}
+
 		}
 	}
 }
