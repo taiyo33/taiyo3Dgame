@@ -27,6 +27,7 @@ enum {
 	MODEL_TYPE001,
 	MODEL_TYPE002
 };
+
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
@@ -49,7 +50,6 @@ static DWORD				NumMat[CHILD_SET_MAX];			// マテリアル情報の数
 static int					g_shadownum;
 static D3DXCOLOR			g_shadowcolor;			
 static D3DXMATRIX			MtxWorld;				// ワールドマトリックス
-static float				angle[CHILD_SET_MAX];
 CHILD						childWk[CHILD_SET_MAX];
 //=============================================================================
 // 初期化処理
@@ -65,13 +65,15 @@ HRESULT InitChild(void)
 		D3DMesh[i] = NULL;
 		D3DXBuffMat[i] = NULL;
 		NumMat[i] = 0;
-		angle[i] = 0.0f;
+		child[0].cnt = CHILD_ONESET_MAX;
+		child[1].cnt = 0;
+
 		for (int j = 0; j < CHILD_ONESET_MAX; j++)
 		{
 			// 位置・回転・スケールの初期設定
 			child[i].pos[j] = player[i].pos;
 			child[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-			child[i].scl[j] = D3DXVECTOR3(0.5f, 0.5f, 0.5f);
+			child[i].scl[j] = D3DXVECTOR3(0.4f, 0.4f, 0.4f);
 			child[i].use[j] = true;
 			child[i].prevPos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			child[i].vec[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -157,15 +159,12 @@ void UpdateChild(void)
 
 			// 追跡
 			ChaseChild(i, j);
-
-			//AlignmentChild(i, j);
-			//ChesionChild(i, j);
 			// 移動
 			MoveChild(i, j);
 
+			//AlignmentChild(i, j);
+			//ChesionChild(i, j);
 			//SeparationChild(i, j);
-
-			PrintDebugProc("子供の位置%d(X:[%f] Y:[%f] Z:[%f])\n", j, child[i].pos[j].x, child[i].pos[j].y, child[i].pos[j].z);
 		}
 	}
 }
@@ -266,13 +265,11 @@ void InitPosChild(void)
 {
 	CHILD *child = &childWk[0];
 
-	child[0].pos[0] = D3DXVECTOR3(0.0f, 0.0f, -20.0f);
-	child[0].pos[1] = D3DXVECTOR3(20.0f, 0.0f, -40.0f);
-	child[0].pos[2] = D3DXVECTOR3(-20.0f, 0.0f, -40.0f);
-	child[0].pos[3] = D3DXVECTOR3(40.0f, 0.0f, -60.0f);
-	child[0].pos[4] = D3DXVECTOR3(-40.0f, 0.0f, -60.0f);
-	//child[0].pos[5] = D3DXVECTOR3(-30.0f, 0.0f, 0.0f);
-
+	for (int i = 0; i < CHILD_ONESET_MAX; i++)
+	{
+		child[0].pos[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		child[1].pos[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	}
 }
 
 //========================================================================
@@ -315,7 +312,7 @@ void ChaseChild(int index, int cno)
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	 // プレイヤーと子供の先頭アドレス番号の追従
-	if (cno % 5 == 0)
+	if (cno % 4 == 0)
 	{
 		// 追従ベクトルの計算
 		vec = player->pos - child->pos[cno];
@@ -352,6 +349,7 @@ void ChaseChild(int index, int cno)
 		}
 	}
 }
+
 // 整列
 void AlignmentChild(int index, int cno)
 {

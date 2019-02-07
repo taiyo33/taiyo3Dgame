@@ -145,7 +145,7 @@ void UpdateTitle(void)
 
 	// ÉQÅ[ÉÄÇ÷ëJà⁄
 	//if ((GetKeyboardTrigger(DIK_SPACE)) && (SelectNum == SELECT_START))
-	if ((GetKeyboardTrigger(DIK_SPACE)))
+	if ((GetKeyboardTrigger(DIK_RETURN)))
 	{
 		SetStage(TUTORIAL);
 	}

@@ -35,15 +35,27 @@ void CheckHit(void)
 		{
 			CheckBlockHitBullet(i, j, block->pos);
 		}
-		CHILD *child = GetChild(0);
+		
+		CHILD *child = GetChild(P1);
 		for (int s = 0; s < CHILD_ONESET_MAX; s++)
 		{
-			if (!child[P1].use[s]) continue;
-			if (CheckHitBB(block->pos, child[P1].pos[s], D3DXVECTOR3(20.0f, 25.0f, 20.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
+			if (!child->use[s]) continue;
+			if (CheckHitBC(block->pos, child->pos[s], 15.0f, 15.0f))
+			//if (CheckHitBB(block->pos, child->pos[s], D3DXVECTOR3(20.0f, 25.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f)))
 			{
-				child[P1].pos[s] = child[P1].prevPos[s];
+				child->pos[s] = child->prevPos[s];
 			}
+		}
 
+		child = GetChild(P2);
+		for (int s = 0; s < CHILD_ONESET_MAX; s++)
+		{
+			if (!child->use[s]) continue;
+			if (CheckHitBC(block->pos, child->pos[s], 15.0f, 15.0f))
+			//if (CheckHitBB(block->pos, child->pos[s], D3DXVECTOR3(20.0f, 25.0f, 20.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
+			{
+				child->pos[s] = child->prevPos[s];
+			}
 		}
 	}
 	/* 対プレイヤーの当たり判定 */
@@ -71,13 +83,27 @@ void CheckHit(void)
 	for (i = 0; i < BULLET_ONESET_MAX; i++)
 	{
 		// プレイヤー１のバレット
+		// プレイヤー2とプレイヤー１のバレット
 		if (bullet[P1].use[i])
 		{
+			CHILD *child = GetChild(0);
+			for (j = 0; j < CHILD_ONESET_MAX; j++)
+			{
+				if (!child[P2].use[j]) continue;
+				if (CheckHitBC(bullet[P1].pos[i], child[P2].pos[j], 15.0f, 15.0f))
+				{
+					child[P2].use[j] = false;
+					child[P2].cnt += 1;
+
+					SetExplosion(child[P2].pos[j], child[P2].rot[j], 0);
+				}
+			}
+
 			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos,
 				bullet[P1].size[i].x, 10.0f))
 			{
 				player[P2].life += 15.0f;
-				if (player[P2].life > 100.0f)
+				if (child[P2].cnt >= CHILD_ONESET_MAX)
 				{
 					SetStage(RESULT);
 				}
@@ -86,29 +112,27 @@ void CheckHit(void)
 				bullet[P1].reflect[i] = false;
 				bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
 			}
-
-			CHILD *child = GetChild(0);
-			
-			for (j = 0; j < CHILD_ONESET_MAX; j++)
-			{
-				if (!child[P1].use[j]) continue;
-				if (CheckHitBC(bullet[P1].pos[i], child[P2].pos[j], 15.0f, 15.0f))
-				{
-					child[P2].use[j] = false;
-					bullet[P1].use[i] = false;
-					bullet[P1].reflect[i] = false;
-					bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
-				}
-			}
 		}
 		// プレイヤー２のバレット
 		if (bullet[P2].use[i])
 		{
+			CHILD *child = GetChild(0);
+			for (j = 0; j < CHILD_ONESET_MAX; j++)
+			{
+				if (!child[P1].use[j]) continue;
+				if (CheckHitBC(bullet[P2].pos[i], child[P1].pos[j], 15.0f, 15.0f))
+				{
+					child[P1].use[j] = false;
+					child[P1].cnt -= 1;
+					SetExplosion(child[P1].pos[j], child[P1].rot[j], 0);
+				}
+			}
+
 			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
 				bullet[P2].size[i].x, 10.0f))
 			{
 				player[P1].life -= 15.0f;
-				if (player[P1].life < 0.0f)
+				if (child[P1].cnt <= 0)
 				{
 					SetStage(RESULT);
 				}
@@ -117,21 +141,6 @@ void CheckHit(void)
 				bullet[P2].reflect[i] = false;
 				bullet[P2].cntReflect[i] = INIT_REFLECT_CNT;
 			}
-
-			CHILD *child = GetChild(0);
-			for (j = 0; j < CHILD_ONESET_MAX; j++)
-			{
-				if (!child[P2].use[j]) continue;
-				if (CheckHitBC(bullet[P2].pos[i], child[P1].pos[j], 15.0f, 15.0f))
-				{
-					child[P1].use[j] = false;
-					bullet[P2].use[i] = false;
-					bullet[P2].reflect[i] = false;
-					bullet[P2].cntReflect[i] = INIT_REFLECT_CNT;
-
-				}
-			}
-
 		}
 	}
 }

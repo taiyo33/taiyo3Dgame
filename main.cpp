@@ -20,7 +20,7 @@
 #include "field.h"
 #include "checkhit.h"
 #include "explosion.h"
-#include "smoke.h"
+#include "bulletEffect.h"
 #include "leftArm.h"
 #include "rightArm.h"
 #include "leftReg.h"
@@ -346,7 +346,7 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// フィールドの初期化
 	InitField(0);
 	
-	InitSmoke(0);
+	InitBulletEffect(0);
 
 	InitLeftArm();
 
@@ -427,7 +427,7 @@ void Uninit(void)
 	UninitExplosion();
 
 	//
-	UninitSmoke();
+	UninitBulletEffect();
 
 	UninitLeftArm();
 
@@ -528,7 +528,7 @@ void Update(void)
 			UpdateExplosion();
 
 			// 煙の更新
-			UpdateSmoke();
+			UpdateBulletEffect();
 
 			// バレットの更新
 			UpdateBullet();
@@ -614,7 +614,7 @@ void Draw(void)
 				DrawExplosion();
 
 				// 煙の描画
-				DrawSmoke();
+				DrawBulletEffect();
 
 				// プレイヤー処理の描画
 				DrawPlayer();
@@ -734,7 +734,7 @@ void InitGame(void)
 	InitScore(INIT_GAME);
 
 	// タイトルの初期化
-	InitTitle(0);
+	InitTitle(INIT_GAME);
 
 	// リザルトの初期化
 	InitResult(INIT_GAME);
@@ -748,5 +748,7 @@ void InitGame(void)
 	InitBlock(INIT_GAME);
 
 	InitItem(INIT_GAME);
+
+	InitChild();
 }
 

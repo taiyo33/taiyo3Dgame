@@ -230,6 +230,7 @@ void InputPlayer1(void)
 	if (player[P1].use)
 	{
 		float fDiffRotY;
+
 		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
 		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
 
@@ -324,20 +325,20 @@ void InputPlayer1(void)
 		if (GetKeyboardPress(DIK_SPACE))
 		{
 			// 最大値になった場合
-			if (bullet->sclIncrease.x > BULLET_CHARGE_MAX)
+			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
 			{
-                bullet->sclIncrease = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
+                bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
 			else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
 			{
-				bullet->sclIncrease += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
+				bullet->speedIncrease += 0.5f;
 			}
 		}
 		// バレットの発射
         else if(GetKeyboardRelease(DIK_SPACE))
 		{
-          	SetBullet(player[P1].pos, player[P1].rot, bullet->sclIncrease, 0, P1);
+          	SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
 
@@ -358,6 +359,8 @@ void InputGamePadPlayer1(void)
 	if (player[P1].use)
 	{
 		float fDiffRotY;
+
+
 		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
 		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
 		if (IsButtonPressed(0,BUTTON_RIGHT))
@@ -451,20 +454,20 @@ void InputGamePadPlayer1(void)
 		if (IsButtonPressed(0, BUTTON_B))
 		{
 			// 最大値になった場合
-			if (bullet->sclIncrease.x > BULLET_CHARGE_MAX)
+			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
 			{
-				bullet->sclIncrease = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
+				bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
 			else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
 			{
-				bullet->sclIncrease += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
+				bullet->speedIncrease += 0.5f;
 			}
 		}
 		// バレットの発射
 		else if (IsButtonRelease(0, BUTTON_B))
 		{
-			SetBullet(player[P1].pos, player[P1].rot, bullet->sclIncrease, 0, P1);
+			SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
 	}
@@ -575,19 +578,19 @@ void InputPlayer2(void)
 		if (GetKeyboardPress(DIK_P))
 		{
 			// 最大値になった場合
-			if (bullet->sclIncrease.x > BULLET_CHARGE_MAX)
+			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
 			{
-				bullet->sclIncrease = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
+				bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
-			else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
+			else if (cntFrame[P2] % BULLET_CHARGE_FRAME_CNT == 0)
 			{
-				bullet->sclIncrease += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
+				bullet->speedIncrease += 0.5f;
 			}
 		}
 		else if (GetKeyboardRelease(DIK_P))
 		{
-			SetBullet(player[P2].pos, player[P2].rot, bullet->sclIncrease, 0, P2);
+			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
 		}
 		
@@ -702,17 +705,17 @@ void NonePlayerMove(void)
 	if (0.5f < atc)
 	{
 		// 最大値になった場合
-		if (bullet->sclIncrease.x > BULLET_CHARGE_MAX)
+		if (bullet->speedIncrease > BULLET_CHARGE_MAX)
 		{
-			bullet->sclIncrease = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
-			
-			SetBullet(player[P2].pos, player[P2].rot, bullet->sclIncrease, 0, P2);
+			bullet->speedIncrease = BULLET_CHARGE_MAX;
+			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
+
 		}
 		// 10フレーム
 		else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
 		{
-			bullet->sclIncrease += D3DXVECTOR3(0.1f, 0.1f, 0.1f);
+			bullet->speedIncrease += 0.5f;
 		}
 	}
 	if (0.8f < chase)

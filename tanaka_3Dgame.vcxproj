@@ -154,7 +154,7 @@
     <ClCompile Include="rightReg.cpp" />
     <ClCompile Include="score.cpp" />
     <ClCompile Include="shadow.cpp" />
-    <ClCompile Include="smoke.cpp" />
+    <ClCompile Include="bulletEffect.cpp" />
     <ClCompile Include="title.cpp" />
     <ClCompile Include="tutorial.cpp" />
   </ItemGroup>
@@ -184,7 +184,7 @@
     <ClInclude Include="rightReg.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="shadow.h" />
-    <ClInclude Include="smoke.h" />
+    <ClInclude Include="bulletEffect.h" />
     <ClInclude Include="title.h" />
     <ClInclude Include="tutorial.h" />
   </ItemGroup>

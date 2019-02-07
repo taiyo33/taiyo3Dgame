@@ -9,7 +9,6 @@
 #include "input.h"
 #include "shadow.h"
 #include "effect.h"
-#include "smoke.h"
 #include "checkhit.h"
 #include "explosion.h"
 #include "bullet.h"
@@ -287,6 +286,7 @@ void SetItem(D3DXVECTOR3 pos)
 				item[i].pos = pos;
 				item[i].textureNum = TEX_TYPE002;
 				SetVertexItem(i, ITEM_SIZE, ITEM_SIZE);
+
 
 				return;
 			}

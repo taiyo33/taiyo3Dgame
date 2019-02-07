@@ -11,7 +11,7 @@
 #include "field.h"
 #include "checkhit.h"
 #include "block.h"
-#include "smoke.h"
+#include "bulletEffect.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -22,6 +22,7 @@
 #define	BULLET_SIZE_Z		(20.0f)							// バレットの奥行
 #define	BULLET_SPEED		(8.0f)							// 移動速度
 #define BULLET_RADY_FRAME	(10)							// 発射間隔
+#define INIT_SPEED			(5.0f)
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -68,6 +69,7 @@ HRESULT InitBullet(int type)
 	{
 		cntFrame[i] = BULLET_RADY_FRAME;						// フレームを初期化
 		bullet[i].sclIncrease = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加量
+		bullet[i].speedIncrease = 0.0f;	// スケールの増加量
 
 		for (int j = 0; j < BULLET_ONESET_MAX; j++)
 		{	
@@ -78,9 +80,9 @@ HRESULT InitBullet(int type)
 			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);			// 拡大率を初期化
 			bullet[i].size[j] = D3DXVECTOR3(BULLET_SIZE_X, BULLET_SIZE_Y, BULLET_SIZE_Z); // 大きさを初期化
 			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;					// 反発の初期化
+			bullet[i].speed[j] = 1.0f;
 		}
 	}
-
 	return S_OK;
 }
 
@@ -124,7 +126,7 @@ void UpdateBullet(void)
 				// 現在位置を保存
 				bullet[i].prevPos[j] = bullet[i].pos[j];
 
-				SetSmoke(bullet[i].pos[j], bullet[i].rot[j], bullet[i].scl[j], 0, bullet[i].size[j].x, bullet[i].size[j].y, i);
+				SetBulletEffect(bullet[i].pos[j], bullet[i].rot[j], bullet[i].scl[j], 0, bullet[i].size[j].x, bullet[i].size[j].y, i);
 				
 				// 移動処理
 				MoveBullet(i, j);
@@ -144,9 +146,7 @@ void UpdateBullet(void)
 			}
 		}
 	}
-
-	//PrintDebugProc("バレットの拡大率[(%f)]\n", bullet[0].sclIncrease[0]);
-}
+ }
 
 //===============================================================================
 // 描画処理
@@ -335,7 +335,7 @@ BULLET *GetBullet(int bno)
 // 引　数：D3DXVECTOR3 pos(位置)、D3DXVECTOR3 rot(角度)、float Dest(距離)
 // 戻り値：bool型　未使用の場合 true、使用中の場合 false
 //=========================================================================
-void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 scl, float Dest, int index)
+void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int index)
 {
 	BULLET *bullet = &bulletWk[index];
 
@@ -348,12 +348,14 @@ void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 scl, float Dest, int
 			bullet->pos[i].z = pos.z + sinf(rot.y) * Dest;			//　
 			bullet->pos[i].y = pos.y;								//
 			bullet->rot[i] = rot;									// 回転量を代入
-			bullet->scl[i] = scl;									// スケールを代入
-			bullet->size[i] = BULLET_SIZE_X * scl;					//
+ 			bullet->speed[i] = speed;
+			//bullet->scl[i] = scl;									// スケールを代入
+			//bullet->size[i] = BULLET_SIZE_X * scl;					//
 			SetVertexBullet(i, bullet->size[i].x, bullet->size[i].y);	// 頂点を作成
 			cntFrame[index] = 0;									// フレームカウントを初期化
 			bullet->sclIncrease = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加値を初期化
-			
+			bullet->speedIncrease = 0.0f;							// 速度Aの増加値を初期化
+
 			return;
 		}
 	}
@@ -372,22 +374,22 @@ void MoveBullet(int index, int bno)
 
 	if (!bullet->reflect[bno])
 	{
-		bullet->move[bno].x = sinf(bullet->rot[bno].y) * BULLET_SPEED;
-		bullet->move[bno].y = tanf(bullet->rot[bno].x) * BULLET_SPEED;
-		bullet->move[bno].z = cosf(bullet->rot[bno].y) * BULLET_SPEED;
+		bullet->move[bno].x = sinf(bullet->rot[bno].y) * bullet->speed[bno];
+		bullet->move[bno].y = tanf(bullet->rot[bno].x) * bullet->speed[bno];
+		bullet->move[bno].z = cosf(bullet->rot[bno].y) * bullet->speed[bno];
 
 		// バレットとブロックの当たり判定
 		if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno]))
 		{
 			bullet->refVec[bno] = ReflectBullet(bullet->pos[bno] + bullet->move[bno], GetNormal(), index, bno);
-			bullet->move[bno] = bullet->refVec[bno] * BULLET_SPEED;
+			bullet->move[bno] = bullet->refVec[bno] * bullet->speed[bno];
 			bullet->reflect[bno] = true;
 			bullet->cntReflect[bno]--;
 		}
 	}
 	else if (bullet->reflect[bno])
 	{
-		bullet->move[bno] = bullet->refVec[bno] * BULLET_SPEED;
+		bullet->move[bno] = bullet->refVec[bno] * bullet->speed[bno];
 	}
 }
 

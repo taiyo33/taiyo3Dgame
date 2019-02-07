@@ -9,7 +9,6 @@
 #include "input.h"
 #include "shadow.h"
 #include "effect.h"
-#include "smoke.h"
 #include "checkhit.h"
 #include "explosion.h"
 #include "bullet.h"

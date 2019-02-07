@@ -337,6 +337,8 @@ void SetExplosion(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest)
 			explosion[i].pos.x = pos.x + sinf(rot.y) * Dest;		// ˆÊ’u‚ð‘ã“ü
 			explosion[i].pos.z = pos.z + cosf(rot.y) * Dest;		//
 			explosion[i].pos.y = pos.y;								//
+			
+			return;
 		}
 	}
 }

@@ -112,7 +112,7 @@ void UpdateBulletGauge(void)
 	BULLET *bullet = GetBullet(0);
 	for (int i = 0; i < BULLETGAUGE_MAX; i++)
 	{		
-          		float val = bullet[i].sclIncrease.x / 2.0f;
+       	float val = bullet[i].speedIncrease / BULLET_CHARGE_MAX;
 		SettBulletGaugeTextureType(i, bullet[i].sclIncrease.x);
 		SetTextureBulletGauge(i, val);
 		SetVertexBulletGauge(i, val);

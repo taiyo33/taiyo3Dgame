@@ -8,6 +8,7 @@
 #include "lifeGauge.h"
 #include "input.h"
 #include "player.h"
+#include "child.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -129,20 +130,21 @@ void UninitLifeGauge(void)
 void UpdateLifeGauge(void)
 {
 	float val;
-	PLAYER *player = GetPlayer(0);
-	
-	for (int i = 0; i < LIFEGAUGE_MAX; i++, player++)
+	CHILD *child = GetChild(0);
+
+	for (int i = 0; i < LIFEGAUGE_MAX; i++, child++)
 	{
-		val = player->life / PLAYER_LIFE_MAX;
+		val = (float)child->cnt / CHILD_ONESET_MAX;
+		
 		if (i == 0)
 		{
-			SetLifeGaugeTextureType01(i, player->life);
+			SetLifeGaugeTextureType01(i, child->cnt);
 			SetTextureLifeGauge01(val);
 			SetVertexLifeGauge01(val);
 		}
 		if (i == 1)
 		{
-			SetLifeGaugeTextureType02(i, player->life);
+			SetLifeGaugeTextureType02(i, child->cnt);
 			SetTextureLifeGauge02(val);
 			SetVertexLifeGauge02(val);
 		}
