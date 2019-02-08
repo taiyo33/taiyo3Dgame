@@ -381,7 +381,7 @@ void MoveBullet(int index, int bno)
 		// バレットとブロックの当たり判定
 		if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno]))
 		{
-			bullet->refVec[bno] = ReflectBullet(bullet->pos[bno] + bullet->move[bno], GetNormal(), index, bno);
+			bullet->refVec[bno] = ReflectVector(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno],GetNormal());
 			bullet->move[bno] = bullet->refVec[bno] * bullet->speed[bno];
 			bullet->reflect[bno] = true;
 			bullet->cntReflect[bno]--;
@@ -435,24 +435,6 @@ void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos)
 			}
 		}
 	}
-}
-
-//==============================================================================
-// バレットの反射
-// 引　数：D3DXVECTOR3 pos(バレットの位置)、D3DXVECTOR3 normal(ブロックの法線)、
-//		   int Index(使用者のアドレス番号)、int bno(バレットのアドレス)
-// 戻り値：D3DXVECTOR3型
-//==============================================================================
-D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bno)
-{
-	BULLET *bullet = &bulletWk[index];
-	D3DXVECTOR3 normal_n;
-	D3DXVECTOR3 frontVec = pos - bullet->prevPos[bno];
-	D3DXVECTOR3	out;
-
-	D3DXVec3Normalize(&normal_n, &normal);
-	D3DXVec3Normalize(&out, &(frontVec - (2.0f * D3DXVec3Dot(&frontVec, &normal_n)) * normal_n));
-	return out;
 }
 
 ////==============================================================================

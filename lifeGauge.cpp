@@ -130,21 +130,21 @@ void UninitLifeGauge(void)
 void UpdateLifeGauge(void)
 {
 	float val;
-	CHILD *child = GetChild(0);
+	PLAYER *player = GetPlayer(0);
 
-	for (int i = 0; i < LIFEGAUGE_MAX; i++, child++)
+	for (int i = 0; i < LIFEGAUGE_MAX; i++, player++)
 	{
-		val = (float)child->cnt / CHILD_ONESET_MAX;
+		val = player->life / PLAYER_LIFE_MAX;
 		
 		if (i == 0)
 		{
-			SetLifeGaugeTextureType01(i, child->cnt);
+			SetLifeGaugeTextureType01(i, player->life);
 			SetTextureLifeGauge01(val);
 			SetVertexLifeGauge01(val);
 		}
 		if (i == 1)
 		{
-			SetLifeGaugeTextureType02(i, child->cnt);
+			SetLifeGaugeTextureType02(i, player->life);
 			SetTextureLifeGauge02(val);
 			SetVertexLifeGauge02(val);
 		}

@@ -49,7 +49,6 @@ void UpdateBullet(void);
 void DrawBullet(void);
 BULLET *GetBullet(int bno);
 void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int index);
-D3DXVECTOR3 ReflectBullet(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index, int bno);
 void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos);
 
 #endif

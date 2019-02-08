@@ -20,37 +20,27 @@
 
 typedef struct {
 	
-	LPD3DXALLOCATEHIERARCHY		D3DXAlloc;			// ID3DXAllocインターフェースへのポインタ
-	LPD3DXLOADUSERDATA			D3DXUserData;		// Xファイルのユーザー定義
-	LPD3DXFRAME					D3DXFrame;			// フレーム階層の親のポインタ
-	LPD3DXANIMATIONCONTROLLER	D3DXAnim;			// アニメーション情報
 	D3DXMATRIX					mtxWorld;			// ワールドマトリックス
 	D3DXVECTOR3					pos;				// 現在の位置
 	D3DXVECTOR3					prevPos;			// 過去の位置
 	D3DXVECTOR3					move;				// 移動量
 	D3DXVECTOR3					rot;				// 回転量
 	D3DXVECTOR3					rotDest;			// 現在の向き
+	D3DXVECTOR3					frontVec;			// 前方ベクトル
 	bool						use;				// 使用状態
 	float						speed;				// 移動の速さ
 	float						life;				// 体力
-	float						special;			// 
 	int							IdxShadow;			// 影ID
 	float						SizeShadow;			// 影のサイズ
 	D3DXCOLOR					colShadow;			// 影の色
-	float						angle;
+	int							cntFrame;
+
+
 }PLAYER;
 
 enum {
 	P1,
 	P2
-};
-
-enum {
-	TEXTURE001,
-	TEXTURE002,
-	TEXTURE003,
-	TEXTURE004,
-	TEXTURE005
 };
 
 //*****************************************************************************

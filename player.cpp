@@ -36,7 +36,6 @@ void InputGamePadPlayer1(void);
 void InputPlayer2(void);
 D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index);
 void WallShearPlayer(int index);
-void NonePlayerMove(void);
 
 //*****************************************************************************
 // グローバル変数
@@ -55,7 +54,7 @@ PLAYER								player[PLAYER_MAX];		// プレイヤー構造体
 HRESULT InitPlayer(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
+	CAMERA *camera = GetCamera();
 	D3DTexture = NULL;	// テクスチャーの初期化
 	D3DXMesh = NULL;		// インタフェースの初期化
 	D3DXBuffMat = NULL;	// マテリアルの初期化
@@ -71,9 +70,8 @@ HRESULT InitPlayer(int type)
 		player[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
-		player[i].special = 100.0f;
-		player[i].angle = 0.0f;
-		cntFrame[i] = 0;
+		player[i].cntFrame= 0;
+		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f );
 	}
 
 	// Xファイルの読み込み
@@ -133,22 +131,30 @@ void UninitPlayer(void)
 //=============================================================================
 void UpdatePlayer(void)
 {
+	CAMERA *camera = GetCamera();
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		// 現在位置を保存
 		player[i].prevPos = player[i].pos;
-		cntFrame[i]++;
-		
+		player[i].cntFrame++;
+		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y), 0.0f, cosf(player[i].rot.y));
+
 		// 操作の処理
 		InputPlayer1();
 		InputPlayer2();
 		InputGamePadPlayer1();
 
+		
+		if (i == 1)
+		{
+			NonePlayerMove();
+			//NonePlayerAttack();
+		}
+
+
+
 		// 壁ずり処理
 		WallShearPlayer(i);
-		
-		NonePlayerMove();
-
 		// プレイヤーの操作
 		MovePlayer(i);
 
@@ -299,19 +305,19 @@ void InputPlayer1(void)
 			player[P1].rotDest.y = D3DX_PI + camera->rot.y;
 		}
 
-		// 目的の角度までの差分
-		fDiffRotY = player[P1].rotDest.y - player[P1].rot.y;
-		if (fDiffRotY > D3DX_PI)
-		{
-			fDiffRotY -= D3DX_PI * 2.0f;
-		}
-		if (fDiffRotY < -D3DX_PI)
-		{
-			fDiffRotY += D3DX_PI * 2.0f;
-		}
+		//// 目的の角度までの差分
+		//fDiffRotY = player[P1].rotDest.y - player[P1].rot.y;
+		//if (fDiffRotY > D3DX_PI)
+		//{
+		//	fDiffRotY -= D3DX_PI * 2.0f;
+		//}
+		//if (fDiffRotY < -D3DX_PI)
+		//{
+		//	fDiffRotY += D3DX_PI * 2.0f;
+		//}
 
-		// 目的の角度まで慣性をかける
-		player[P1].rot.y += fDiffRotY * RATE_ROTATE_PLAYER;
+		//// 目的の角度まで慣性をかける
+		//player[P1].rot.y += fDiffRotY * RATE_ROTATE_PLAYER;
 		if (player[P1].rot.y > D3DX_PI)
 		{
 			player[P1].rot.y -= D3DX_PI * 2.0f;
@@ -330,7 +336,7 @@ void InputPlayer1(void)
                 bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
-			else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
+			else if (player[P1].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
 				bullet->speedIncrease += 0.5f;
 			}
@@ -359,7 +365,6 @@ void InputGamePadPlayer1(void)
 	if (player[P1].use)
 	{
 		float fDiffRotY;
-
 
 		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
 		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
@@ -459,7 +464,7 @@ void InputGamePadPlayer1(void)
 				bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
-			else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
+			else if (player[P1].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
 				bullet->speedIncrease += 0.5f;
 			}
@@ -583,7 +588,7 @@ void InputPlayer2(void)
 				bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
-			else if (cntFrame[P2] % BULLET_CHARGE_FRAME_CNT == 0)
+			else if (player[P2].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
 				bullet->speedIncrease += 0.5f;
 			}
@@ -681,51 +686,5 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 		player[index].move.z = 0.0f;
 		player[index].pos.z = player[index].prevPos.z;
 		return;
-	}
-}
-
-//===========================================================================
-// NPCの移動処理
-// 引　数：D3DXVECTOR3 pos(次の移動位置)、D3DXVECTOR3 normal(ポリゴンの法線)
-//		   int index(プレイヤーのアドレス番号)
-// 戻り値：
-//==========================================================================
-void NonePlayerMove(void)
-{
-	BULLET *bullet = GetBullet(P2);
-	float box, out;
-	float atc, chase, escape;
-
-	atc = FuzzyRightDown(player[P2].life, 40, 80);
-	chase = FuzzyTrapezoid(player[P2].life, 0, 20, 40, 80);
-	box = Or(atc, chase);
-	escape = FuzzyRightUp(player[P2].life, 50, 80);
-	out = Or(box, escape);
-
-	if (0.5f < atc)
-	{
-		// 最大値になった場合
-		if (bullet->speedIncrease > BULLET_CHARGE_MAX)
-		{
-			bullet->speedIncrease = BULLET_CHARGE_MAX;
-			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
-			cntFrame[P2] = 0;
-
-		}
-		// 10フレーム
-		else if (cntFrame[P1] % BULLET_CHARGE_FRAME_CNT == 0)
-		{
-			bullet->speedIncrease += 0.5f;
-		}
-	}
-	if (0.8f < chase)
-	{
-		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
-		D3DXVec3Normalize(&vec, &vec);
-		player[P2].move.x += vec.x * player[P2].speed;
-		player[P2].move.z += vec.z * player[P2].speed;
-	}
-	if (out == escape)
-	{
 	}
 }

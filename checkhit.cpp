@@ -182,6 +182,45 @@ bool CheckHitBC(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, float size1, float size2)
 }
 
 //=============================================================================
+// レイと球の当たり判定処理
+// 引　数：
+// 戻り値：当たってたらtrue
+//=============================================================================
+bool CheckHitRay(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, D3DXVECTOR3 vec, float size)
+{
+	pos2.x -= pos1.x;
+	pos2.z -= pos1.z;
+	D3DXVECTOR3 vec1;
+
+	D3DXVec3Normalize(&vec1, &vec);
+	float dot1 = pos2.x * vec1.x + pos2.z * vec1.z;
+	float dot2 = pos2.x * pos2.x + pos2.z * pos2.z;
+	//float dot1 = D3DXVec3Dot(&pos2, &vec1);
+	//float dot2 = D3DXVec3Dot(&pos2, &pos2);
+
+	float s = dot1 * dot1 - dot2 + size * size;
+	
+	if (s < 0.0f)
+	{
+		return false;
+	}
+
+	float sq = sqrtf(s);
+	float t = -dot1 - sq;
+
+	if (t < 0.0f)
+	{
+		return false;
+	}
+
+	float pos_x = pos2.x + t * vec1.x + pos1.x;
+	float pos_z = pos2.z + t * vec1.z + pos1.z;
+
+	return true;
+}
+
+
+//=============================================================================
 // 線分とポリゴンの当たり判定処理
 // 引　数： D3DXVECTOR3 p0,p1,p2(ポリゴンの各頂点), D3DXVECTOR3 pos0(始点)
 //			D3DXVECTOR3 pos1(終点)
@@ -261,6 +300,23 @@ D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 	frontVec = pos - player->prevPos;
 	D3DXVec3Normalize(&normal_n, &normal);
 	D3DXVec3Normalize(&out, &(frontVec - D3DXVec3Dot(&frontVec, &normal_n) * normal_n));
+	return out;
+}
+
+//==============================================================================
+// 反射ベクトルの計算処理
+// 引　数：D3DXVECTOR3 pos(バレットの位置)、D3DXVECTOR3 normal(ブロックの法線)、
+//		   int Index(使用者のアドレス番号)、int bno(バレットのアドレス)
+// 戻り値：D3DXVECTOR3型
+//==============================================================================
+D3DXVECTOR3 ReflectVector(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, D3DXVECTOR3 normal)
+{
+	D3DXVECTOR3 normal_n;
+	D3DXVECTOR3 frontVec = pos0 - pos1;
+	D3DXVECTOR3	out;
+
+	D3DXVec3Normalize(&normal_n, &normal);
+	D3DXVec3Normalize(&out, &(frontVec - (2.0f * D3DXVec3Dot(&frontVec, &normal_n)) * normal_n));
 	return out;
 }
 

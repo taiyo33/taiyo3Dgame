@@ -31,6 +31,7 @@
 #include "lifeGauge.h"
 #include "item.h"
 #include "child.h"
+#include "ai.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -373,6 +374,9 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//
 	InitChild();
 
+	//
+	InitAi();
+
 	return S_OK;
 }
 
@@ -537,7 +541,7 @@ void Update(void)
 			UpdateItem();
 
 			// スコアの更新
-			//UpdateScore();
+			UpdateScore();
 			
 			// 
 			UpdateBulletGauge();
@@ -638,7 +642,7 @@ void Draw(void)
 				DrawChild();
 
 				// スコアの描画
-				//DrawScore();
+				DrawScore();
 
 				//
 				DrawLifeGauge();
@@ -682,8 +686,6 @@ LPDIRECT3DDEVICE9 GetDevice(void)
 	return g_pD3DDevice;
 }
 
-
-
 //============================================================================
 // ゲーム遷移の設置
 // 引数： int Stage(遷移先の番号)
@@ -704,14 +706,13 @@ int GetStage(void)
 	return StageSelect;
 }
 
-
 //============================================================================
 // ゲームの再初期化
-//
+// 引　数：な　し
+// 戻り値：な　し
 //============================================================================
 void InitGame(void)
 {
-
 	// ライトの初期化
 	InitLight();
 
@@ -750,5 +751,7 @@ void InitGame(void)
 	InitItem(INIT_GAME);
 
 	InitChild();
+
+	InitAi();
 }
 
