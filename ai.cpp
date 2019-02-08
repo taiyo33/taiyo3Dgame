@@ -198,9 +198,9 @@ void NonePlayerAttack(void)
 	}
 
 
-	if (CheckHitRay(player[P1].pos, player[P2].pos, player[P2].frontVec, 10.0f))
+	if (CheckHitRay(player[P1].pos, player[P2].pos, player[P2].frontVec, 25.0f))
 	{
-		SetBullet(player[P2].pos, player[P2].rot, player[P2].speed, 0, P2);
+		SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 	}
 
 	//AI *ai = &aiWk;

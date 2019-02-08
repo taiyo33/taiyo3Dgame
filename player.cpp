@@ -137,7 +137,7 @@ void UpdatePlayer(void)
 		// åªç›à íuÇï€ë∂
 		player[i].prevPos = player[i].pos;
 		player[i].cntFrame++;
-		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y), 0.0f, cosf(player[i].rot.y));
+		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
 
 		// ëÄçÏÇÃèàóù
 		InputPlayer1();
@@ -147,8 +147,8 @@ void UpdatePlayer(void)
 		
 		if (i == 1)
 		{
-			NonePlayerMove();
-			//NonePlayerAttack();
+			//NonePlayerMove();
+			NonePlayerAttack();
 		}
 
 
