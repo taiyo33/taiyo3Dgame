@@ -188,6 +188,7 @@ bool CheckHitBC(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, float size1, float size2)
 //=============================================================================
 bool CheckHitRay(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, D3DXVECTOR3 vec, float size)
 {
+<<<<<<< HEAD
 	pos2 -= pos1;
 	D3DXVECTOR3 vec1;
 
@@ -200,20 +201,19 @@ bool CheckHitRay(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, D3DXVECTOR3 vec, float size
 	float s = dot1 * dot1 - dot2 + size * size;
 	
 	if (s < 0.0f)
+=======
+	D3DXVECTOR3 rayVec = vec - pos2;
+	D3DXVECTOR3 vec1 = pos1 - pos2;
+	D3DXVec3Normalize(&rayVec, &rayVec);
+	//float dot1 = D3DXVec3Dot(&rayVec, &vec1);
+	D3DXVECTOR3 d = vec1 - D3DXVec3Dot(&vec1, &rayVec) * rayVec;
+	float lengthVec = D3DXVec3LengthSq(&d);
+
+	if (lengthVec > size)
+>>>>>>> 36724b5047946a80c19319a1fff39f851dcf4f1e
 	{
 		return false;
 	}
-
-	float sq = sqrtf(s);
-	float t = -dot1 - sq;
-
-	if (t < 0.0f)
-	{
-		return false;
-	}
-
-	float pos_x = pos2.x + t * vec1.x + pos1.x;
-	float pos_z = pos2.z + t * vec1.z + pos1.z;
 
 	return true;
 }
