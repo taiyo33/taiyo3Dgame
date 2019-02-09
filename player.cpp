@@ -137,7 +137,7 @@ void UpdatePlayer(void)
 		// Œ»İˆÊ’u‚ğ•Û‘¶
 		player[i].prevPos = player[i].pos;
 		player[i].cntFrame++;
-		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
+		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 500.0f, 0.0f, cosf(player[i].rot.y) * 500.0f);
 
 		// ‘€ì‚Ìˆ—
 		InputPlayer1();
