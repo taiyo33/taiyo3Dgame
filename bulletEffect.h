@@ -9,7 +9,7 @@
 
 #include "main.h"
 
-#define BULLETEFFECT_ONESET_MAX			(10)
+#define BULLETEFFECT_ONESET_MAX			(30)
 #define BULLETEFFECT_SET_MAX				(6)
 
 typedef struct

@@ -188,15 +188,14 @@ bool CheckHitBC(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, float size1, float size2)
 //=============================================================================
 bool CheckHitRay(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, D3DXVECTOR3 vec, float size)
 {
-	pos2.x -= pos1.x;
-	pos2.z -= pos1.z;
+	pos2 -= pos1;
 	D3DXVECTOR3 vec1;
 
 	D3DXVec3Normalize(&vec1, &vec);
-	float dot1 = pos2.x * vec1.x + pos2.z * vec1.z;
-	float dot2 = pos2.x * pos2.x + pos2.z * pos2.z;
-	//float dot1 = D3DXVec3Dot(&pos2, &vec1);
-	//float dot2 = D3DXVec3Dot(&pos2, &pos2);
+	//float dot1 = pos2.x * vec1.x + pos2.z * vec1.z;
+	//float dot2 = pos2.x * pos2.x + pos2.z * pos2.z;
+	float dot1 = D3DXVec3Dot(&pos2, &vec1);
+	float dot2 = D3DXVec3Dot(&pos2, &pos2);
 
 	float s = dot1 * dot1 - dot2 + size * size;
 	
@@ -306,7 +305,6 @@ D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 //==============================================================================
 // 反射ベクトルの計算処理
 // 引　数：D3DXVECTOR3 pos(バレットの位置)、D3DXVECTOR3 normal(ブロックの法線)、
-//		   int Index(使用者のアドレス番号)、int bno(バレットのアドレス)
 // 戻り値：D3DXVECTOR3型
 //==============================================================================
 D3DXVECTOR3 ReflectVector(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, D3DXVECTOR3 normal)

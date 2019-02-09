@@ -80,7 +80,7 @@ HRESULT InitBullet(int type)
 			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);			// 拡大率を初期化
 			bullet[i].size[j] = D3DXVECTOR3(BULLET_SIZE_X, BULLET_SIZE_Y, BULLET_SIZE_Z); // 大きさを初期化
 			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;					// 反発の初期化
-			bullet[i].speed[j] = 1.0f;
+			bullet[i].speed[j] = INIT_SPEED;
 		}
 	}
 	return S_OK;
@@ -142,6 +142,7 @@ void UpdateBullet(void)
 					bullet[i].use[j] = false;
 					bullet[i].reflect[j] = false;
 					bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+					bullet[i].speed[j] = INIT_SPEED;
 				}
 			}
 		}
@@ -348,7 +349,7 @@ void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int in
 			bullet->pos[i].z = pos.z + sinf(rot.y) * Dest;			//　
 			bullet->pos[i].y = pos.y;								//
 			bullet->rot[i] = rot;									// 回転量を代入
- 			bullet->speed[i] = speed;
+ 			bullet->speed[i] = bullet->speed[i] + speed;
 			//bullet->scl[i] = scl;									// スケールを代入
 			//bullet->size[i] = BULLET_SIZE_X * scl;					//
 			SetVertexBullet(i, bullet->size[i].x, bullet->size[i].y);	// 頂点を作成

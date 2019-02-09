@@ -172,33 +172,31 @@ void NonePlayerAttack(void)
 	BULLET *bullet = GetBullet(P2);
 	BLOCK *block = GetBlock(0);
 	//D3DXVECTOR3 frontVec = player[P1].pos - player[P1].frontVec;
-	//D3DXVECTOR3 reflectVec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 reflectVec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	//float vecLength = 0.0f;
 
-	//for (int i = 0; i < BLOCK_MAX; i++, block++)
-	//{
-	//	reflectVec = block->pos - frontPos;
-	//	vecLength = D3DXVec3Length(&reflectVec);
-	//	if (!HitCheckBlock(player->pos, frontPos))
-	//	{
-	//		reflectVec = ReflectVector(frontPos, player[P1].pos, GetNormal()) * vecLength;
-	//		break;
-	//	}
-
-	//}
-				// 最大値になった場合
+	for (int i = 0; i < BLOCK_MAX; i++, block++)
+	{
+		if (CheckHitRay(block->pos, player[P2].pos, player[P2].frontVec, 15.0f))
+		{
+			D3DXVECTOR3 nor = D3DXVECTOR3(sinf(player[P2].rot.y), 0.0f, -cosf(player[P2].rot.y));
+			reflectVec = ReflectVector(player[P2].frontVec, player[P2].pos, nor);
+			break;
+		}
+	}
+	 
+	// 最大値になった場合
 	if (bullet->speedIncrease > BULLET_CHARGE_MAX)
 	{
 		bullet->speedIncrease = BULLET_CHARGE_MAX;
 	}
 	// 10フレーム
-	else if (player[P2].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
+	else if (player->cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 	{
-		bullet->speedIncrease += 0.5f;
+		bullet->speedIncrease += 0.2f;
 	}
 
-
-	if (CheckHitRay(player[P1].pos, player[P2].pos, player[P2].frontVec, 10.0f))
+	if (CheckHitRay(player[P1].pos, player[P2].pos, reflectVec, 25.0f))
 	{
 		SetBullet(player[P2].pos, player[P2].rot, player[P2].speed, 0, P2);
 	}

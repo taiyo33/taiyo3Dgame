@@ -144,14 +144,11 @@ void UpdatePlayer(void)
 		InputPlayer2();
 		InputGamePadPlayer1();
 
-		
 		if (i == 1)
 		{
-			NonePlayerMove();
-			//NonePlayerAttack();
+			//NonePlayerMove();
+			NonePlayerAttack();
 		}
-
-
 
 		// ï«Ç∏ÇËèàóù
 		WallShearPlayer(i);
