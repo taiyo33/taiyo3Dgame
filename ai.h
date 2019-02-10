@@ -31,6 +31,8 @@ typedef struct {
 HRESULT InitAi(void);
 void NonePlayerMove(void);
 void NonePlayerAttack(void);
+void NonePlayerPatrol(void);
+
 
 float FuzzyRightUp(float val, float x0, float x1);
 float FuzzyRightDown(float val, float x0, float x1);

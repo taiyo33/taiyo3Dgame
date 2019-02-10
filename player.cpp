@@ -59,8 +59,8 @@ HRESULT InitPlayer(int type)
 	D3DTexture = NULL;	// テクスチャーの初期化
 	D3DXMesh = NULL;		// インタフェースの初期化
 	D3DXBuffMat = NULL;	// マテリアルの初期化
-	player[P1].pos = D3DXVECTOR3(-200.0f, 10.0f, 0.0f);	// 位置の初期化
-	player[P2].pos = D3DXVECTOR3(200.0f, 10.0f, 0.0f);	//
+	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
+	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
 	player[P1].use = true;								// 使用状態を初期化
 	player[P2].use = true;								//
 	player[P1].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
@@ -129,7 +129,8 @@ void UpdatePlayer(void)
 		// 現在位置を保存
 		player[i].prevPos = player[i].pos;
 		player[i].cntFrame++;
-		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 500.0f, 0.0f, cosf(player[i].rot.y) * 500.0f);
+		//player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y), 0.0f, cosf(player[i].rot.y));
+		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
 
 		// 操作の処理
 		InputPlayer1();
@@ -139,8 +140,9 @@ void UpdatePlayer(void)
 		
 		if (i == 1)
 		{
-			NonePlayerAttack();
-			NonePlayerMove();
+			//NonePlayerAttack();
+			NonePlayerPatrol();
+			//NonePlayerMove();
 		}
 
 		// 壁ずり処理
@@ -150,7 +152,7 @@ void UpdatePlayer(void)
 
 		PlayerDamageManager(i);
 
-		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rot.y);
+		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rotDest.y);
 		PrintDebugProc("プレイヤーの前方: [X:(%f),z:(%f)]\n", player[i].frontVec.x, player[i].frontVec.z);
 	}
 }

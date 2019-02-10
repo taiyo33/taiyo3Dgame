@@ -17,6 +17,13 @@
 #define PLAYER_LIFE_MAX			(100.0f)
 #define PLAYER_FALL_SPEED		(5.0f)
 
+#define PLAYER01_INITPOS_X		(-300.0f)
+#define PLAYER01_INITPOS_Y		(10.0f)
+#define PLAYER01_INITPOS_Z		(200.0f)
+
+#define PLAYER02_INITPOS_X		(300.0f)
+#define PLAYER02_INITPOS_Y		(10.0f)
+#define PLAYER02_INITPOS_Z		(-200.0f)
 
 typedef struct {
 	

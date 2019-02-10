@@ -9,10 +9,11 @@
 #include "player.h"
 #include "block.h"
 #include "checkhit.h"
-
+#include "field.h"
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
+#define MOVE_PATTERN_MAX					(4) 
 
 // NPCの移動マクロ
 #define MOVE_DISTANCE_CHASE_FUZZY_X1		(150.0f)
@@ -48,6 +49,8 @@
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
+int CheckNorNonePlayer(D3DXVECTOR3 nor0);
+void NonePlayerDest(D3DXVECTOR3 vecDest);
 
 
 //*****************************************************************************
@@ -58,6 +61,15 @@ enum {
 	PATTERN2,
 	PATTERN3,
 	PATTERN4
+};
+
+D3DXVECTOR3			MovePattern[MOVE_PATTERN_MAX]{
+
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f), 
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z + 100.0f),
+
 };
 
 AI			aiWk;
@@ -95,6 +107,8 @@ void NonePlayerMove(void)
 {
 	AI *ai = &aiWk;
 	PLAYER *player = GetPlayer(0);
+
+	NonePlayerDest(player[P1].pos);
 
 	// 相手との距離による判定
 	D3DXVECTOR3 pvpVec = player[P2].pos - player[P1].pos;
@@ -173,11 +187,11 @@ void NonePlayerMove(void)
 // 引　数：な　し
 // 戻り値：な　し
 //==============================================================================
-void NonePlayerDest(void)
+void NonePlayerDest(D3DXVECTOR3 vecDest)
 {
 	PLAYER *player = GetPlayer(0);
 
-	D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
+	D3DXVECTOR3 vec = vecDest - player[P2].pos;
 	D3DXVec3Normalize(&vec, &vec);
 	D3DXVec3Normalize(&player[P2].frontVec, &player[P2].frontVec);
 
@@ -195,11 +209,55 @@ void NonePlayerDest(void)
 // 引　数：な　し
 // 戻り値：な　し
 //==============================================================================
-//void NonePlayerPatrol(void)
-//{
-//
-//
-//}
+void NonePlayerPatrol(void)
+{
+	PLAYER *player = GetPlayer(P2);
+	BLOCK *block = GetBlock(0);
+	D3DXVECTOR3 rayPos = player->frontVec + player->pos;	// 前方ベクトルの終点
+	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	int pattern = PATTERN1;
+
+
+	// 前方ベクトルのとブロックの判定
+	if (!HitCheckBlock(rayPos, player->pos))
+	{
+		pattern = CheckNorNonePlayer(GetNormal());
+	}
+
+	NonePlayerDest(MovePattern[pattern]);
+
+	vec = MovePattern[pattern] - player->pos;
+	
+	D3DXVec3Normalize(&vec, &vec);
+
+	player->move.x = vec.x * 5.0f;
+	player->move.z = vec.z * 5.0f;
+}
+
+//==========================================================================
+// NPCの巡回行動切替処理
+// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線)
+// 戻り値：な　し
+//==========================================================================
+int CheckNorNonePlayer(D3DXVECTOR3 nor0)
+{
+	int out = 0;
+
+	// 法線がX軸方向なら
+	if (nor0.x != 0.0f)
+	{
+		nor0.x > 1.0f ? out = PATTERN2 : out = PATTERN4;
+		return out;
+	}
+	// 法線がZ軸方向なら
+	if (nor0.z != 0.0f)
+	{
+		nor0.z > 1.0f ? out = PATTERN1 : out = PATTERN3;
+		return out;
+	}
+
+	return out;
+}
 
 //===========================================================================
 // NPCの攻撃処理
