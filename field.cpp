@@ -80,7 +80,7 @@ void UpdateField(void)
 void DrawField(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxRot, mtxTranslate;
+	D3DXMATRIX mtxTranslate;
 
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&MtxWorldField);
@@ -102,7 +102,7 @@ void DrawField(void)
 	pDevice->SetTexture(0, D3DTextureField);
 
 	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, NUM_VERTEX, NUM_POLYGON);
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, NUM_POLYGON);
 }
 
 //=============================================================================

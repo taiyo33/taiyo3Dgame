@@ -427,7 +427,6 @@ void Update(void)
 			//
 			UpdateField();
 
-
 			// 影処理の更新
 			UpdateShadow();
 
@@ -666,6 +665,9 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	// タイトルの初期化
 	InitTitle(0);
 
+	// ブロックの初期化
+	InitBlock(0);
+
 	// リザルトの初期化
 	InitResult(0);
 
@@ -686,9 +688,6 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 
 	// 頭モデルの初期化
 	InitHead();
-
-	// ブロックの初期化
-	InitBlock(0);
 
 	// バレットゲージの初期化
 	InitBulletGauge(0);
