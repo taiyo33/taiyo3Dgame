@@ -12,13 +12,13 @@
 //=============================================================================
 //マクロ定義
 //=============================================================================
-#define	BLOCK_MAX				(84)	// ブロックの最大数
-#define VTX_MAX					(83)	// ポリゴン枚数
+#define	BLOCK_MAX				(106)	// ブロックの最大数
+#define VTX_MAX					(104)	// ポリゴン枚数
 #define BLOCK_NUM_CORNER		(4)		// ４つ角
-#define BLOCK_NUM_LEFTSIDE		(12)	// ポリゴンのナンバリング
-#define BLOCK_NUM_NEARSIDE		(42)	// 
-#define BLOCK_NUM_RIGHTSIDE		(54)	// 
-#define BLOCK_NUM_FEARSIDE		(84)	// 
+#define BLOCK_NUM_LEFTSIDE		(24)	// ポリゴンのナンバリング
+#define BLOCK_NUM_NEARSIDE		(53)	// 
+#define BLOCK_NUM_RIGHTSIDE		(77)	// 
+#define BLOCK_NUM_FEARSIDE		(106)	// 
 
 typedef struct {
 	

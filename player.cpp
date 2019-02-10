@@ -32,8 +32,9 @@
 //*****************************************************************************
 void MovePlayer(int index);
 void InputPlayer1(void);
+void InputKeyPlayer2(void);
 void InputGamePadPlayer1(void);
-void InputPlayer2(void);
+void InputGamePadPlayer2(void);
 D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index);
 void WallShearPlayer(int index);
 
@@ -90,15 +91,6 @@ HRESULT InitPlayer(int type)
 	// 法線正規化の設定
 	pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 
-	//// 再初期化の場合読み込まない
-	//if (type == 0)
-	{
-		// テクスチャの読み込み
-		D3DXCreateTextureFromFile(pDevice,		// デバイスへのポインタ
-							HANDGUM_TEXTURE,	// ファイルの名前
-						&D3DTexture);	// 読み込むメモリー
-	}	
-
 	return S_OK;
 }
 
@@ -141,13 +133,14 @@ void UpdatePlayer(void)
 
 		// 操作の処理
 		InputPlayer1();
-		InputPlayer2();
+		InputKeyPlayer2();
 		InputGamePadPlayer1();
-
+		InputGamePadPlayer2();
+		
 		if (i == 1)
 		{
-			//NonePlayerMove();
 			NonePlayerAttack();
+			NonePlayerMove();
 		}
 
 		// 壁ずり処理
@@ -156,6 +149,9 @@ void UpdatePlayer(void)
 		MovePlayer(i);
 
 		PlayerDamageManager(i);
+
+		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rot.y);
+		PrintDebugProc("プレイヤーの前方: [X:(%f),z:(%f)]\n", player[i].frontVec.x, player[i].frontVec.z);
 	}
 }
 
@@ -224,7 +220,7 @@ PLAYER *GetPlayer(int index)
 }
 
 //=============================================================================
-// プレイヤー1の操作処理
+// プレイヤー1のキーボード操作処理
 // 引　数：なし
 // 戻り値：なし
 //=============================================================================
@@ -232,8 +228,6 @@ void InputPlayer1(void)
 {
 	if (player[P1].use)
 	{
-		float fDiffRotY;
-
 		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
 		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
 
@@ -287,55 +281,56 @@ void InputPlayer1(void)
 		}
 		else if (GetKeyboardPress(DIK_UP))
 		{
-			// 前移動
-			player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P1].speed;
-			player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P1].speed;
+			if(GetKeyboardPress(DIK_RIGHT))
+			{// 右移動
+				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
 
-			player[P1].rotDest.y = camera->rot.y;
+				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
+			}
+			else
+			{
+				// 前移動
+				player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P1].speed;
+				player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P1].speed;
+
+				player[P1].rotDest.y = camera->rot.y;
+			}
 		}
 		else if (GetKeyboardPress(DIK_DOWN))
 		{
-			// 後移動
-			player[P1].move.x -= sinf(camera->rot.y) * player[P1].speed;
-			player[P1].move.z -= cosf(camera->rot.y) * player[P1].speed;
+			if (GetKeyboardPress(DIK_LEFT))
+			{// 左移動
+				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
 
-			player[P1].rotDest.y = D3DX_PI + camera->rot.y;
-		}
+				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
+			}
+			else
+			{
+				// 後移動
+				player[P1].move.x -= sinf(camera->rot.y) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y) * player[P1].speed;
 
-		//// 目的の角度までの差分
-		//fDiffRotY = player[P1].rotDest.y - player[P1].rot.y;
-		//if (fDiffRotY > D3DX_PI)
-		//{
-		//	fDiffRotY -= D3DX_PI * 2.0f;
-		//}
-		//if (fDiffRotY < -D3DX_PI)
-		//{
-		//	fDiffRotY += D3DX_PI * 2.0f;
-		//}
-
-		//// 目的の角度まで慣性をかける
-		//player[P1].rot.y += fDiffRotY * RATE_ROTATE_PLAYER;
-		if (player[P1].rot.y > D3DX_PI)
-		{
-			player[P1].rot.y -= D3DX_PI * 2.0f;
-		}
-		if (player[P1].rot.y < -D3DX_PI)
-		{
-			player[P1].rot.y += D3DX_PI * 2.0f;
+				player[P1].rotDest.y = D3DX_PI + camera->rot.y;
+			}
 		}
 
 		// バレットのチャージ
 		if (GetKeyboardPress(DIK_SPACE))
 		{
+			// バレットが使用中はチャージ不可
+			if (bullet->use[P1]) return;
+
 			// 最大値になった場合
-			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
+			if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
 			{
                 bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
 			else if (player[P1].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
-				bullet->speedIncrease += 0.5f;
+				bullet->speedIncrease += 0.2f;
 			}
 		}
 		// バレットの発射
@@ -345,145 +340,21 @@ void InputPlayer1(void)
 			cntFrame[P1] = 0;
 		}
 
+		// 位置を初期化
 		if (GetKeyboardTrigger(DIK_O))
 		{
-			player[P1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			player[P1].pos = D3DXVECTOR3(0.0f, 10.0f, 0.0f);
 		}
 	}
 }
 
 //=============================================================================
-// プレイヤー1の操作処理
+// プレイヤー2のキーボード操作処理
 // 引　数：なし
 // 戻り値：なし
 //=============================================================================
-void InputGamePadPlayer1(void)
+void InputKeyPlayer2(void)
 {
-	if (player[P1].use)
-	{
-		float fDiffRotY;
-
-		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
-		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
-		if (IsButtonPressed(0,BUTTON_RIGHT))
-		{
-			if (IsButtonPressed(0,BUTTON_UP))
-			{// 右前移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
-
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.25f;
-			}
-			else if (IsButtonPressed(0,BUTTON_DOWN))
-			{// 右後移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
-
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.75f;
-			}
-			else
-			{// 右移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
-
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
-			}
-		}
-		else if (IsButtonPressed(0,BUTTON_LEFT))
-		{
-			if (IsButtonPressed(0,BUTTON_UP))
-			{// 左前移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
-
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.25f;
-			}
-			else if (IsButtonPressed(0,BUTTON_DOWN))
-			{// 左後移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
-
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.75f;
-			}
-			else
-			{// 左移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
-
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
-			}
-		}
-		else if (IsButtonPressed(0,BUTTON_UP))
-		{
-			// 前移動
-			player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P1].speed;
-			player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P1].speed;
-
-			player[P1].rotDest.y = camera->rot.y;
-		}
-		else if (IsButtonPressed(0,BUTTON_DOWN))
-		{
-			// 後移動
-			player[P1].move.x -= sinf(camera->rot.y) * player[P1].speed;
-			player[P1].move.z -= cosf(camera->rot.y) * player[P1].speed;
-
-			player[P1].rotDest.y = D3DX_PI + camera->rot.y;
-		}
-
-		// 目的の角度までの差分
-		fDiffRotY = player[P1].rotDest.y - player[P1].rot.y;
-		if (fDiffRotY > D3DX_PI)
-		{
-			fDiffRotY -= D3DX_PI * 2.0f;
-		}
-		if (fDiffRotY < -D3DX_PI)
-		{
-			fDiffRotY += D3DX_PI * 2.0f;
-		}
-
-		// 目的の角度まで慣性をかける
-		player[P1].rot.y += fDiffRotY * RATE_ROTATE_PLAYER;
-		if (player[P1].rot.y > D3DX_PI)
-		{
-			player[P1].rot.y -= D3DX_PI * 2.0f;
-		}
-		if (player[P1].rot.y < -D3DX_PI)
-		{
-			player[P1].rot.y += D3DX_PI * 2.0f;
-		}
-
-		// バレットのチャージ
-		if (IsButtonPressed(0, BUTTON_B))
-		{
-			// 最大値になった場合
-			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
-			{
-				bullet->speedIncrease = BULLET_CHARGE_MAX;
-			}
-			// 10フレーム
-			else if (player[P1].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
-			{
-				bullet->speedIncrease += 0.5f;
-			}
-		}
-		// バレットの発射
-		else if (IsButtonRelease(0, BUTTON_B))
-		{
-			SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
-			cntFrame[P1] = 0;
-		}
-	}
-}
-
-//=============================================================================
-// プレイヤー2の操作処理
-// 引　数：なし
-// 戻り値：なし
-//=============================================================================
-void InputPlayer2(void)
-{
-	float fDiffRotY;
-
 	// カメラの向き取得
 	CAMERA *camera = GetCamera();
 	BULLET *bullet = GetBullet(P2);
@@ -555,30 +426,11 @@ void InputPlayer2(void)
 			player[P2].rotDest.y = D3DX_PI + camera->rot.y;
 		}
 
-		// 目的の角度までの差分
-		fDiffRotY = player[P2].rotDest.y - player[P2].rot.y;
-		if (fDiffRotY > D3DX_PI)
+		if (GetKeyboardPress(DIK_Z))
 		{
-			fDiffRotY -= D3DX_PI * 2.0f;
-		}
-		if (fDiffRotY < -D3DX_PI)
-		{
-			fDiffRotY += D3DX_PI * 2.0f;
-		}
+			// バレットが使用中はチャージ不可
+			if (bullet->use[P2]) return;
 
-		// 目的の角度まで慣性をかける
-		player[P2].rot.y += fDiffRotY * RATE_ROTATE_PLAYER;
-		if (player[P2].rot.y > D3DX_PI)
-		{
-			player[P2].rot.y -= D3DX_PI * 2.0f;
-		}
-		if (player[P2].rot.y < -D3DX_PI)
-		{
-			player[P2].rot.y += D3DX_PI * 2.0f;
-		}
-
-		if (GetKeyboardPress(DIK_P))
-		{
 			// 最大値になった場合
 			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
 			{
@@ -590,12 +442,216 @@ void InputPlayer2(void)
 				bullet->speedIncrease += 0.5f;
 			}
 		}
-		else if (GetKeyboardRelease(DIK_P))
+		else if (GetKeyboardRelease(DIK_Z))
 		{
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
 		}
 		
+	}
+}
+
+//=============================================================================
+// プレイヤー1のゲームパッド操作処理
+// 引　数：なし
+// 戻り値：なし
+//=============================================================================
+void InputGamePadPlayer1(void)
+{
+	if (player[P1].use)
+	{
+		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
+		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
+		if (IsButtonPressed(P1,BUTTON_RIGHT))
+		{
+			if (IsButtonPressed(P1,BUTTON_UP))
+			{// 右前移動
+				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
+
+				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.25f;
+			}
+			else if (IsButtonPressed(P1,BUTTON_DOWN))
+			{// 右後移動
+				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
+
+				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.75f;
+			}
+			else
+			{// 右移動
+				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
+
+				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
+			}
+		}
+		else if (IsButtonPressed(P1,BUTTON_LEFT))
+		{
+			if (IsButtonPressed(P1,BUTTON_UP))
+			{// 左前移動
+				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
+
+				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.25f;
+			}
+			else if (IsButtonPressed(P1,BUTTON_DOWN))
+			{// 左後移動
+				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
+
+				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.75f;
+			}
+			else
+			{// 左移動
+				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
+				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
+
+				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
+			}
+		}
+		else if (IsButtonPressed(P1,BUTTON_UP))
+		{
+			// 前移動
+			player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P1].speed;
+			player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P1].speed;
+
+			player[P1].rotDest.y = camera->rot.y;
+		}
+		else if (IsButtonPressed(P1,BUTTON_DOWN))
+		{
+			// 後移動
+			player[P1].move.x -= sinf(camera->rot.y) * player[P1].speed;
+			player[P1].move.z -= cosf(camera->rot.y) * player[P1].speed;
+
+			player[P1].rotDest.y = D3DX_PI + camera->rot.y;
+		}
+
+		// バレットのチャージ
+		if (IsButtonPressed(P1, BUTTON_B))
+		{
+			// バレットが使用中はチャージ不可
+			if (bullet->use[P1]) return;
+
+			// 最大値になった場合
+			if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
+			{
+				bullet->speedIncrease = BULLET_CHARGE_MAX;
+			}
+			// 10フレーム
+			else if (player[P1].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
+			{
+				bullet->speedIncrease += 0.2f;
+			}
+		}
+		// バレットの発射
+		else if (IsButtonRelease(P1, BUTTON_B))
+		{
+			SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
+			cntFrame[P1] = 0;
+		}
+	}
+}
+
+//=============================================================================
+// プレイヤー2のゲームパッド操作処理
+// 引　数：なし
+// 戻り値：なし
+//=============================================================================
+void InputGamePadPlayer2(void)
+{
+	if (player[P2].use)
+	{
+		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
+		BULLET *bullet = GetBullet(P2);	// バレットのアドレスを取得
+		if (IsButtonPressed(P2, BUTTON_RIGHT))
+		{
+			if (IsButtonPressed(P2, BUTTON_UP))
+			{// 右前移動
+				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
+				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
+
+				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.25f;
+			}
+			else if (IsButtonPressed(P2, BUTTON_DOWN))
+			{// 右後移動
+				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
+				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
+
+				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.75f;
+			}
+			else
+			{// 右移動
+				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
+				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
+
+				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
+			}
+		}
+		else if (IsButtonPressed(P2, BUTTON_LEFT))
+		{
+			if (IsButtonPressed(P2, BUTTON_UP))
+			{// 左前移動
+				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
+				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
+
+				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.25f;
+			}
+			else if (IsButtonPressed(P2, BUTTON_DOWN))
+			{// 左後移動
+				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
+				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
+
+				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.75f;
+			}
+			else
+			{// 左移動
+				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
+				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
+
+				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
+			}
+		}
+		else if (IsButtonPressed(P2, BUTTON_UP))
+		{
+			// 前移動
+			player[P2].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P2].speed;
+			player[P2].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P2].speed;
+
+			player[P2].rotDest.y = camera->rot.y;
+		}
+		else if (IsButtonPressed(P2, BUTTON_DOWN))
+		{
+			// 後移動
+			player[P2].move.x -= sinf(camera->rot.y) * player[P2].speed;
+			player[P2].move.z -= cosf(camera->rot.y) * player[P2].speed;
+
+			player[P2].rotDest.y = D3DX_PI + camera->rot.y;
+		}
+
+		// バレットのチャージ
+		if (IsButtonPressed(P2, BUTTON_C))
+		{
+			// バレットが使用中はチャージ不可
+			if (bullet->use[P2]) return;
+
+			// 最大値になった場合
+			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
+			{
+				bullet->speedIncrease = BULLET_CHARGE_MAX;
+			}
+			// 10フレーム
+			else if (player[P2].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
+			{
+				bullet->speedIncrease += 0.2f;
+			}
+		}
+		// バレットの発射
+		else if (IsButtonRelease(P2, BUTTON_C))
+		{
+			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
+			cntFrame[P2] = 0;
+		}
 	}
 }
 
@@ -606,6 +662,28 @@ void InputPlayer2(void)
 //=============================================================================
 void MovePlayer(int index)
 {
+	float fDiffRotY;
+
+	// 目的の角度までの差分
+	fDiffRotY = player[index].rotDest.y - player[index].rot.y;
+	if (fDiffRotY > D3DX_PI)
+	{
+		fDiffRotY -= D3DX_PI * 2.0f;
+	}
+	if (fDiffRotY < -D3DX_PI)
+	{
+		fDiffRotY += D3DX_PI * 2.0f;
+	}
+	player[index].rot.y += fDiffRotY * RATE_ROTATE_PLAYER;
+	if (player[index].rot.y > D3DX_PI)
+	{
+		player[index].rot.y -= D3DX_PI * 2.0f;
+	}
+	if (player[index].rot.y < -D3DX_PI)
+	{
+		player[index].rot.y += D3DX_PI * 2.0f;
+	}
+
 	// 移動量に慣性をかける
 	player[index].move.x += (0.0f - player[index].move.x) * RATE_MOVE_PLAYER;
 	player[index].move.y += (0.0f - player[index].move.y) * RATE_MOVE_PLAYER;
@@ -653,7 +731,7 @@ bool PlayerDamageManager(int index)
 // 引　数：int index(プレイヤーのアドレス番号)
 // 戻り値：bool型　trueだとフィールド内、falseだとフィールド外を返す
 //=============================================================================
-bool CheckFieldInPlayer(int index)
+bool CheckBlockInPlayer(int index)
 {
 	if (player[index].pos.x > FIELD_SIZE_X) return false;
 	if (player[index].pos.x < -FIELD_SIZE_X) return false;

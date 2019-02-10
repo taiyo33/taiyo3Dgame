@@ -48,6 +48,7 @@
 //*****************************************************************************
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow);
+void Init(HINSTANCE hInstance, HWND hWnd);
 void Uninit(void);
 void Update(void);
 void Draw(void);
@@ -305,78 +306,9 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	g_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);	// 最初のアルファ引数
 	g_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);	// ２番目のアルファ引数
 
-	// 入力処理の初期化
-	InitInput(hInstance, hWnd);
-
-	// デバッグ表示処理の初期化
-	InitDebugProc();
-
-	// ライトの初期化
-	InitLight();
-
-	// カメラの初期化
-	InitCamera();
-
-	// 影の初期化
-	InitShadow(0);
-
-	// プレイヤーの初期化
-	InitPlayer(0);
-
-	// バレットの初期化
-	InitBullet(0);
-
-	// エフェクトの初期化
-	InitEffect(0);
-
-	//
-	InitExplosion(0);
-
-	// スコアの初期化
-	InitScore(0);
-
-	// タイトルの初期化
-	InitTitle(0);
-
-	// リザルトの初期化
-	InitResult(0);
-
-	// チュートリアルの初期化
-	InitTutorial(0);
-
-	// フィールドの初期化
-	InitField(0);
+	// 各初期化
+	Init(hInstance, hWnd);
 	
-	InitBulletEffect(0);
-
-	InitLeftArm();
-
-	InitLeftReg();
-
-	InitRightArm();
-
-	InitRightReg();
-
-	InitHead();
-
-	//
-	InitBlock(0);
-
-	//
-	InitBulletGauge(0);
-
-	//
-	InitLifeGauge(0);
-
-	//
-	InitItem(0);
-
-	//
-	InitChild();
-
-	//
-	InitAi();
-
 	return S_OK;
 }
 
@@ -424,38 +356,37 @@ void Uninit(void)
 	// チュートリアルの終了処理
 	UninitTutorial();
 
-	//
+	// フィールドの終了処理
 	UninitField();
 
-	//
+	// 爆発エフェクトの終了処理
 	UninitExplosion();
 
-	//
+	// バレットエフェクトの終了処理
 	UninitBulletEffect();
 
+	// 左腕モデルの終了処理
 	UninitLeftArm();
 
-	UninitLeftReg();
-
+	// 右腕モデルの終了処理
 	UninitRightArm();
 
-	UninitRightReg();
-
+	// 頭モデルの終了処理
 	UninitHead();
 
-	//
+	// ブロックの終了処理
 	UninitBlock();
 
-	//
+	// バレットゲージの終了処理
 	UninitBulletGauge();
 
-	//
+	// ライフゲージの終了処理
 	UninitLifeGauge();
 
-	//
+	// アイテムの終了処理
 	UninitItem();
 
-	//
+	// 子供モデルの終了処理
 	UninitChild();
 }
 
@@ -471,7 +402,6 @@ void Update(void)
 
 	// 入力更新
 	UpdateInput();
-	//ImGui_ImplDX9_NewFrame();
 
 	switch (StageSelect)
 	{
@@ -492,10 +422,10 @@ void Update(void)
 		case START:
 		{
 			// 
-			UpdateField();
+			UpdateBlock();
 
 			//
-			UpdateBlock();
+			UpdateField();
 
 
 			// 影処理の更新
@@ -537,16 +467,16 @@ void Update(void)
 			// バレットの更新
 			UpdateBullet();
 
-			//
+			// アイテムの更新
 			UpdateItem();
 
 			// スコアの更新
 			UpdateScore();
 			
-			// 
+			// バレットゲージの更新
 			UpdateBulletGauge();
 
-			//
+			// ライフゲージの更新
 			UpdateLifeGauge();
 
 			// 当たり判定
@@ -596,13 +526,13 @@ void Draw(void)
 				// カメラの設定
 				SetCamera();
 				
-				//
-				DrawField();
-
-				//
+				// ブロックの描画
 				DrawBlock();
 
-				//
+				// フィールドの描画
+				DrawField();
+
+				// アイテムの描画
 				DrawItem();
 
 				// 影処理の描画
@@ -614,10 +544,10 @@ void Draw(void)
 				// ガンエフェクトの描画
 				DrawEffect();
 
-				// 弾痕の描画
+				// 爆発エフェクトの描画
 				DrawExplosion();
 
-				// 煙の描画
+				// バレットエフェクトの描画
 				DrawBulletEffect();
 
 				// プレイヤー処理の描画
@@ -632,22 +562,16 @@ void Draw(void)
 				// 右腕の描画
 				DrawRightArm();
 
-				// 左足の描画
-				DrawLeftReg();
-
-				// 右足の描画
-				DrawRightReg();
-
-				// 
+				// 子供モデルの描画
 				DrawChild();
 
 				// スコアの描画
 				DrawScore();
 
-				//
+				// ライフゲージの描画
 				DrawLifeGauge();
 
-				//
+				// バレットゲージの描画
 				DrawBulletGauge();
 
 
@@ -666,8 +590,6 @@ void Draw(void)
 
 				break;
 			}
-
-
 		}
 
 		// Direct3Dによる描画の終了
@@ -704,6 +626,84 @@ void SetStage(int Stage)
 int GetStage(void)
 {
 	return StageSelect;
+}
+
+//============================================================================
+// 各ファイルの初期化
+//============================================================================
+void Init(HINSTANCE hInstance, HWND hWnd)
+{
+	// 入力処理の初期化
+	InitInput(hInstance, hWnd);
+
+	// デバッグ表示処理の初期化
+	InitDebugProc();
+
+	// ライトの初期化
+	InitLight();
+
+	// カメラの初期化
+	InitCamera();
+
+	// 影の初期化
+	InitShadow(0);
+
+	// プレイヤーの初期化
+	InitPlayer(0);
+
+	// バレットの初期化
+	InitBullet(0);
+
+	// エフェクトの初期化
+	InitEffect(0);
+
+	// 爆発エフェクトの初期化
+	InitExplosion(0);
+
+	// スコアの初期化
+	InitScore(0);
+
+	// タイトルの初期化
+	InitTitle(0);
+
+	// リザルトの初期化
+	InitResult(0);
+
+	// チュートリアルの初期化
+	InitTutorial(0);
+
+	// フィールドの初期化
+	InitField(0);
+
+	// バレットエフェクトの初期化
+	InitBulletEffect(0);
+	
+	// 左腕モデルの初期化
+	InitLeftArm();
+
+	// 右腕モデルの初期化
+	InitRightArm();
+
+	// 頭モデルの初期化
+	InitHead();
+
+	// ブロックの初期化
+	InitBlock(0);
+
+	// バレットゲージの初期化
+	InitBulletGauge(0);
+
+	// ライフゲージの初期化
+	InitLifeGauge(0);
+
+	// アイテムの初期化
+	InitItem(0);
+
+	// 子供モデルの初期化
+	InitChild();
+
+	// AIの初期化
+	InitAi();
 }
 
 //============================================================================
@@ -746,12 +746,16 @@ void InitGame(void)
 	// フィールドの初期化
 	InitField(INIT_GAME);
 
+	// ブロックの初期化
 	InitBlock(INIT_GAME);
-
+	
+	// アイテムの初期化
 	InitItem(INIT_GAME);
 
+	// 子供モデルの初期化
 	InitChild();
 
+	// AIの初期化
 	InitAi();
 }
 

@@ -84,12 +84,17 @@ void UpdateResult(void)
 		SetStage(TITLE);
 		InitGame();
 	}
-
-	if (IsButtonTriggered(0, BUTTON_A))
+	else if (IsButtonTriggered(P1, BUTTON_A))
 	{
 		SetStage(TITLE);
 		InitGame();
 	}
+	else if (IsButtonTriggered(P2, BUTTON_B))
+	{
+		SetStage(TITLE);
+		InitGame();
+	}
+
 }
 
 //=============================================================================

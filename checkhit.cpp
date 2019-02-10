@@ -24,72 +24,75 @@ D3DXVECTOR3				nor;
 //=============================================================================
 void CheckHit(void)
 {
-	int i, j;
+	int i, j, k;	// ループカウント変数
 
-	/* ブロック対バレットの当たり判定 */
+	/* 対ブロックの当たり判定 */
 	BLOCK *block = GetBlock(0);	// ブロックのアドレスを取得
 	for (i = 0; i < BLOCK_MAX; i++, block++)
 	{
+		// ブロックとバレットの判定
 		if (!block->use) continue;
 		for (j = 0; j < BULLET_SET_MAX; j++)
 		{
 			CheckBlockHitBullet(i, j, block->pos);
 		}
 		
+		// P1の子供モデルとの判定
 		CHILD *child = GetChild(P1);
-		for (int s = 0; s < CHILD_ONESET_MAX; s++)
+		for (k = 0; k < CHILD_ONESET_MAX; k++)
 		{
-			if (!child->use[s]) continue;
-			if (CheckHitBC(block->pos, child->pos[s], 15.0f, 15.0f))
-			//if (CheckHitBB(block->pos, child->pos[s], D3DXVECTOR3(20.0f, 25.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f)))
+			if (!child->use[k]) continue;
+			if (CheckHitBC(block->pos, child->pos[k], 15.0f, 15.0f))
 			{
-				child->pos[s] = child->prevPos[s];
+				child->pos[k] = child->prevPos[k];
 			}
 		}
-
+		
+		// P2の子供モデルとの判定
 		child = GetChild(P2);
-		for (int s = 0; s < CHILD_ONESET_MAX; s++)
+		for (k = 0; k < CHILD_ONESET_MAX; k++)
 		{
-			if (!child->use[s]) continue;
-			if (CheckHitBC(block->pos, child->pos[s], 15.0f, 15.0f))
-			//if (CheckHitBB(block->pos, child->pos[s], D3DXVECTOR3(20.0f, 25.0f, 20.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
+			if (!child->use[k]) continue;
+			if (CheckHitBC(block->pos, child->pos[k], 15.0f, 15.0f))
 			{
-				child->pos[s] = child->prevPos[s];
+				child->pos[k] = child->prevPos[k];
 			}
 		}
 	}
+
 	/* 対プレイヤーの当たり判定 */
-	PLAYER *player = GetPlayer(0);
+	PLAYER *player = GetPlayer(0);	// プレイヤーのアドレスを取得
 	for (i = 0; i < PLAYER_MAX; i++, player++)
 	{
 		if (!player->use) continue;
 
 		// プレイヤーのフィール内外判定
-		if (!CheckFieldInPlayer(i))
+		if (!CheckBlockInPlayer(i))
 		{
 			PlayerDamageManager(i);
-			player->pos.y -= 5.0f;
+			player->pos.y -= PLAYER_FALL_SPEED;
 		}
-
+		// フィールドの４つ角との判定
 		if (HitCheckCornerBlock(player->pos))
 		{
 			player->pos = player->prevPos;
 		}
-
 	}
 	
+	/* 対バレットの当たり判定 */
 	BULLET *bullet = GetBullet(0);	//バレットのアドレスを取得
 	player = GetPlayer(0);
 	for (i = 0; i < BULLET_ONESET_MAX; i++)
 	{
-		// プレイヤー１のバレット
-		// プレイヤー2とプレイヤー１のバレット
+		// P1のバレット
 		if (bullet[P1].use[i])
 		{
+			// P2の子供モデルとの判定
 			CHILD *child = GetChild(0);
 			for (j = 0; j < CHILD_ONESET_MAX; j++)
 			{
 				if (!child[P2].use[j]) continue;
+
 				if (CheckHitBC(bullet[P1].pos[i], child[P2].pos[j], 15.0f, 15.0f))
 				{
 					child[P2].use[j] = false;
@@ -98,28 +101,29 @@ void CheckHit(void)
 					SetExplosion(child[P2].pos[j], child[P2].rot[j], 0);
 				}
 			}
-
-			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos,
-				bullet[P1].size[i].x, 10.0f))
+			
+			// P2との判定
+			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos, 
+								bullet[P1].size[i].x, 10.0f))
 			{
 				player[P2].life += 15.0f;
-				if (child[P2].cnt >= CHILD_ONESET_MAX)
-				{
-					SetStage(RESULT);
-				}
 				player[P2].pos += bullet[P1].move[i];	// 簡易ノックバック
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
 				bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
+				bullet[P1].speed[i] = INIT_BULLET_SPEED;
 			}
 		}
-		// プレイヤー２のバレット
+		
+		// P2のバレット
 		if (bullet[P2].use[i])
 		{
+			// P1の子供モデルとの判定
 			CHILD *child = GetChild(0);
 			for (j = 0; j < CHILD_ONESET_MAX; j++)
 			{
 				if (!child[P1].use[j]) continue;
+
 				if (CheckHitBC(bullet[P2].pos[i], child[P1].pos[j], 15.0f, 15.0f))
 				{
 					child[P1].use[j] = false;
@@ -128,14 +132,11 @@ void CheckHit(void)
 				}
 			}
 
+			// P1との判定
 			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
-				bullet[P2].size[i].x, 10.0f))
+								  bullet[P2].size[i].x, 10.0f))
 			{
 				player[P1].life -= 15.0f;
-				if (child[P1].cnt <= 0)
-				{
-					SetStage(RESULT);
-				}
 				player[P1].pos += bullet[P2].move[i];	// 簡易ノックバック
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;
@@ -143,6 +144,7 @@ void CheckHit(void)
 			}
 		}
 	}
+
 }
 
 //=============================================================================

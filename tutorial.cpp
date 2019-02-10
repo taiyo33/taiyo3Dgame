@@ -8,6 +8,7 @@
 #include "tutorial.h"
 #include "input.h"
 #include "field.h"
+#include "player.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -91,7 +92,11 @@ void UpdateTutorial(void)
 	{
 		SetStage(START);
 	}
-	if (IsButtonTriggered(0, BUTTON_A))
+	else if (IsButtonTriggered(P1, BUTTON_A))
+	{
+		SetStage(START);
+	}
+	else if (IsButtonPressed(P2, BUTTON_B))
 	{
 		SetStage(START);
 	}

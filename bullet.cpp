@@ -22,14 +22,13 @@
 #define	BULLET_SIZE_Z		(20.0f)							// バレットの奥行
 #define	BULLET_SPEED		(8.0f)							// 移動速度
 #define BULLET_RADY_FRAME	(10)							// 発射間隔
-#define INIT_SPEED			(5.0f)
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice);
 void SetVertexBullet(int Index, float fSizeX, float fSizeY);
-bool CheckFieldInBullet(int index, int bno);
+bool CheckBlockInBullet(int index, int bno);
 void MoveBullet(int index, int bno);
 //bool CheckReflectBullet(int index, int bno);
 //void SetDiffuseBullet(int Index, float val);
@@ -80,7 +79,7 @@ HRESULT InitBullet(int type)
 			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);			// 拡大率を初期化
 			bullet[i].size[j] = D3DXVECTOR3(BULLET_SIZE_X, BULLET_SIZE_Y, BULLET_SIZE_Z); // 大きさを初期化
 			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;					// 反発の初期化
-			bullet[i].speed[j] = INIT_SPEED;
+			bullet[i].speed[j] = INIT_BULLET_SPEED;
 		}
 	}
 	return S_OK;
@@ -137,16 +136,18 @@ void UpdateBullet(void)
 				bullet[i].pos[j].z += bullet[i].move[j].z;
 
 				// 消滅処理
-				if (!CheckFieldInBullet(i, j))
+				if (!CheckBlockInBullet(i, j))
 				{
 					bullet[i].use[j] = false;
 					bullet[i].reflect[j] = false;
 					bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-					bullet[i].speed[j] = INIT_SPEED;
+					bullet[i].speed[j] = INIT_BULLET_SPEED;
 				}
 			}
 		}
 	}
+
+	PrintDebugProc("バレットの速度[(%f)]\n", bullet[P1].speed[P1]);
  }
 
 //===============================================================================
@@ -342,7 +343,7 @@ void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int in
 
 	for (int i = 0; i < BULLET_ONESET_MAX; i++)
 	{
-		if (!bullet->use[i] && cntFrame[index] > BULLET_RADY_FRAME)
+		if (!bullet->use[i])
 		{
 			bullet->use[i] = true;									// 使用中へ
 			bullet->pos[i].x = pos.x + cosf(rot.y) * Dest;			// プレイヤーの位置へ　
@@ -360,7 +361,6 @@ void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int in
 			return;
 		}
 	}
-
 	return;
 }
 
@@ -399,7 +399,7 @@ void MoveBullet(int index, int bno)
 // 引　数：int index(組バレットのアドレス), int bno(バレット単体のアドレス)
 // 戻り値：bool型　trueであれば画面内にある、falseならば画面外にある
 //========================================================================
-bool CheckFieldInBullet(int index, int bno)
+bool CheckBlockInBullet(int index, int bno)
 {
 	BULLET *bullet = &bulletWk[index];
 	
@@ -433,6 +433,7 @@ void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos)
 				bullet->use[i] = false;
 				bullet->reflect[i] = false;
 				bullet->cntReflect[i] = 2;
+				bullet->speed[i] = INIT_BULLET_SPEED;
 			}
 		}
 	}

@@ -14,8 +14,8 @@
 //=============================================================================
 
 #define PLAYER_MAX				(2)
-#define PLAYER_LIFE_MAX		(100.0f)
-
+#define PLAYER_LIFE_MAX			(100.0f)
+#define PLAYER_FALL_SPEED		(5.0f)
 
 
 typedef struct {
@@ -53,7 +53,7 @@ void DrawPlayer(void);
 
 PLAYER *GetPlayer(int index);
 bool PlayerDamageManager(int index);
-bool CheckFieldInPlayer(int index);
+bool CheckBlockInPlayer(int index);
 void CheckNorPlayer(D3DXVECTOR3 nor0, int index);
 
 #endif

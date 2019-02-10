@@ -7,6 +7,7 @@
 #include "main.h"
 #include "title.h"
 #include "input.h"
+#include "player.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -149,10 +150,15 @@ void UpdateTitle(void)
 	{
 		SetStage(TUTORIAL);
 	}
-	else if (IsButtonPressed(0, BUTTON_A))
+	else if (IsButtonPressed(P1, BUTTON_A))
 	{
 		SetStage(TUTORIAL);
 	}
+	else if (IsButtonPressed(P2, BUTTON_B))
+	{
+		SetStage(TUTORIAL);
+	}
+
 	//// コンフィングへ遷移
 	//else if ((GetKeyboardTrigger(DIK_SPACE)) && (SelectNum == SELECT_OPTION))
 	//{

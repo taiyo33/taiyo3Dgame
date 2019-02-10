@@ -18,15 +18,15 @@
 #define	VIEW_FAR_Z			(1000.0f)			// ビュー平面のFarZ値
 #define	VALUE_MOVE_CAMERA	(5.0f)				// カメラの移動量
 #define INIT_POS_X			(0.0f)
-#define INIT_POS_Y			(300.0f)
-#define INIT_POS_Z			(-200.0f)
+#define INIT_POS_Y			(450.0f)
+#define INIT_POS_Z			(-250.0f)
 #define ROT_SPEED_X			(D3DX_PI * 0.01f)	// X軸回転速度の初期値
 #define ROT_SPEED_Y			(D3DX_PI * 0.005f)	// Y軸回転速度の初期値
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-//void InputCamera(void);
+
 
 //*****************************************************************************
 // グローバル変数
@@ -65,74 +65,6 @@ void UninitCamera(void)
 //=============================================================================
 void UpdateCamera(void)
 {
-	//// カメラの位置移動
-	//{
-	//	// 左移動
-	//	if (GetKeyboardPress(DIK_D))
-	//	{
-	//		camera.pos.x += cosf(camera.rot.y) * VALUE_MOVE_CAMERA;
-	//		camera.pos.z -= sinf(camera.rot.y) * VALUE_MOVE_CAMERA;
-	//	}
-	//	// 右移動
-	//	else if (GetKeyboardPress(DIK_A))
-	//	{
-	//		camera.pos.x -= cosf(camera.rot.y) * VALUE_MOVE_CAMERA;
-	//		camera.pos.z += sinf(camera.rot.y) * VALUE_MOVE_CAMERA;
-	//	}
-	//	// 前移動
-	//	if (GetKeyboardPress(DIK_W))
-	//	{
-	//		camera.pos.x += sinf(camera.rot.y) * VALUE_MOVE_CAMERA;
-	//		camera.pos.z += cosf(camera.rot.y) * VALUE_MOVE_CAMERA;
-	//	}
-	//	// 後移動
-	//	if (GetKeyboardPress(DIK_S))
-	//	{
-	//		camera.pos.x -= sinf(camera.rot.y) * VALUE_MOVE_CAMERA;
-	//		camera.pos.z -= cosf(camera.rot.y) * VALUE_MOVE_CAMERA;
-	//	}
-	//}
-	//// カメラの回転
-	//{
-	//	// プレイヤーの旋回「左」
-	//	if (GetKeyboardPress(DIK_LEFT))
-	//	{
-	//		camera.rot.y -= camera.rotSpeedX;
-	//	}
-	//	// プレイヤーの旋回「右」
-	//	else if (GetKeyboardPress(DIK_RIGHT))
-	//	{
-	//		camera.rot.y += camera.rotSpeedX;
-	//	}
-
-	//	// プレイヤーの旋回「上」
-	//	if (GetKeyboardPress(DIK_UP))
-	//	{
-	//		if (camera.rot.x > ((-D3DX_PI / 2) + 0.1f))
-	//		{
-	//			camera.rot.x -= camera.rotSpeedY;
-	//		}
-	//	}
-	//	else if (GetKeyboardPress(DIK_DOWN))
-	//	{
-	//		if (camera.rot.x < ((D3DX_PI / 2) - 0.1f))
-	//		{
-	//			camera.rot.x += camera.rotSpeedY;
-	//		}
-	//	}
-
-	//	// プレイヤーの旋回「上」
-	//	if (GetKeyboardPress(DIK_I))
-	//	{
-	//		camera.pos.y += 1.0f;
-	//	}
-	//	else if (GetKeyboardPress(DIK_K))
-	//	{
-	//		camera.pos.y -= 1.0f;
-	//	}
-
-	//}
-
 }
 
 //=============================================================================

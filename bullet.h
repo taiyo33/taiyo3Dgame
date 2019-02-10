@@ -11,11 +11,12 @@
 
 
 #define BULLET_MAX				(128)
-#define BULLET_ONESET_MAX		(5)
+#define BULLET_ONESET_MAX		(1)
 #define BULLET_SET_MAX			(2)
 #define BULLET_CHARGE_FRAME_CNT	(10)
 #define BULLET_CHARGE_MAX		(10.0f)
 #define INIT_REFLECT_CNT		(1)								// îΩéÀâÒêî
+#define INIT_BULLET_SPEED		(5.0f)
 
 typedef struct
 {
