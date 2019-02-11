@@ -10,6 +10,9 @@
 #include "block.h"
 #include "checkhit.h"
 #include "field.h"
+#include "camera.h"
+#include "debugproc.h"
+
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
@@ -49,7 +52,7 @@
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-int CheckNorNonePlayer(D3DXVECTOR3 nor0);
+int SwitchPatrolPattern(int pattern);
 void NonePlayerDest(D3DXVECTOR3 vecDest);
 
 
@@ -68,7 +71,7 @@ D3DXVECTOR3			MovePattern[MOVE_PATTERN_MAX]{
 	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
 	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f), 
 	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z + 100.0f),
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
 
 };
 
@@ -81,17 +84,18 @@ HRESULT InitAi(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	AI *ai = &aiWk;
 
-	ai->patternA = 0.0f;				// 比較の合計値
+	ai->patrolNum = PATTERN1;			// 巡回パターンの番号を初期化
+	ai->patternA = 0.0f;				// 比較の合計値を初期化
 	ai->patternB = 0.0f;				//
 	ai->patternC = 0.0f;				// 
-	ai->decision = 0.0f;				// 比較結果
+	ai->decision = 0.0f;				// 比較結果を初期化
 
 	for (int i = 0; i < MOVE_CMP_MAX; i++)
 	{
-		ai->atc[i] = 0.0f;		// 攻撃
-		ai->chase[i] = 0.0f;	// 追跡
-		ai->escape[i] = 0.0f;	// 逃走
-		ai->wait[i] = 0.0f;		// 待機
+		ai->atc[i] = 0.0f;		// 攻撃の値を初期化
+		ai->chase[i] = 0.0f;	// 追跡の値を初期化
+		ai->escape[i] = 0.0f;	// 逃走の値を初期化
+		ai->wait[i] = 0.0f;		// 待機の値を初期化
 	}
 
 	return S_OK;
@@ -189,20 +193,20 @@ void NonePlayerMove(void)
 //==============================================================================
 void NonePlayerDest(D3DXVECTOR3 vecDest)
 {
-	PLAYER *player = GetPlayer(0);
-
-	D3DXVECTOR3 vec = vecDest - player[P2].pos;
+	PLAYER *player = GetPlayer(P2);
+	CAMERA *camera = GetCamera();
+	D3DXVECTOR3 vec = vecDest - player->pos;
 	D3DXVec3Normalize(&vec, &vec);
-	D3DXVec3Normalize(&player[P2].frontVec, &player[P2].frontVec);
+	D3DXVec3Normalize(&player->frontVec, &player->frontVec);
 
 	float vecAngle = atan2f(vec.z, vec.x);
-	float frontAngle = atan2f(player[P2].frontVec.z, player[P2].frontVec.x);
-
+	float frontAngle = atan2f(player->frontVec.z, player->frontVec.x);
+	
 	if (frontAngle != vecAngle)
 	{
-		player[P2].rotDest.y += frontAngle - vecAngle;
+		float difAngle = (frontAngle - vecAngle);
+		player->rot.y += difAngle;
 	}
-
 }
 //==============================================================================
 // NPCのフィールド巡回
@@ -213,47 +217,48 @@ void NonePlayerPatrol(void)
 {
 	PLAYER *player = GetPlayer(P2);
 	BLOCK *block = GetBlock(0);
+	AI *ai = &aiWk;
 	D3DXVECTOR3 rayPos = player->frontVec + player->pos;	// 前方ベクトルの終点
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	int pattern = PATTERN1;
-
 
 	// 前方ベクトルのとブロックの判定
 	if (!HitCheckBlock(rayPos, player->pos))
 	{
-		pattern = CheckNorNonePlayer(GetNormal());
+		ai->patrolNum = SwitchPatrolPattern(ai->patrolNum);
 	}
 
-	NonePlayerDest(MovePattern[pattern]);
+	NonePlayerDest(MovePattern[ai->patrolNum]);
 
-	vec = MovePattern[pattern] - player->pos;
+	vec = MovePattern[ai->patrolNum] - player->pos;
 	
 	D3DXVec3Normalize(&vec, &vec);
 
-	player->move.x = vec.x * 5.0f;
-	player->move.z = vec.z * 5.0f;
+	player->move.x = vec.x * player->speed;
+	player->move.z = vec.z * player->speed;
 }
 
 //==========================================================================
 // NPCの巡回行動切替処理
-// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線)
+// 引　数：int pattern(巡回パターン番号)
 // 戻り値：な　し
 //==========================================================================
-int CheckNorNonePlayer(D3DXVECTOR3 nor0)
+int SwitchPatrolPattern(int pattern)
 {
 	int out = 0;
 
-	// 法線がX軸方向なら
-	if (nor0.x != 0.0f)
+	switch (pattern)
 	{
-		nor0.x > 1.0f ? out = PATTERN2 : out = PATTERN4;
-		return out;
-	}
-	// 法線がZ軸方向なら
-	if (nor0.z != 0.0f)
-	{
-		nor0.z > 1.0f ? out = PATTERN1 : out = PATTERN3;
-		return out;
+		case PATTERN1 : out = PATTERN2;
+			break;
+
+		case PATTERN2 : out = PATTERN3;
+			break;
+
+		case PATTERN3 : out = PATTERN4;
+			break;
+
+		case PATTERN4 : out = PATTERN1;
+			break;
 	}
 
 	return out;

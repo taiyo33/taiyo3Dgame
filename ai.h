@@ -13,6 +13,7 @@
 
 typedef struct {
 
+	int		patrolNum;			// 巡回のパターン番号
 	float	patternA;				// 比較の合計値
 	float	patternB;				//
 	float   patternC;				//

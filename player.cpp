@@ -152,7 +152,7 @@ void UpdatePlayer(void)
 
 		PlayerDamageManager(i);
 
-		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rotDest.y);
+		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rot.y);
 		PrintDebugProc("プレイヤーの前方: [X:(%f),z:(%f)]\n", player[i].frontVec.x, player[i].frontVec.z);
 	}
 }
@@ -240,21 +240,21 @@ void InputPlayer1(void)
 				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.25f;
+				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.25f;
 			}
 			else if (GetKeyboardPress(DIK_DOWN))
 			{// 右後移動
 				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.75f;
+				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.75f;
 			}
 			else
 			{// 右移動
 				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
+				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 		}
 		else if (GetKeyboardPress(DIK_LEFT))
@@ -264,21 +264,21 @@ void InputPlayer1(void)
 				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.25f;
+				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.25f;
 			}
 			else if (GetKeyboardPress(DIK_DOWN))
 			{// 左後移動
 				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.75f;
+				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.75f;
 			}
 			else
 			{// 左移動
 				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
+				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 		}
 		else if (GetKeyboardPress(DIK_UP))
@@ -288,7 +288,7 @@ void InputPlayer1(void)
 				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
+				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 			else
 			{
@@ -296,7 +296,7 @@ void InputPlayer1(void)
 				player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P1].speed;
 				player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y;
+				player[P1].rot.y = camera->rot.y;
 			}
 		}
 		else if (GetKeyboardPress(DIK_DOWN))
@@ -306,7 +306,7 @@ void InputPlayer1(void)
 				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
+				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 			else
 			{
@@ -314,7 +314,7 @@ void InputPlayer1(void)
 				player[P1].move.x -= sinf(camera->rot.y) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y) * player[P1].speed;
 
-				player[P1].rotDest.y = D3DX_PI + camera->rot.y;
+				player[P1].rot.y = D3DX_PI + camera->rot.y;
 			}
 		}
 
@@ -664,19 +664,6 @@ void InputGamePadPlayer2(void)
 //=============================================================================
 void MovePlayer(int index)
 {
-	float fDiffRotY;
-
-	// 目的の角度までの差分
-	fDiffRotY = player[index].rotDest.y - player[index].rot.y;
-	if (fDiffRotY > D3DX_PI)
-	{
-		fDiffRotY -= D3DX_PI * 2.0f;
-	}
-	if (fDiffRotY < -D3DX_PI)
-	{
-		fDiffRotY += D3DX_PI * 2.0f;
-	}
-	player[index].rot.y += fDiffRotY * RATE_ROTATE_PLAYER;
 	if (player[index].rot.y > D3DX_PI)
 	{
 		player[index].rot.y -= D3DX_PI * 2.0f;
