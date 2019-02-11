@@ -140,9 +140,8 @@ void UpdatePlayer(void)
 		
 		if (i == 1)
 		{
-			//NonePlayerAttack();
-			NonePlayerPatrol();
-			//NonePlayerMove();
+			NonePlayerAttack();
+			NonePlayerMove();
 		}
 
 		// 壁ずり処理
@@ -686,13 +685,13 @@ void MovePlayer(int index)
 }
  
 //==========================================================================
-// 壁ずりのすり抜け予防処理(ブロック使用中にマップ外へ出ないように)
+// 壁ずり判定処理
 // 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
 // 戻り値：な　し
 //==========================================================================
 void WallShearPlayer(int index)
 {
-	if (!HitCheckBlock(player[index].prevPos + player[index].move, player[index].prevPos))
+	if (!HitCheckBlock(player[index].prevPos + player[index].move, player[index].prevPos, BLOCK_VTX_MAX))
 	{
 		player[index].move = WallShear(player[index].pos + player[index].move, GetNormal(), index);
 		CheckNorPlayer(GetNormal(), index);

@@ -380,7 +380,7 @@ void MoveBullet(int index, int bno)
 		bullet->move[bno].z = cosf(bullet->rot[bno].y) * bullet->speed[bno];
 
 		// バレットとブロックの当たり判定
-		if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno]))
+		if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno], BLOCK_VTX_MAX))
 		{
 			bullet->refVec[bno] = ReflectVector(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno],GetNormal());
 			bullet->move[bno] = bullet->refVec[bno] * bullet->speed[bno];
@@ -426,7 +426,6 @@ void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos)
 		if (CheckHitBB(bullet->pos[i], pos,
 			D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 		{
-			BlockDamageManager(blockNo);
 			bullet->cntReflect[i]--;
 			if (bullet->cntReflect[i] < 0)
 			{

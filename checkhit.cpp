@@ -77,6 +77,16 @@ void CheckHit(void)
 		{
 			player->pos = player->prevPos;
 		}
+
+		//block = GetBlock(0);
+		//for (j = BLOCK_NUM_FEARSIDE; j < BLOCK_NUM_FEARSIDE_OBJ; j++)
+		//{
+		//	if (!block[j].use) continue;
+		//	if (CheckHitBB(player->pos, block[j].pos, D3DXVECTOR3(25.0f, 25.0f, 25.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
+		//	{
+		//		player->pos = player->prevPos;
+		//	}
+		//}
 	}
 	
 	/* ‘ÎƒoƒŒƒbƒg‚Ì“–‚½‚è”»’è */
@@ -194,8 +204,6 @@ bool CheckHitRay(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, D3DXVECTOR3 vec, float size
 	D3DXVECTOR3 vec1;
 
 	D3DXVec3Normalize(&vec1, &vec);
-	//float dot1 = pos2.x * vec1.x + pos2.z * vec1.z;
-	//float dot2 = pos2.x * pos2.x + pos2.z * pos2.z;
 	float dot1 = D3DXVec3Dot(&pos2, &vec1);
 	float dot2 = D3DXVec3Dot(&pos2, &pos2);
 

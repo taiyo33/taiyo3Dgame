@@ -34,6 +34,9 @@ enum {
 void MoveChild(int index, int cno);
 void ChaseChild(int index, int cno);
 void InitPosChild(void);
+void WallShearChild(int index, int cno);
+void CheckNorChild(D3DXVECTOR3 nor0, int index, int cno);
+
 void AlignmentChild(int index, int cno);
 void ChesionChild(int index, int cno);
 void SeparationChild(int index, int cno);
@@ -159,6 +162,10 @@ void UpdateChild(void)
 
 			// 追跡
 			ChaseChild(i, j);
+			
+			// 壁ずり
+			//WallShearChild(i, j);
+
 			// 移動
 			MoveChild(i, j);
 
@@ -349,6 +356,48 @@ void ChaseChild(int index, int cno)
 		}
 	}
 }
+
+//==========================================================================
+// 壁ずりのすり抜け予防処理(ブロック使用中にマップ外へ出ないように)
+// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
+// 戻り値：な　し
+//==========================================================================
+void WallShearChild(int index, int cno)
+{
+	CHILD *child = &childWk[index];
+
+	if (!HitCheckBlock(child->prevPos[cno] + child->move[cno], child->prevPos[cno], BLOCK_VTX_MAX))
+	{
+		child->move[cno] = WallShear(child->pos[cno] + child->move[cno], GetNormal(), index);
+		CheckNorChild(GetNormal(), index, cno);
+	}
+}
+
+//==========================================================================
+// 壁ずりのすり抜け予防処理(ブロック使用中にマップ外へ出ないように)
+// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
+// 戻り値：な　し
+//==========================================================================
+void CheckNorChild(D3DXVECTOR3 nor0, int index, int cno)
+{
+	CHILD *child = &childWk[index];
+
+	// 法線がX軸方向なら
+	if (nor0.x != 0.0f)
+	{
+		child->move[cno].x = 0.0f;
+		child->pos[cno].x = child->prevPos[cno].x;
+		return;
+	}
+	// 法線がZ軸方向なら
+	if (nor0.z != 0.0f)
+	{
+		child->move[cno].z = 0.0f;
+		child->pos[cno].z = child->prevPos[cno].z;
+		return;
+	}
+}
+
 
 // 整列
 void AlignmentChild(int index, int cno)

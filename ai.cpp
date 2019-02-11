@@ -55,7 +55,6 @@
 int SwitchPatrolPattern(int pattern);
 void NonePlayerDest(D3DXVECTOR3 vecDest);
 
-
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
@@ -66,6 +65,7 @@ enum {
 	PATTERN4
 };
 
+// 巡回のパターン
 D3DXVECTOR3			MovePattern[MOVE_PATTERN_MAX]{
 
 	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
@@ -112,8 +112,6 @@ void NonePlayerMove(void)
 	AI *ai = &aiWk;
 	PLAYER *player = GetPlayer(0);
 
-	NonePlayerDest(player[P1].pos);
-
 	// 相手との距離による判定
 	D3DXVECTOR3 pvpVec = player[P2].pos - player[P1].pos;
 	float vecLength = D3DXVec3Length(&pvpVec);
@@ -122,7 +120,6 @@ void NonePlayerMove(void)
 	ai->escape[PATTERN1] = FuzzyRightDown(vecLength, MOVE_DISTANCE_ESCAPE_FUZZY_X1, MOVE_DISTANCE_ESCAPE_FUZZY_X2);
 	ai->wait[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_WAIT_FUZZY_X1, MOVE_DISTANCE_WAIT_FUZZY_X2, 
 												   MOVE_DISTANCE_WAIT_FUZZY_X3, MOVE_DISTANCE_WAIT_FUZZY_X4);
-
 	// 自ライフによる判定
 	if (player[P2].life > 0.0f)
 	{
@@ -157,14 +154,16 @@ void NonePlayerMove(void)
 	ai->decision = Or(ai->patternC, ai->decision);
 
 	// 結果反映
-	// 待機
+	// 巡回
 	if (ai->decision == ai->patternC)
 	{
-		return;
+		NonePlayerPatrol();
 	}
 	// 追跡
 	else if (ai->decision == ai->patternA)
 	{
+		NonePlayerDest(player[P1].pos);
+
 		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
 		D3DXVec3Normalize(&vec, &vec);
 		D3DXVec3Normalize(&player[P2].frontVec, &player[P2].frontVec);
@@ -187,23 +186,25 @@ void NonePlayerMove(void)
 }
 
 //==============================================================================
-// NPCがプレイヤーの方向を向く
-// 引　数：な　し
+// 進行方向へ回転
+// 引　数：D3DXVECTOR3 vecDest(進む方向の終点)
 // 戻り値：な　し
 //==============================================================================
 void NonePlayerDest(D3DXVECTOR3 vecDest)
 {
 	PLAYER *player = GetPlayer(P2);
 	CAMERA *camera = GetCamera();
-	D3DXVECTOR3 vec = vecDest - player->pos;
+	D3DXVECTOR3 vec = vecDest - player->pos;	// 進行方向ベクトル
 	D3DXVec3Normalize(&vec, &vec);
-	D3DXVec3Normalize(&player->frontVec, &player->frontVec);
+	D3DXVec3Normalize(&player->frontVec, &player->frontVec);	// 現在のモデルの正面
 
+	// 角度を計算
 	float vecAngle = atan2f(vec.z, vec.x);
 	float frontAngle = atan2f(player->frontVec.z, player->frontVec.x);
 	
 	if (frontAngle != vecAngle)
 	{
+		// 角度の差分を算出し回転
 		float difAngle = (frontAngle - vecAngle);
 		player->rot.y += difAngle;
 	}
@@ -222,19 +223,19 @@ void NonePlayerPatrol(void)
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// 前方ベクトルのとブロックの判定
-	if (!HitCheckBlock(rayPos, player->pos))
+	if (!HitCheckBlock(rayPos, player->pos, BLOCK_NUM_WALL))
 	{
 		ai->patrolNum = SwitchPatrolPattern(ai->patrolNum);
 	}
 
+	// 向きを進行方向へ
 	NonePlayerDest(MovePattern[ai->patrolNum]);
 
+	// 目的地まで移動
 	vec = MovePattern[ai->patrolNum] - player->pos;
-	
 	D3DXVec3Normalize(&vec, &vec);
-
-	player->move.x = vec.x * player->speed;
-	player->move.z = vec.z * player->speed;
+	player->move.x = vec.x * 5.0f;
+	player->move.z = vec.z * 5.0f;
 }
 
 //==========================================================================
@@ -297,7 +298,7 @@ void NonePlayerAttack(void)
 	// 前方ベクトルの反射処理
 	for (int i = 0; i < BLOCK_MAX; i++, block++)
 	{
-		if (!HitCheckBlock(rayPos, player[P2].pos))
+		if (!HitCheckBlock(rayPos, player[P2].pos, BLOCK_VTX_MAX))
 		{
 			reflectVec = ReflectVector(rayPos, player[P2].pos, GetNormal());
 			break;
@@ -315,33 +316,6 @@ void NonePlayerAttack(void)
 		SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 	}
 
-	//// 相手との距離による判定
-	//D3DXVECTOR3 pvpVec = player[P2].pos - player[P1].pos;
-	//float vecLength = D3DXVec3Length(&pvpVec);
-	//ai->atc[PATTERN1] = FuzzyTrapezoid(vecLength, ATTACK_DISTANCE_ATC_FUZZY_X1, ATTACK_DISTANCE_ATC_FUZZY_X2,
-	//											 ATTACK_DISTANCE_ATC_FUZZY_X3, ATTACK_DISTANCE_ATC_FUZZY_X4);
-	//ai->wait[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_WAIT_FUZZY_X1, MOVE_DISTANCE_WAIT_FUZZY_X2,
-	//											  MOVE_DISTANCE_WAIT_FUZZY_X3, MOVE_DISTANCE_WAIT_FUZZY_X4);
-
-	////チャージ率による判定
-	//ai->atc[PATTERN2] = FuzzyRightUp(bullet->speedIncrease, ATTACK_DISTANCE_ATC_FUZZY_X1, ATTACK_DISTANCE_ATC_FUZZY_X2);
-	//ai->wait[PATTERN2] = FuzzyTrapezoid(bullet->speedIncrease, MOVE_DISTANCE_WAIT_FUZZY_X1, MOVE_DISTANCE_WAIT_FUZZY_X2);
-
-	//ai->patternA = ai->atc[PATTERN1] * ai->atc[PATTERN2];
-	//ai->patternB = ai->wait[PATTERN1] * ai->wait[PATTERN2];
-
-	//
-	//// 相手ライフによる判定
-	//if (player[P1].life < PLAYER_LIFE_MAX)
-	//{
-	//	ai->atc[PATTERN3] = FuzzyRightUp(player[P1].life, MOVE_PLAYERLIFE_ESCAPE_FUZZY_X1, MOVE_PLAYERLIFE_ESCAPE_FUZZY_X2);
-
-	//	ai->patternA = ai->atc[PATTERN1] * ai->atc[PATTERN2];
-	//	ai->patternB = ai->wait[PATTERN1];
-	//}
-
-	//// 攻撃か待機か比較
-	//ai->decision = Or(ai->patternA, ai->patternB);
 }
 
 //*****************************************************************************
