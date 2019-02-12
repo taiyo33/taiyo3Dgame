@@ -9,21 +9,23 @@
 
 #include "main.h"
 
-#define MOVE_CMP_MAX			(3)
+#define MOVE_PATTERN_MAX			(3)
+#define CMP_PATTERN_MAX				(4)
+#define DECISION_MEMORY_MAX			(5)
 
 typedef struct {
 
-	int		patrolNum;			// 巡回のパターン番号
-	float	patternA;				// 比較の合計値
-	float	patternB;				//
-	float   patternC;				//
-	float	decision;				// 比較結果
-	float	atc[MOVE_CMP_MAX];		// 攻撃
-	float	chase[MOVE_CMP_MAX];	// 追跡
-	float	escape[MOVE_CMP_MAX];	// 逃走
-	float	avoid[1];				// 回避
-	float	wait[MOVE_CMP_MAX];
-
+	int		patrolNum;							// 巡回のパターン番号
+	float	cmpPattern[CMP_PATTERN_MAX];		// 比較の合計値
+	float	decision;							// 比較結果
+	float	atc[MOVE_PATTERN_MAX];				// 攻撃
+	float	chase[MOVE_PATTERN_MAX];			// 追跡
+	float	escape[MOVE_PATTERN_MAX];			// 逃走
+	float	avoid[1];							// 回避
+	float	wait[MOVE_PATTERN_MAX];				// 待機
+	float	patrol[MOVE_PATTERN_MAX];			// 巡回
+	int		deciMemory[DECISION_MEMORY_MAX];
+	int		cntMemory;
 }AI;
 
 //*****************************************************************************

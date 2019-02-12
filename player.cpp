@@ -130,7 +130,7 @@ void UpdatePlayer(void)
 		player[i].prevPos = player[i].pos;
 		player[i].cntFrame++;
 		//player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y), 0.0f, cosf(player[i].rot.y));
-		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
+		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 75.0f, 0.0f, cosf(player[i].rot.y) * 75.0f);
 
 		// 操作の処理
 		InputPlayer1();
@@ -141,7 +141,8 @@ void UpdatePlayer(void)
 		if (i == 1)
 		{
 			NonePlayerAttack();
-			NonePlayerMove();
+			//NonePlayerMove();
+			NonePlayerPatrol();
 		}
 
 		// 壁ずり処理
@@ -152,7 +153,7 @@ void UpdatePlayer(void)
 		PlayerDamageManager(i);
 
 		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rot.y);
-		PrintDebugProc("プレイヤーの前方: [X:(%f),z:(%f)]\n", player[i].frontVec.x, player[i].frontVec.z);
+		PrintDebugProc("プレイヤーの位置: [X:(%f),z:(%f)]\n", player[i].pos.x, player[i].pos.z);
 	}
 }
 

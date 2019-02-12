@@ -23,8 +23,6 @@
 #include "bulletEffect.h"
 #include "leftArm.h"
 #include "rightArm.h"
-#include "leftReg.h"
-#include "rightReg.h"
 #include "head.h"
 #include "block.h"
 #include "bulletGauge.h"
@@ -438,16 +436,10 @@ void Update(void)
 			
 			// 左腕の更新
 			UpdateLeftArm();
-			
-			// 左足の更新
-			UpdateLeftReg();
-			
+						
 			// 右腕の更新
 			UpdateRightArm();
-		
-			// 右足の更新
-			UpdateRightReg();
-			
+					
 			// 頭の更新
 			UpdateHead();
 			

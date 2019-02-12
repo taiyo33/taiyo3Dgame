@@ -16,19 +16,24 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MOVE_PATTERN_MAX					(4) 
+#define PATROL_PATTERN_MAX					(8) 
 
 // NPCの移動マクロ
 #define MOVE_DISTANCE_CHASE_FUZZY_X1		(150.0f)
 #define MOVE_DISTANCE_CHASE_FUZZY_X2		(250.0f)
-#define MOVE_DISTANCE_CHASE_FUZZY_X3		(400.0f)
-#define MOVE_DISTANCE_CHASE_FUZZY_X4		(600.0f)
-#define MOVE_DISTANCE_ESCAPE_FUZZY_X1		(150.0f)
-#define MOVE_DISTANCE_ESCAPE_FUZZY_X2		(500.0f)
+#define MOVE_DISTANCE_CHASE_FUZZY_X3		(300.0f)
+#define MOVE_DISTANCE_CHASE_FUZZY_X4		(800.0f)
+#define MOVE_DISTANCE_ESCAPE_FUZZY_X1		(200.0f)
+#define MOVE_DISTANCE_ESCAPE_FUZZY_X2		(800.0f)
+#define MOVE_DISTANCE_PATROL_FUZZY_X1		(200.0f)
+#define MOVE_DISTANCE_PATROL_FUZZY_X2		(300.0f)
+#define MOVE_DISTANCE_PATROL_FUZZY_X3		(500.0f)
+#define MOVE_DISTANCE_PATROL_FUZZY_X4		(800.0f)
 #define MOVE_DISTANCE_WAIT_FUZZY_X1			(100.0f)
-#define MOVE_DISTANCE_WAIT_FUZZY_X2			(200.0f)
-#define MOVE_DISTANCE_WAIT_FUZZY_X3			(250.0f)
-#define MOVE_DISTANCE_WAIT_FUZZY_X4			(300.0f)
+#define MOVE_DISTANCE_WAIT_FUZZY_X2			(150.0f)
+#define MOVE_DISTANCE_WAIT_FUZZY_X3			(300.0f)
+#define MOVE_DISTANCE_WAIT_FUZZY_X4			(800.0f)
+
 
 #define MOVE_NPCLIFE_CHASE_FUZZY_X1			(0.0f)
 #define MOVE_NPCLIFE_CHASE_FUZZY_X2			(80.0f)
@@ -48,33 +53,60 @@
 #define ATTACK_PLAYERLIFE_WAIT_FUZZY_X1		(0.0f)
 #define ATTACK_PLAYERLIFE_WAIT_FUZZY_X2		(100.0f)
 
+#define STOP_ROUTINE_CNT					(2)
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
 int SwitchPatrolPattern(int pattern);
 void NonePlayerDest(D3DXVECTOR3 vecDest);
+bool StopRoutineNonePlayer(void);
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
+
+// ファジーの１要素数
 enum {
 	PATTERN1,
 	PATTERN2,
 	PATTERN3,
 	PATTERN4
 };
-
-// 巡回のパターン
-D3DXVECTOR3			MovePattern[MOVE_PATTERN_MAX]{
-
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f), 
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
-
+// 比較合計の種類
+enum {
+	CHASE,
+	ESCAPE,
+	PATROL,
+	WAIT
 };
 
+// 巡回の種類
+enum {
+	PATROL01,
+	PATROL02,
+	PATROL03,
+	PATROL04,
+	PATROL05,
+	PATROL06,
+	PATROL07,
+	PATROL08,
+};
+
+// 巡回のパターン
+D3DXVECTOR3			MovePattern[PATROL_PATTERN_MAX]{
+
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
+	D3DXVECTOR3(-FIELD_SIZE_X / 2, 0.0f, -FIELD_SIZE_Z + 50.0f),
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z / 2),
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),
+	D3DXVECTOR3(FIELD_SIZE_X / 2, 0.0f, FIELD_SIZE_Z - 100.0f),
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z / 2)
+
+};
+int			cntFrame;
 AI			aiWk;
 //=============================================================================
 // 初期化処理
@@ -84,13 +116,14 @@ HRESULT InitAi(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	AI *ai = &aiWk;
 
-	ai->patrolNum = PATTERN1;			// 巡回パターンの番号を初期化
-	ai->patternA = 0.0f;				// 比較の合計値を初期化
-	ai->patternB = 0.0f;				//
-	ai->patternC = 0.0f;				// 
-	ai->decision = 0.0f;				// 比較結果を初期化
-
-	for (int i = 0; i < MOVE_CMP_MAX; i++)
+	ai->patrolNum = PATROL01;		// 巡回パターンの番号を初期化
+	ai->cmpPattern[CHASE] = 0.0f;	// 比較の合計値を初期化
+	ai->cmpPattern[ESCAPE] = 0.0f;	//
+	ai->cmpPattern[PATROL] = 0.0f;	// 
+	ai->decision = 0.0f;			// 比較結果を初期化
+	ai->cntMemory = 0;				// 結果記憶配列の添え字を初期化
+	cntFrame = 0;
+	for (int i = 0; i < CMP_PATTERN_MAX; i++)
 	{
 		ai->atc[i] = 0.0f;		// 攻撃の値を初期化
 		ai->chase[i] = 0.0f;	// 追跡の値を初期化
@@ -98,9 +131,13 @@ HRESULT InitAi(void)
 		ai->wait[i] = 0.0f;		// 待機の値を初期化
 	}
 
+	for (int j = 0; j < DECISION_MEMORY_MAX; j++)
+	{
+		ai->deciMemory[j] = j;	// 結果記憶を初期化
+	}
+
 	return S_OK;
 }
-
 
 //===========================================================================
 // NPCの移動処理
@@ -111,6 +148,26 @@ void NonePlayerMove(void)
 {
 	AI *ai = &aiWk;
 	PLAYER *player = GetPlayer(0);
+	
+	// 思考するか
+	if (!StopRoutineNonePlayer())
+	{
+		cntFrame++;
+		// 30フレーム思考停止
+		if (cntFrame % 30 == 0)
+		{
+			for (int i = 0; i < DECISION_MEMORY_MAX; i++)
+			{
+				ai->deciMemory[i] = 0;	//初期化
+			}
+
+			cntFrame = 0;
+		}
+
+		return;
+	}
+
+	ai->cntMemory < DECISION_MEMORY_MAX ? ai->cntMemory++ : ai->cntMemory = 0;	// 配列の添え字を更新
 
 	// 相手との距離による判定
 	D3DXVECTOR3 pvpVec = player[P2].pos - player[P1].pos;
@@ -118,24 +175,29 @@ void NonePlayerMove(void)
 	ai->chase[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_CHASE_FUZZY_X1, MOVE_DISTANCE_CHASE_FUZZY_X2,
 													MOVE_DISTANCE_CHASE_FUZZY_X3, MOVE_DISTANCE_CHASE_FUZZY_X4);
 	ai->escape[PATTERN1] = FuzzyRightDown(vecLength, MOVE_DISTANCE_ESCAPE_FUZZY_X1, MOVE_DISTANCE_ESCAPE_FUZZY_X2);
+	ai->patrol[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_PATROL_FUZZY_X1, MOVE_DISTANCE_PATROL_FUZZY_X2,
+												     MOVE_DISTANCE_PATROL_FUZZY_X3, MOVE_DISTANCE_PATROL_FUZZY_X4);
 	ai->wait[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_WAIT_FUZZY_X1, MOVE_DISTANCE_WAIT_FUZZY_X2, 
 												   MOVE_DISTANCE_WAIT_FUZZY_X3, MOVE_DISTANCE_WAIT_FUZZY_X4);
+
 	// 自ライフによる判定
 	if (player[P2].life > 0.0f)
 	{
 		ai->chase[PATTERN2] = FuzzyRightDown(player[P2].life, MOVE_NPCLIFE_CHASE_FUZZY_X1, MOVE_NPCLIFE_CHASE_FUZZY_X2);
 		ai->escape[PATTERN2] = FuzzyRightUp(player[P2].life, MOVE_NPCLIFE_ESCAPE_FUZZY_X1, MOVE_NPCLIFE_ESCAPE_FUZZY_X2);
 		
-		ai->patternA = ai->chase[PATTERN1] * ai->chase[PATTERN2];
-		ai->patternB = ai->escape[PATTERN1] * ai->escape[PATTERN2];
-		ai->patternC = ai->wait[PATTERN1];
+		ai->cmpPattern[CHASE] = ai->chase[PATTERN1] * ai->chase[PATTERN2];
+		ai->cmpPattern[ESCAPE] = ai->escape[PATTERN1] * ai->escape[PATTERN2];
+		ai->cmpPattern[PATROL] = ai->patrol[PATTERN1];
+		ai->cmpPattern[WAIT] = ai->wait[PATTERN1];
 	}
 	// 相手ライフが最高値の時は考慮しない
 	else if (player[P2].life == 0.0f)
 	{
-		ai->patternA = ai->chase[PATTERN1];
-		ai->patternB = ai->escape[PATTERN1];
-		ai->patternC = ai->wait[PATTERN1];
+		ai->cmpPattern[CHASE] = ai->chase[PATTERN1];
+		ai->cmpPattern[ESCAPE] = ai->escape[PATTERN1];
+		ai->cmpPattern[PATROL] = ai->patrol[PATTERN1];
+		ai->cmpPattern[WAIT] = ai->wait[PATTERN1];
 	}
 
 	// 相手ライフによる判定
@@ -144,45 +206,93 @@ void NonePlayerMove(void)
 		ai->chase[PATTERN3] = FuzzyRightDown(player[P1].life, MOVE_PLAYERLIFE_CHASE_FUZZY_X1, MOVE_PLAYERLIFE_CHASE_FUZZY_X2);
 		ai->escape[PATTERN3] = FuzzyRightUp(player[P1].life, MOVE_PLAYERLIFE_ESCAPE_FUZZY_X1, MOVE_PLAYERLIFE_ESCAPE_FUZZY_X2);
 
-		ai->patternA = ai->chase[PATTERN1] * ai->chase[PATTERN2] * ai->chase[PATTERN3];
-		ai->patternB = ai->escape[PATTERN1] * ai->escape[PATTERN2] * ai->escape[PATTERN3];
-		ai->patternC = ai->wait[PATTERN1];
+		ai->cmpPattern[CHASE] = ai->chase[PATTERN1] * ai->chase[PATTERN2] * ai->chase[PATTERN3];
+		ai->cmpPattern[ESCAPE] = ai->escape[PATTERN1] * ai->escape[PATTERN2] * ai->escape[PATTERN3];
+		ai->cmpPattern[PATROL] = ai->patrol[PATTERN1];
+		ai->cmpPattern[WAIT] = ai->wait[PATTERN1];
 	}
 
 	// 比較
-	ai->decision = Or(ai->patternA, ai->patternB);
-	ai->decision = Or(ai->patternC, ai->decision);
+	ai->decision = Or(ai->cmpPattern[CHASE], ai->cmpPattern[ESCAPE]);
+	ai->decision = Or(ai->cmpPattern[PATROL], ai->decision);
+	ai->decision = Or(ai->cmpPattern[WAIT], ai->decision);
 
 	// 結果反映
-	// 巡回
-	if (ai->decision == ai->patternC)
-	{
-		NonePlayerPatrol();
-	}
 	// 追跡
-	else if (ai->decision == ai->patternA)
+	if (ai->decision == ai->cmpPattern[CHASE])
 	{
 		NonePlayerDest(player[P1].pos);
-
 		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
 		D3DXVec3Normalize(&vec, &vec);
 		D3DXVec3Normalize(&player[P2].frontVec, &player[P2].frontVec);
 
-		player[P2].speed = 5.0f * ai->patternA;
+		player[P2].speed = 5.0f * ai->cmpPattern[CHASE];
 
 		player[P2].move.x = vec.x * player[P2].speed;
 		player[P2].move.z = vec.z * player[P2].speed;
+
+		ai->deciMemory[ai->cntMemory] = CHASE;
+
 	}
 	// 逃走
-	else if (ai->decision == ai->patternB)
+	else if (ai->decision == ai->cmpPattern[ESCAPE])
 	{
-		D3DXVECTOR3 vec = player[P2].pos - player[P1].pos;
-		D3DXVec3Normalize(&vec, &vec);
-		player[P2].speed = 5.0f * ai->patternB;
-		player[P2].move.x = vec.x * player[P2].speed;
-		player[P2].move.z = vec.z * player[P2].speed;
+		//D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		//for (int i = 0; i < PATROL_PATTERN_MAX; i++)
+		//{ 
+		//	vec = MovePattern[i] - player[P2].pos;
+		//	float vecLen = D3DXVec3Length(&vec);
+		//	float moveLen = D3DXVec3Length(&MovePattern[i]);
+		//	min(vecLen, moveLen);
+
+		//}
+
+		//D3DXVECTOR3 vec = player[P2].pos - player[P1].pos;
+		////NonePlayerDest(vec);
+		//D3DXVec3Normalize(&vec, &vec);
+		//player[P2].speed = 5.0f * ai->cmpPattern[ESCAPE];
+		//player[P2].move.x = vec.x * player[P2].speed;
+		//player[P2].move.z = vec.z * player[P2].speed;
+
+		ai->deciMemory[ai->cntMemory] = ESCAPE;
+	}
+	// 巡回
+	else if (ai->decision == ai->cmpPattern[PATROL])
+	{
+		NonePlayerPatrol();
+		ai->deciMemory[ai->cntMemory] = PATROL;
+	}
+	// 待機
+	else if (ai->decision == ai->cmpPattern[WAIT])
+	{
+		return;
+	}
+}
+
+//==============================================================================
+// NPCの思考切替
+// 引　数：な　し
+// 戻り値：な　し
+//==============================================================================
+bool StopRoutineNonePlayer(void)
+{
+	AI *ai = &aiWk;
+	int cnt = 0;
+
+	// 過去4回の結果と比較
+	for (int i = 0; i < DECISION_MEMORY_MAX; i++)
+	{
+		// 異なる処理ならカウントインクリメント
+		if (ai->deciMemory[i] != ai->deciMemory[i + 1])
+		{
+			cnt++;
+		}
 	}
 
+	// 異なる結果を２回繰り返しているなら思考しない
+	if (cnt > STOP_ROUTINE_CNT) return false;
+
+	return true;
 }
 
 //==============================================================================
@@ -209,6 +319,7 @@ void NonePlayerDest(D3DXVECTOR3 vecDest)
 		player->rot.y += difAngle;
 	}
 }
+
 //==============================================================================
 // NPCのフィールド巡回
 // 引　数：な　し
@@ -239,7 +350,7 @@ void NonePlayerPatrol(void)
 }
 
 //==========================================================================
-// NPCの巡回行動切替処理
+// NPCの巡回行動遷移処理
 // 引　数：int pattern(巡回パターン番号)
 // 戻り値：な　し
 //==========================================================================
@@ -249,17 +360,29 @@ int SwitchPatrolPattern(int pattern)
 
 	switch (pattern)
 	{
-		case PATTERN1 : out = PATTERN2;
+		case PATROL01 : out = PATROL03;
 			break;
 
-		case PATTERN2 : out = PATTERN3;
+		case PATROL03 : out = PATROL05;
 			break;
 
-		case PATTERN3 : out = PATTERN4;
+		case PATROL05 : out = PATROL07;
 			break;
 
-		case PATTERN4 : out = PATTERN1;
+		case PATROL07 : out = PATROL01;
 			break;
+
+		//case PATROL05: out = PATROL06;
+		//	break;
+
+		//case PATROL06: out = PATROL07;
+		//	break;
+
+		//case PATROL07: out = PATROL08;
+		//	break;
+
+		//case PATROL08: out = PATROL01;
+		//	break;
 	}
 
 	return out;

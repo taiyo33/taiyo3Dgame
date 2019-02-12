@@ -102,12 +102,6 @@
     <ClCompile Include="head.cpp">
       <Filter>ソース ファイル\player</Filter>
     </ClCompile>
-    <ClCompile Include="leftReg.cpp">
-      <Filter>ソース ファイル\player</Filter>
-    </ClCompile>
-    <ClCompile Include="rightReg.cpp">
-      <Filter>ソース ファイル\player</Filter>
-    </ClCompile>
     <ClCompile Include="block.cpp">
       <Filter>ソース ファイル\stage</Filter>
     </ClCompile>
@@ -182,16 +176,10 @@
     <ClInclude Include="shadow.h">
       <Filter>ヘッダー ファイル\effect</Filter>
     </ClInclude>
-    <ClInclude Include="rightReg.h">
-      <Filter>ヘッダー ファイル\player</Filter>
-    </ClInclude>
     <ClInclude Include="head.h">
       <Filter>ヘッダー ファイル\player</Filter>
     </ClInclude>
     <ClInclude Include="leftArm.h">
-      <Filter>ヘッダー ファイル\player</Filter>
-    </ClInclude>
-    <ClInclude Include="leftReg.h">
       <Filter>ヘッダー ファイル\player</Filter>
     </ClInclude>
     <ClInclude Include="rightArm.h">

@@ -424,7 +424,7 @@ void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos)
 	{
 		if (!bullet->use[i]) continue;
 		if (CheckHitBB(bullet->pos[i], pos,
-			D3DXVECTOR3(3.0f, 3.0f, 3.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
+			D3DXVECTOR3(15.0f, 15.0f, 15.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
 		{
 			bullet->cntReflect[i]--;
 			if (bullet->cntReflect[i] < 0)

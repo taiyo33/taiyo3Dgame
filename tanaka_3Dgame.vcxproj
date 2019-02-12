@@ -143,7 +143,6 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="leftArm.cpp" />
-    <ClCompile Include="leftReg.cpp" />
     <ClCompile Include="lifeGauge.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
@@ -151,7 +150,6 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="rightArm.cpp" />
-    <ClCompile Include="rightReg.cpp" />
     <ClCompile Include="score.cpp" />
     <ClCompile Include="shadow.cpp" />
     <ClCompile Include="bulletEffect.cpp" />
@@ -173,7 +171,6 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="leftArm.h" />
-    <ClInclude Include="leftReg.h" />
     <ClInclude Include="lifeGauge.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="main.h" />
@@ -181,7 +178,6 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="rightArm.h" />
-    <ClInclude Include="rightReg.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="shadow.h" />
     <ClInclude Include="bulletEffect.h" />

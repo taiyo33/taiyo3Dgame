@@ -11,6 +11,7 @@
 #include "checkhit.h"
 #include "debugproc.h"
 #include "block.h"
+#include "explosion.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -68,10 +69,9 @@ HRESULT InitChild(void)
 		D3DMesh[i] = NULL;
 		D3DXBuffMat[i] = NULL;
 		NumMat[i] = 0;
-		child[0].cnt = CHILD_ONESET_MAX;
-		child[1].cnt = 0;
+		child[i].cnt = CHILD_ONESET_MAX / 2;
 
-		for (int j = 0; j < CHILD_ONESET_MAX; j++)
+		for (int j = 0; j < CHILD_ONESET_MAX / 2; j++)
 		{
 			// 位置・回転・スケールの初期設定
 			child[i].pos[j] = player[i].pos;
@@ -156,9 +156,14 @@ void UpdateChild(void)
 
 	for (int i = 0; i < CHILD_SET_MAX; i++)
 	{
-		for (int j = 0; j < CHILD_ONESET_MAX; j++)
+		for (int j = 0; j < child[i].cnt; j++)
 		{
 			child[i].prevPos[j] = child[i].pos[j];
+
+			if (child[i].pos[j].y > 10.0f)
+			{
+				child[i].pos[j].y -= PLAYER_FALL_SPEED;
+			}
 
 			// 追跡
 			ChaseChild(i, j);
@@ -190,7 +195,7 @@ void DrawChild(void)
 
 	for (int i = 0; i < CHILD_SET_MAX; i++)
 	{
-		for (int j = 0; j < CHILD_ONESET_MAX; j++)
+		for (int j = 0; j < child[i].cnt; j++)
 		{
 			if (child[i].use[j])
 			{
@@ -319,7 +324,7 @@ void ChaseChild(int index, int cno)
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	 // プレイヤーと子供の先頭アドレス番号の追従
-	if (cno % 4 == 0)
+	//if (cno % 4 == 0)
 	{
 		// 追従ベクトルの計算
 		vec = player->pos - child->pos[cno];
@@ -332,20 +337,20 @@ void ChaseChild(int index, int cno)
 		}
 	}
 	// 子供同士の追従
-	else
-	{
-		// 追従ベクトルの計算
-		vec = child->pos[cno - 1] - child->pos[cno];
-		D3DXVec3Normalize(&vec, &vec);
-		// 前アドレスの子供が範囲外に移動した場合追従
-		if (!CheckHitBC(child->pos[cno], child->pos[cno - 1], CHILD_SIZE, CHILD_SIZE))
-		{
-			child->move[cno].x = vec.x * 5.0f;
-			child->move[cno].z = vec.z * 5.0f;
-		}
-	}
+	//else
+	//{
+	//	// 追従ベクトルの計算
+	//	vec = child->pos[cno - 1] - child->pos[cno];
+	//	D3DXVec3Normalize(&vec, &vec);
+	//	// 前アドレスの子供が範囲外に移動した場合追従
+	//	if (!CheckHitBC(child->pos[cno], child->pos[cno - 1], CHILD_SIZE, CHILD_SIZE))
+	//	{
+	//		child->move[cno].x = vec.x * 5.0f;
+	//		child->move[cno].z = vec.z * 5.0f;
+	//	}
+	//}
 
-	for (int i = 0; i < CHILD_ONESET_MAX; i++)
+	for (int i = 0; i < child->cnt; i++)
 	{
 		if (CheckHitBC(child->pos[cno], child->pos[i], CHILD_SIZE, CHILD_SIZE))
 		{
@@ -365,7 +370,7 @@ void ChaseChild(int index, int cno)
 void WallShearChild(int index, int cno)
 {
 	CHILD *child = &childWk[index];
-
+	PLAYER *player = GetPlayer(index);
 	if (!HitCheckBlock(child->prevPos[cno] + child->move[cno], child->prevPos[cno], BLOCK_VTX_MAX))
 	{
 		child->move[cno] = WallShear(child->pos[cno] + child->move[cno], GetNormal(), index);
@@ -396,6 +401,35 @@ void CheckNorChild(D3DXVECTOR3 nor0, int index, int cno)
 		child->pos[cno].z = child->prevPos[cno].z;
 		return;
 	}
+}
+
+//=========================================================================
+// 子供モデルの増加
+// 引　数：D3DXVECTOR3 pos(位置)、int index(子供モデルのアドレス番号)
+// 戻り値：bool型　未使用の場合 true、使用中の場合 false
+//=========================================================================
+void SetChild(D3DXVECTOR3 pos, int index)
+{
+	CHILD *child = &childWk[index];
+	PLAYER *player = GetPlayer(index);
+
+	for (int i = 0; i < child[index].cnt; i++)
+	{
+		if (!child->use[i])
+		{
+			// 初期設定
+			child->use[i] = true;
+			child->pos[i] = player->pos + D3DXVECTOR3(0.0f, 200.0f, 0.0f);
+			child->rot[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			child->scl[i] = D3DXVECTOR3(0.4f, 0.4f, 0.4f);
+			child->prevPos[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			child->vec[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			
+			SetExplosion(child->pos[i], child->rot[i], 0);
+			return;
+		}
+	}
+	return;
 }
 
 

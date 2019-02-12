@@ -10,7 +10,7 @@
 #include "main.h"
 
 #define CHILD_SET_MAX		(2)
-#define CHILD_ONESET_MAX	(50)
+#define CHILD_ONESET_MAX	(100)
 
 typedef struct {
 
@@ -35,5 +35,6 @@ void UninitChild(void);
 void UpdateChild(void);
 void DrawChild(void);
 CHILD *GetChild(int index);
+void SetChild(D3DXVECTOR3 pos, int index);
 
 #endif

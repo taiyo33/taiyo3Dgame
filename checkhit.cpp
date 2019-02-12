@@ -36,26 +36,29 @@ void CheckHit(void)
 		{
 			CheckBlockHitBullet(i, j, block->pos);
 		}
-		
-		// P1の子供モデルとの判定
-		CHILD *child = GetChild(P1);
-		for (k = 0; k < CHILD_ONESET_MAX; k++)
+
+		//if (i < BLOCK_NUM_LEFTSIDE_OBJ)
 		{
-			if (!child->use[k]) continue;
-			if (CheckHitBC(block->pos, child->pos[k], 15.0f, 15.0f))
+			// P1の子供モデルとの判定
+			CHILD *child = GetChild(P1);
+			for (k = 0; k < child[P1].cnt; k++)
 			{
-				child->pos[k] = child->prevPos[k];
+				if (!child->use[k]) continue;
+				if (CheckHitBC(block->pos, child->pos[k], 10.0f, 10.0f))
+				{
+					child->pos[k] = child->prevPos[k];
+				}
 			}
-		}
-		
-		// P2の子供モデルとの判定
-		child = GetChild(P2);
-		for (k = 0; k < CHILD_ONESET_MAX; k++)
-		{
-			if (!child->use[k]) continue;
-			if (CheckHitBC(block->pos, child->pos[k], 15.0f, 15.0f))
+
+			// P2の子供モデルとの判定
+			child = GetChild(P2);
+			for (k = 0; k < child[P2].cnt; k++)
 			{
-				child->pos[k] = child->prevPos[k];
+				if (!child->use[k]) continue;
+				if (CheckHitBC(block->pos, child->pos[k], 10.0f, 10.0f))
+				{
+					child->pos[k] = child->prevPos[k];
+				}
 			}
 		}
 	}
@@ -77,16 +80,6 @@ void CheckHit(void)
 		{
 			player->pos = player->prevPos;
 		}
-
-		//block = GetBlock(0);
-		//for (j = BLOCK_NUM_FEARSIDE; j < BLOCK_NUM_FEARSIDE_OBJ; j++)
-		//{
-		//	if (!block[j].use) continue;
-		//	if (CheckHitBB(player->pos, block[j].pos, D3DXVECTOR3(25.0f, 25.0f, 25.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
-		//	{
-		//		player->pos = player->prevPos;
-		//	}
-		//}
 	}
 	
 	/* 対バレットの当たり判定 */
@@ -99,15 +92,17 @@ void CheckHit(void)
 		{
 			// P2の子供モデルとの判定
 			CHILD *child = GetChild(0);
-			for (j = 0; j < CHILD_ONESET_MAX; j++)
+			for (j = 0; j < child[i].cnt; j++)
 			{
 				if (!child[P2].use[j]) continue;
 
 				if (CheckHitBC(bullet[P1].pos[i], child[P2].pos[j], 15.0f, 15.0f))
 				{
+					player = GetPlayer(0);
 					child[P2].use[j] = false;
-					child[P2].cnt += 1;
-
+					child[P2].cnt -= 1;
+					child[P1].cnt += 1;
+					SetChild(player[P1].pos, P1);
 					SetExplosion(child[P2].pos[j], child[P2].rot[j], 0);
 				}
 			}
@@ -117,7 +112,6 @@ void CheckHit(void)
 								bullet[P1].size[i].x, 10.0f))
 			{
 				player[P2].life += 15.0f;
-				player[P2].pos += bullet[P1].move[i];	// 簡易ノックバック
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
 				bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
@@ -130,14 +124,17 @@ void CheckHit(void)
 		{
 			// P1の子供モデルとの判定
 			CHILD *child = GetChild(0);
-			for (j = 0; j < CHILD_ONESET_MAX; j++)
+			for (j = 0; j < child[i].cnt; j++)
 			{
 				if (!child[P1].use[j]) continue;
 
 				if (CheckHitBC(bullet[P2].pos[i], child[P1].pos[j], 15.0f, 15.0f))
 				{
+					player = GetPlayer(0);
 					child[P1].use[j] = false;
 					child[P1].cnt -= 1;
+					child[P2].cnt += 1;
+					SetChild(player[P2].pos, P2);
 					SetExplosion(child[P1].pos[j], child[P1].rot[j], 0);
 				}
 			}
@@ -147,7 +144,6 @@ void CheckHit(void)
 								  bullet[P2].size[i].x, 10.0f))
 			{
 				player[P1].life -= 15.0f;
-				player[P1].pos += bullet[P2].move[i];	// 簡易ノックバック
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;
 				bullet[P2].cntReflect[i] = INIT_REFLECT_CNT;
@@ -311,7 +307,7 @@ D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index)
 
 //==============================================================================
 // 反射ベクトルの計算処理
-// 引　数：D3DXVECTOR3 pos(バレットの位置)、D3DXVECTOR3 normal(ブロックの法線)、
+// 引　数：D3DXVECTOR3 pos(位置)、D3DXVECTOR3 normal(ブロックの法線)、
 // 戻り値：D3DXVECTOR3型
 //==============================================================================
 D3DXVECTOR3 ReflectVector(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, D3DXVECTOR3 normal)
