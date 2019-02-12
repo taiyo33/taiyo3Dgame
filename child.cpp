@@ -69,7 +69,7 @@ HRESULT InitChild(void)
 		D3DMesh[i] = NULL;
 		D3DXBuffMat[i] = NULL;
 		NumMat[i] = 0;
-		child[i].cnt = CHILD_ONESET_MAX / 2;
+		child[i].cnt = 50;
 
 		for (int j = 0; j < CHILD_ONESET_MAX / 2; j++)
 		{
@@ -78,6 +78,7 @@ HRESULT InitChild(void)
 			child[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			child[i].scl[j] = D3DXVECTOR3(0.4f, 0.4f, 0.4f);
 			child[i].use[j] = true;
+			child[i].use[j + 49] = false;
 			child[i].prevPos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			child[i].vec[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		}
@@ -156,27 +157,30 @@ void UpdateChild(void)
 
 	for (int i = 0; i < CHILD_SET_MAX; i++)
 	{
-		for (int j = 0; j < child[i].cnt; j++)
+		for (int j = 0; j < CHILD_ONESET_MAX; j++)
 		{
-			child[i].prevPos[j] = child[i].pos[j];
-
-			if (child[i].pos[j].y > 10.0f)
+			if (child[i].use[j])
 			{
-				child[i].pos[j].y -= PLAYER_FALL_SPEED;
+				child[i].prevPos[j] = child[i].pos[j];
+
+				if (child[i].pos[j].y > 10.0f)
+				{
+					child[i].pos[j].y -= PLAYER_FALL_SPEED;
+				}
+
+				// í«ê’
+				ChaseChild(i, j);
+
+				// ï«Ç∏ÇË
+				//WallShearChild(i, j);
+
+				// à⁄ìÆ
+				MoveChild(i, j);
+
+				//AlignmentChild(i, j);
+				//ChesionChild(i, j);
+				//SeparationChild(i, j);
 			}
-
-			// í«ê’
-			ChaseChild(i, j);
-			
-			// ï«Ç∏ÇË
-			//WallShearChild(i, j);
-
-			// à⁄ìÆ
-			MoveChild(i, j);
-
-			//AlignmentChild(i, j);
-			//ChesionChild(i, j);
-			//SeparationChild(i, j);
 		}
 	}
 }
@@ -195,7 +199,7 @@ void DrawChild(void)
 
 	for (int i = 0; i < CHILD_SET_MAX; i++)
 	{
-		for (int j = 0; j < child[i].cnt; j++)
+		for (int j = 0; j < CHILD_ONESET_MAX; j++)
 		{
 			if (child[i].use[j])
 			{
@@ -350,8 +354,9 @@ void ChaseChild(int index, int cno)
 	//	}
 	//}
 
-	for (int i = 0; i < child->cnt; i++)
+	for (int i = 0; i < CHILD_ONESET_MAX; i++)
 	{
+		if (!child->use[i]) continue;
 		if (CheckHitBC(child->pos[cno], child->pos[i], CHILD_SIZE, CHILD_SIZE))
 		{
 			child->vec[cno] = child->pos[cno] - child->pos[i];
@@ -413,7 +418,7 @@ void SetChild(D3DXVECTOR3 pos, int index)
 	CHILD *child = &childWk[index];
 	PLAYER *player = GetPlayer(index);
 
-	for (int i = 0; i < child[index].cnt; i++)
+	for (int i = 0; i < CHILD_ONESET_MAX; i++)
 	{
 		if (!child->use[i])
 		{
@@ -429,6 +434,7 @@ void SetChild(D3DXVECTOR3 pos, int index)
 			return;
 		}
 	}
+
 	return;
 }
 

@@ -15,6 +15,7 @@
 
 #define BUTTLEGAUGE_OUTERPOS_X_01				 (380)	 // 初期X座標 
 #define BUTTLEGAUGE_OUTERPOS_Y_01				 (-100)	 // 初期Y座標
+
 #define BUTTLEGAUGE_INNERPOS_X_01				 (390)	 // 初期X座標 
 #define BUTTLEGAUGE_INNERPOS_Y_01				 (-90)	 // 初期Y座標
 

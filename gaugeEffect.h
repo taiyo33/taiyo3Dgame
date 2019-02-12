@@ -12,10 +12,10 @@
 #define TEXTURE_GAUGEEFFECT_SIZE_X	 (100)	 // テクスチャサイズ
 #define TEXTURE_GAUGEEFFECT_SIZE_Y	 (120)	 // 
 
-#define GAUGEEFFECT_POS_X_01				 (550)	 // 初期X座標 
+#define GAUGEEFFECT_POS_X_01				 (310)	 // 初期X座標 
 #define GAUGEEFFECT_POS_Y_01				 (-10)	 // 初期Y座標
 
-#define GAUGEEFFECT_POS_X_02				 (610)	 // 初期X座標 
+#define GAUGEEFFECT_POS_X_02				 (470)	 // 初期X座標 
 #define GAUGEEFFECT_POS_Y_02				 (-10)	 // 初期Y座標
 
 

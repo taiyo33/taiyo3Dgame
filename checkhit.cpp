@@ -37,7 +37,6 @@ void CheckHit(void)
 			CheckBlockHitBullet(i, j, block->pos);
 		}
 
-		//if (i < BLOCK_NUM_LEFTSIDE_OBJ)
 		{
 			// P1‚ÌŽq‹Ÿƒ‚ƒfƒ‹‚Æ‚Ì”»’è
 			CHILD *child = GetChild(P1);
@@ -100,8 +99,8 @@ void CheckHit(void)
 				{
 					player = GetPlayer(0);
 					child[P2].use[j] = false;
-					child[P2].cnt -= 1;
-					child[P1].cnt += 1;
+					child[P2].cnt --;
+					child[P1].cnt ++;
 					SetChild(player[P1].pos, P1);
 					SetExplosion(child[P2].pos[j], child[P2].rot[j], 0);
 				}
@@ -132,8 +131,8 @@ void CheckHit(void)
 				{
 					player = GetPlayer(0);
 					child[P1].use[j] = false;
-					child[P1].cnt -= 1;
-					child[P2].cnt += 1;
+					child[P1].cnt --;
+					child[P2].cnt ++;
 					SetChild(player[P2].pos, P2);
 					SetExplosion(child[P1].pos[j], child[P1].rot[j], 0);
 				}

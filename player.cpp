@@ -142,7 +142,7 @@ void UpdatePlayer(void)
 		{
 			NonePlayerAttack();
 			//NonePlayerMove();
-			NonePlayerPatrol();
+			//NonePlayerPatrol();
 		}
 
 		// •Ç‚¸‚èˆ—

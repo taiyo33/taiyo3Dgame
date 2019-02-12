@@ -10,7 +10,7 @@
 #include "shadow.h"
 #include "debugproc.h"
 #include "player.h"
-
+#include "child.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -30,7 +30,8 @@
 //*****************************************************************************
 HRESULT MakeVertexGaugeEffect(void);
 void SetTextureGaugeEffect(int index, int cntPattern);
-void TextureAnimGaugeEffect(int index);
+void SetVertexGaugeEffect01(float val);
+void SetVertexGaugeEffect02(float val);
 
 //*****************************************************************************
 // グローバル変数
@@ -92,7 +93,10 @@ void UninitGaugeEffect(void)
 //=============================================================================
 void UpdateGaugeEffect(void)
 {
-	for (int i = 0; i < GAUGEEFFECT_MAX; i++)
+	float val = 0.0f;
+	CHILD *child = GetChild(0);
+
+	for (int i = 0; i < GAUGEEFFECT_MAX; i++, child++)
 	{
 		CntAnim[i]++;		// アニメーションカウントの更新 
 
@@ -101,9 +105,24 @@ void UpdateGaugeEffect(void)
 		{
 			// パターンの切り替え
 			PatternAnim[i] = (PatternAnim[i] + 1) % ANIM_PATTERN_NUM;
+			CntAnim[i] = 0;
 		}
 
-		SetTextureGaugeEffect(i, PatternAnim[i]);	// テクスチャー座標の計算
+		if (i == 0)
+		{
+			val = (float)child->cnt / CHILD_ONESET_MAX;
+
+			SetTextureGaugeEffect(i, PatternAnim[i]);	// テクスチャー座標の計算
+			SetVertexGaugeEffect01(val);
+		}
+		else if(i == 1)
+		{
+			float cnt = CHILD_ONESET_MAX - child->cnt;
+			val = cnt / CHILD_ONESET_MAX;
+
+			SetTextureGaugeEffect(i, PatternAnim[i]);	// テクスチャー座標の計算
+			SetVertexGaugeEffect02(val);
+		}
 	}
 }
 
@@ -191,33 +210,6 @@ HRESULT MakeVertexGaugeEffect(void)
 	return S_OK;
 }
 
-
-//=================================================================================
-// テクスチャーのアニメーション処理
-// 引　数：int index(爆発エフェクトのアドレス番号)
-// 戻り値：な　し
-//==================================================================================
-void TextureAnimGaugeEffect(int index)
-{
-
-	CntAnim[index]++;		// アニメーションカウントの更新 
-
-	// アニメーションWaitチェック
-	if ((CntAnim[index] % ANIM_TIME) == 0)
-	{
-		// パターンの切り替え
-		PatternAnim[index] = (PatternAnim[index] + 1) % ANIM_PATTERN_NUM;
-	}
-	//// アニメーションの停止
-	//if (PatternAnim[index] == ANIM_STOP)
-	//{
-	//	UseAnim[index] = false;
-	//	PatternAnim[index] = 0;
-	//}
-
-	SetTextureGaugeEffect(index,PatternAnim[index]);	// テクスチャー座標の計算
-}
-
 //=============================================================================
 // テクスチャ座標の設定
 // 引数：アニメーションのパターンカウント
@@ -234,4 +226,32 @@ void SetTextureGaugeEffect(int index, int cntPattern)
 	vertexWk[index][1].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY);
 	vertexWk[index][2].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY + sizeY);
 	vertexWk[index][3].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY + sizeY);
+}
+
+//=============================================================================
+// 頂点座標の設定
+// 引　数：faloat val(頂点のX軸の変動率)
+// 戻り値：な　し
+//=============================================================================
+void SetVertexGaugeEffect01(float val)
+{
+	// 頂点座標の設定
+	vertexWk[GAUGE_EFFECT01][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + (480.0f * val), GAUGEEFFECT_POS_Y_01, 0.0f);
+	vertexWk[GAUGE_EFFECT01][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X + (480.0f * val), GAUGEEFFECT_POS_Y_01, 0.0f);
+	vertexWk[GAUGE_EFFECT01][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + (480.0f * val), GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+	vertexWk[GAUGE_EFFECT01][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X + (480.0f * val), GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+}
+
+//=============================================================================
+// 頂点座標の設定
+// 引　数：faloat val(頂点のX軸の変動率)
+// 戻り値：な　し
+//=============================================================================
+void SetVertexGaugeEffect02(float val)
+{
+	// 頂点座標の設定
+	vertexWk[GAUGE_EFFECT02][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 - TEXTURE_GAUGEEFFECT_SIZE_X + (480.0f * val), GAUGEEFFECT_POS_Y_02, 0.0f);
+	vertexWk[GAUGE_EFFECT02][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + (480.0f * val), GAUGEEFFECT_POS_Y_02, 0.0f);
+	vertexWk[GAUGE_EFFECT02][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 - TEXTURE_GAUGEEFFECT_SIZE_X + (480.0f * val), GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+	vertexWk[GAUGE_EFFECT02][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + (480.0f * val), GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
 }
