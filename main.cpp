@@ -30,6 +30,8 @@
 #include "item.h"
 #include "child.h"
 #include "ai.h"
+#include "buttleGauge.h"
+#include "gaugeEffect.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -386,6 +388,13 @@ void Uninit(void)
 
 	// 子供モデルの終了処理
 	UninitChild();
+
+	// バトルゲージの終了処理
+	UninitButtleGauge();
+
+	//
+	UninitGaugeEffect();
+
 }
 
 //=============================================================================
@@ -469,6 +478,12 @@ void Update(void)
 
 			// ライフゲージの更新
 			UpdateLifeGauge();
+
+			// バトルゲージ更新
+			UpdateButtleGauge();
+
+			// ゲージエフェクトの更新
+			UpdateGaugeEffect();
 
 			// 当たり判定
 			CheckHit();
@@ -565,6 +580,11 @@ void Draw(void)
 				// バレットゲージの描画
 				DrawBulletGauge();
 
+				// バトルゲージの描画
+				DrawButtleGauge();
+
+				// ゲージエフェクトの描画
+				DrawGaugeEffect();
 
 				// デバッグ表示処理の描画
 				if (g_bDispDebug)
@@ -695,6 +715,13 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 
 	// AIの初期化
 	InitAi();
+
+	// バトルゲージの初期化
+	InitButtleGauge(0);
+
+	// ゲージエフェクトの初期化
+	InitGaugeEffect(0);
+
 }
 
 //============================================================================
@@ -734,6 +761,9 @@ void InitGame(void)
 	// チュートリアルの初期化
 	InitTutorial(INIT_GAME);
 
+	// バトルゲージの初期化
+	InitButtleGauge(INIT_GAME);
+
 	// フィールドの初期化
 	InitField(INIT_GAME);
 
@@ -742,6 +772,9 @@ void InitGame(void)
 	
 	// アイテムの初期化
 	InitItem(INIT_GAME);
+
+	// ゲージエフェクトの初期化
+	InitGaugeEffect(INIT_GAME);
 
 	// 子供モデルの初期化
 	InitChild();

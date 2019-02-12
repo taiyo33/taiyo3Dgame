@@ -16,19 +16,19 @@
 #define TEXTURE_LIFEICON_SIZE_Y			 (100)	 // 
 
 #define LIFEGAUGE_OUTERPOS_X_01				 (100)	 // 初期X座標 
-#define LIFEGAUGE_OUTERPOS_Y_01				 (0)	 // 初期Y座標
+#define LIFEGAUGE_OUTERPOS_Y_01				 (70)	 // 初期Y座標
 #define LIFEGAUGE_INNERPOS_X_01				 (110)	 // 初期X座標 
-#define LIFEGAUGE_INNERPOS_Y_01				 (10)	 // 初期Y座標
+#define LIFEGAUGE_INNERPOS_Y_01				 (80)	 // 初期Y座標
 
 #define LIFEGAUGE_OUTERPOS_X_02				 (650)	 // 初期X座標 
-#define LIFEGAUGE_OUTERPOS_Y_02				 (0)	 // 初期Y座標
+#define LIFEGAUGE_OUTERPOS_Y_02				 (70)	 // 初期Y座標
 #define LIFEGAUGE_INNERPOS_X_02				 (660)	 // 初期X座標 
-#define LIFEGAUGE_INNERPOS_Y_02				 (10)	 // 初期Y座標
+#define LIFEGAUGE_INNERPOS_Y_02				 (80)	 // 初期Y座標
 
 #define LIFEICON_POS_X_01				 (0)	 // P1アイコン初期X座標 
-#define LIFEICON_POS_Y_01				 (0)	 // P1アイコン初期Y座標
+#define LIFEICON_POS_Y_01				 (70)	 // P1アイコン初期Y座標
 #define LIFEICON_POS_X_02				 (1170)	 // P2アイコン初期X座標 
-#define LIFEICON_POS_Y_02				 (0)	 // P2アイコン初期Y座標
+#define LIFEICON_POS_Y_02				 (70)	 // P2アイコン初期Y座標
 
 
 //*****************************************************************************

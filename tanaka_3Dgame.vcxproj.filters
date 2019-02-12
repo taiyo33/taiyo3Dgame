@@ -129,6 +129,12 @@
     <ClCompile Include="checkhit.cpp">
       <Filter>ソース ファイル\main</Filter>
     </ClCompile>
+    <ClCompile Include="buttleGauge.cpp">
+      <Filter>ソース ファイル\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="gaugeEffect.cpp">
+      <Filter>ソース ファイル\effect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet.h">
@@ -207,6 +213,12 @@
       <Filter>ヘッダー ファイル\npc</Filter>
     </ClInclude>
     <ClInclude Include="bulletEffect.h">
+      <Filter>ヘッダー ファイル\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="buttleGauge.h">
+      <Filter>ヘッダー ファイル\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="gaugeEffect.h">
       <Filter>ヘッダー ファイル\effect</Filter>
     </ClInclude>
   </ItemGroup>

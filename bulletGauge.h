@@ -13,9 +13,9 @@
 #define TEXTURE_BULLETGAUGE_SIZE_Y	 (75)	 // 
 
 #define BULLETGAUGE_POS_X_01			 (0)	 // 初期X座標 
-#define BULLETGAUGE_POS_Y_01			 (100)	 // 初期Y座標
+#define BULLETGAUGE_POS_Y_01			 (170)	 // 初期Y座標
 #define BULLETGAUGE_POS_X_02			 (1170)	 // 初期X座標 
-#define BULLETGAUGE_POS_Y_02			 (100)	 // 初期Y座標
+#define BULLETGAUGE_POS_Y_02			 (170)	 // 初期Y座標
 
 
 //*****************************************************************************
