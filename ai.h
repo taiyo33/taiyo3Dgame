@@ -34,7 +34,7 @@ typedef struct {
 HRESULT InitAi(void);
 void NonePlayerMove(void);
 void NonePlayerAttack(void);
-void NonePlayerPatrol(void);
+void NonePlayerPatrol(int index);
 
 
 float FuzzyRightUp(float val, float x0, float x1);

@@ -171,9 +171,6 @@ void DrawBullet(void)
 	{
 		for (int j = 0; j < BULLET_ONESET_MAX; j++)
 		{
-			//// 透過処理
-			//SetDiffuseBullet(i, dif_mi[i]);
-
 			// ラインティングを無効にする
 			pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
@@ -437,29 +434,3 @@ void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos)
 		}
 	}
 }
-
-////==============================================================================
-//// バレットの透過処理
-//// 引　数：int Index(バレットのアドレス番号)、float val(α値)
-//// 戻り値：なし
-////==============================================================================
-//void SetDiffuseBullet(int Index, float val)
-//{
-//	{//頂点バッファの中身を埋める
-//		VERTEX_3D *pVtx;
-//
-//		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-//		g_pD3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
-//
-//		pVtx += (Index * 4);
-//
-//		// 反射光の設定
-//		pVtx[0].diffuse =
-//			pVtx[1].diffuse =
-//			pVtx[2].diffuse =
-//			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, val);
-//
-//		// 頂点データをアンロックする
-//		g_pD3DVtxBuffBullet->Unlock();
-//	}
-//}

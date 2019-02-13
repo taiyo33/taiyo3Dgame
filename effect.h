@@ -9,19 +9,16 @@
 
 #include "main.h"
 
+
+#define DELETEFFECT_ONESET_MAX		(10)
+
 typedef struct
 {
-	D3DXMATRIX mtxWorld;	// ワールドマトリックス
-	D3DXVECTOR3 pos;		// 位置
-	D3DXVECTOR3 scl;		// スケール
-	D3DXVECTOR3 move;		// 移動量
-	float		fWidth;			// 幅
-	float		fHeight;			// 高さ
-	int			IndxShadow;			// 影ID
-	bool		bUse;				// 使用しているかどうか
-	float		angle;
-	float		Alpha;
-	int			time;
+	D3DXMATRIX		mtxWorld;	// ワールドマトリックス
+	D3DXVECTOR3		pos[DELETEFFECT_ONESET_MAX];		// 位置
+	float			dif_mi[DELETEFFECT_ONESET_MAX];
+	bool			use[DELETEFFECT_ONESET_MAX];				// 使用しているかどうか
+	int				time[DELETEFFECT_ONESET_MAX];
 
 } EFFECT;
 
@@ -32,5 +29,6 @@ HRESULT InitEffect(int type);
 void UninitEffect(void);
 void UpdateEffect(void);
 void DrawEffect(void);
-bool SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest);
+bool SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, int index);
+
 #endif

@@ -9,22 +9,17 @@
 #include "camera.h"
 #include "shadow.h"
 #include "debugproc.h"
-#include "player.h"
+#include "child.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	TEXTURE_EFFECT		"data/TEXTURE/handgun_Fire.png"	// 読み込むテクスチャファイル名
-#define	EFFECT_SIZE_X		(5.0f)							// ビルボードの幅
-#define	EFFECT_SIZE_Y		(5.0f)							// ビルボードの高さ
-#define	VALUE_MOVE_EFFECT	(0.30f)							// 移動速度
-#define	VALUE_JUMP				(10.0f)							// ジャンプ力
-#define	VALUE_GRAVITY			(0.45f)							// 重力
-#define	RATE_REGIST				(0.075f)						// 抵抗係数
-#define	RATE_REFRECT			(-0.90f)						// 反射係数
-#define EFFECT_MAX				(24)
-#define MAX_EFFECT				(256)
-#define DEL_TIME				(10)
+#define	TEXTURE_EFFECT		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
+#define	EFFECT_SIZE_X		(100.0f)							// ビルボードの幅
+#define	EFFECT_SIZE_Y		(100.0f)							// ビルボードの高さ
+#define EFFECT_MAX			(25)
+#define MAX_EFFECT			(256)
+#define DEL_TIME			(60)
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -36,12 +31,11 @@ void SetDiffuseEffect(int Index, float val);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		g_pD3DTextureEffect = NULL;	// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pD3DVtxBuffEffect = NULL;	// 頂点バッファインターフェースへのポインタ
+LPDIRECT3DTEXTURE9		D3DTextureEffect = NULL;	// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 D3DTVtxBuffEffect = NULL;	// 頂点バッファインターフェースへのポインタ
 
 static int				cnt_frame;
-static float			Alpha;
-static float			dif_mi[EFFECT_MAX];
+
 EFFECT					effectWk[EFFECT_MAX];
 
 //=============================================================================
@@ -60,20 +54,18 @@ HRESULT InitEffect(int type)
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
 			TEXTURE_EFFECT,					// ファイルの名前
-			&g_pD3DTextureEffect);			// 読み込むメモリー
+			&D3DTextureEffect);			// 読み込むメモリー
 	}
 
 	for (int i = 0; i < EFFECT_MAX ; i++)
 	{
-		effect[i].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		effect[i].scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-		effect[i].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		effect[i].time = DEL_TIME;
-		dif_mi[i] = INIT_ALPHA;
-
+		for (int j = 0; j < DELETEFFECT_ONESET_MAX; j++)
+		{
+			effect[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			effect[i].time[j] = DEL_TIME;
+			effect[i].dif_mi[j] = INIT_ALPHA;
+		}
 	}
-
-	Alpha = 0x0;
 	cnt_frame = 0;
 
 	return S_OK;
@@ -84,16 +76,16 @@ HRESULT InitEffect(int type)
 //=============================================================================
 void UninitEffect(void)
 {
-	if(g_pD3DTextureEffect != NULL)
+	if(D3DTextureEffect != NULL)
 	{// テクスチャの開放
-		g_pD3DTextureEffect->Release();
-		g_pD3DTextureEffect = NULL;
+		D3DTextureEffect->Release();
+		D3DTextureEffect = NULL;
 	}
 
-	if(g_pD3DVtxBuffEffect != NULL)
+	if(D3DTVtxBuffEffect != NULL)
 	{// 頂点バッファの開放
-		g_pD3DVtxBuffEffect->Release();
-		g_pD3DVtxBuffEffect = NULL;
+		D3DTVtxBuffEffect->Release();
+		D3DTVtxBuffEffect = NULL;
 	}
 }
 
@@ -103,31 +95,22 @@ void UninitEffect(void)
 void UpdateEffect(void)
 {
 	EFFECT *effect = &effectWk[0];
-	PLAYER *player = GetPlayer(0);
 
 	for (int i = 0; i < EFFECT_MAX; i++)
-	{	
-		if (effect[i].bUse == true)
+	{
+		for (int j = 0; j < DELETEFFECT_ONESET_MAX; j++)
 		{
-			// 位置を調整
-			effect[i].pos = player->pos + D3DXVECTOR3(0.0f, 3.0f, 0.0f);
-			
-			// スケールの拡大
-			if (effect[i].time % 4 == 0)
+			if (effect[i].use[j])
 			{
-				effect[i].scl += D3DXVECTOR3(0.3f, 0.3f, 0.3f);
-			}
-			
-			dif_mi[i] -= 0.01f;		// 透過の値
-			
-			effect[i].time--;	// 生存時間をデクリメント
+				effect[i].dif_mi[j] -= 0.01f;		// 透過の値
+				effect[i].time[j]--;	// 生存時間をデクリメント
 
-			// 消滅時間になったら消滅
-			if (effect[i].time % DEL_TIME == 0)
-			{
-				dif_mi[i] = INIT_ALPHA;
-				effect[i].bUse = false;
-				effect[i].scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+				// 消滅時間になったら消滅
+				if (effect[i].time[j] % DEL_TIME == 0)
+				{
+					effect[i].dif_mi[j] = INIT_ALPHA;
+					effect[i].use[j] = false;
+				}
 			}
 		}
 	}
@@ -152,63 +135,59 @@ void DrawEffect(void)
 
 	for (int i = 0; i < EFFECT_MAX; i++)
 	{
-		SetDiffuseEffect(i, dif_mi[i]);
-	
-		// ラインティングを無効にする
-		pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-	
-		// 通常ブレンド
-		pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);			// 結果 = 転送元(SRC) + 転送先(DEST)
-		pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-
-		if (effect[i].bUse)
+		for (int j = 0; j < DELETEFFECT_ONESET_MAX; j++)
 		{
-			// ビューマトリックスを取得
-			mtxView = GetMtxView();
+			SetDiffuseEffect(i, effect[i].dif_mi[j]);
 
-			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&effect[i].mtxWorld);
+			// ラインティングを無効にする
+			pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
-			// ポリゴンを正面に向ける
-			effect[i].mtxWorld._11 = mtxView._11;
-			effect[i].mtxWorld._12 = mtxView._21;
-			effect[i].mtxWorld._13 = mtxView._31;
-			effect[i].mtxWorld._21 = mtxView._12;
-			effect[i].mtxWorld._22 = mtxView._22;
-			effect[i].mtxWorld._23 = mtxView._32;
-			effect[i].mtxWorld._31 = mtxView._13;
-			effect[i].mtxWorld._32 = mtxView._23;
-			effect[i].mtxWorld._33 = mtxView._33;
+			// 通常ブレンド
+			pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);			// 結果 = 転送元(SRC) + 転送先(DEST)
+			pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 
-			// スケールを反映
-			D3DXMatrixScaling(&mtxScale, effect[i].scl.x,
-				effect[i].scl.y,
-				effect[i].scl.z);
-			D3DXMatrixMultiply(&effect[i].mtxWorld,
-				&effect[i].mtxWorld, &mtxScale);
+			if (effect[i].use[j])
+			{
+				// ビューマトリックスを取得
+				mtxView = GetMtxView();
 
-			// 移動を反映
-			D3DXMatrixTranslation(&mtxTranslate, effect[i].pos.x,
-				effect[i].pos.y,
-				effect[i].pos.z);
-			D3DXMatrixMultiply(&effect[i].mtxWorld,
-				&effect[i].mtxWorld, &mtxTranslate);
+				// ワールドマトリックスの初期化
+				D3DXMatrixIdentity(&effect[i].mtxWorld);
 
-			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &effect[i].mtxWorld);
+				// ポリゴンを正面に向ける
+				effect[i].mtxWorld._11 = mtxView._11;
+				effect[i].mtxWorld._12 = mtxView._21;
+				effect[i].mtxWorld._13 = mtxView._31;
+				effect[i].mtxWorld._21 = mtxView._12;
+				effect[i].mtxWorld._22 = mtxView._22;
+				effect[i].mtxWorld._23 = mtxView._32;
+				effect[i].mtxWorld._31 = mtxView._13;
+				effect[i].mtxWorld._32 = mtxView._23;
+				effect[i].mtxWorld._33 = mtxView._33;
 
-			// 頂点バッファをデバイスのデータストリームにバインド
-			pDevice->SetStreamSource(0, g_pD3DVtxBuffEffect, 0, sizeof(VERTEX_3D));
+				// 移動を反映
+				D3DXMatrixTranslation(&mtxTranslate, effect[i].pos[j].x,
+					effect[i].pos[j].y,
+					effect[i].pos[j].z);
+				D3DXMatrixMultiply(&effect[i].mtxWorld,
+					&effect[i].mtxWorld, &mtxTranslate);
 
-			// 頂点フォーマットの設定
-			pDevice->SetFVF(FVF_VERTEX_3D);
+				// ワールドマトリックスの設定
+				pDevice->SetTransform(D3DTS_WORLD, &effect[i].mtxWorld);
 
-			// テクスチャの設定
-			pDevice->SetTexture(0, g_pD3DTextureEffect);
+				// 頂点バッファをデバイスのデータストリームにバインド
+				pDevice->SetStreamSource(0, D3DTVtxBuffEffect, 0, sizeof(VERTEX_3D));
 
-			// ポリゴンの描画
-			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
+				// 頂点フォーマットの設定
+				pDevice->SetFVF(FVF_VERTEX_3D);
+
+				// テクスチャの設定
+				pDevice->SetTexture(0, D3DTextureEffect);
+
+				// ポリゴンの描画
+				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
+			}
 		}
 	}
 
@@ -238,7 +217,7 @@ HRESULT MakeVertexEffect(LPDIRECT3DDEVICE9 pDevice)
 												D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
 												FVF_VERTEX_3D,				// 使用する頂点フォーマット
 												D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
-												&g_pD3DVtxBuffEffect,	// 頂点バッファインターフェースへのポインタ
+												&D3DTVtxBuffEffect,	// 頂点バッファインターフェースへのポインタ
 												NULL)))						// NULLに設定
 	{
         return E_FAIL;
@@ -248,7 +227,7 @@ HRESULT MakeVertexEffect(LPDIRECT3DDEVICE9 pDevice)
 		VERTEX_3D *pVtx;
 
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-		g_pD3DVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
+		D3DTVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
 
 		for (int i = 0; i < MAX_EFFECT; i++, pVtx += 4)
 		{
@@ -278,7 +257,7 @@ HRESULT MakeVertexEffect(LPDIRECT3DDEVICE9 pDevice)
 
 		}
 		// 頂点データをアンロックする
-		g_pD3DVtxBuffEffect->Unlock();
+		D3DTVtxBuffEffect->Unlock();
 	}
 
 	return S_OK;
@@ -293,7 +272,7 @@ void SetVertexEffect(int Index, float fSizeX, float fSizeY)
 		VERTEX_3D *pVtx;
 
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-		g_pD3DVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
+		D3DTVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
 
 		pVtx += (Index * 4);
 
@@ -304,7 +283,7 @@ void SetVertexEffect(int Index, float fSizeX, float fSizeY)
 		pVtx[3].vtx = D3DXVECTOR3(fSizeX / 2, fSizeY / 2, 0.0f);
 
 		// 頂点データをアンロックする
-		g_pD3DVtxBuffEffect->Unlock();
+		D3DTVtxBuffEffect->Unlock();
 	}
 }
 
@@ -317,7 +296,7 @@ void SetDiffuseEffect(int Index, float val)
 		VERTEX_3D *pVtx;
 
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-		g_pD3DVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
+		D3DTVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
 
 		pVtx += (Index * 4);
 		
@@ -328,27 +307,23 @@ void SetDiffuseEffect(int Index, float val)
 		pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, val);
 
 		// 頂点データをアンロックする
-		g_pD3DVtxBuffEffect->Unlock();
+		D3DTVtxBuffEffect->Unlock();
 	}
 }
 
 //==========================================================================
 //
 //==========================================================================
-bool SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest)
+bool SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest,int index)
 {
-	EFFECT *effect = &effectWk[0];
-	CAMERA *camera = GetCamera();
-	PLAYER *player = GetPlayer(0);
+	EFFECT *effect = &effectWk[index];
 
-	for (int i = 0; i < EFFECT_MAX ; i++)
+	for (int i = 0; i < DELETEFFECT_ONESET_MAX ; i++)
 	{
-		if (!effect[i].bUse)
+		if (!effect->use[i])
 		{
-			effect[i].bUse = true;	// 使用中
-			effect[i].pos.x = pos.x + sinf(rot.y) * Dest;
-			effect[i].pos.z = pos.z + cosf(rot.y) * Dest;
-			effect[i].pos.y = pos.y;
+			effect->use[i] = true;	// 使用中
+			effect->pos[i] = pos;
 			SetVertexEffect(i, 5.0f, 5.0f);
 
 			return true;

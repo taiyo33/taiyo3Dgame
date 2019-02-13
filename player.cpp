@@ -65,14 +65,15 @@ HRESULT InitPlayer(int type)
 	player[P2].use = true;								//
 	player[P1].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
 	player[P2].life = 0;								// 
+	player[P1].rot = D3DXVECTOR3(0.0f, 90.0f, 0.0f);	// 回転の初期化
+	player[P2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
-		player[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
+		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
 		player[i].cntFrame= 0;
-		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f );
 	}
 
 	// Xファイルの読み込み
@@ -129,7 +130,6 @@ void UpdatePlayer(void)
 		// 現在位置を保存
 		player[i].prevPos = player[i].pos;
 		player[i].cntFrame++;
-		//player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y), 0.0f, cosf(player[i].rot.y));
 		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 75.0f, 0.0f, cosf(player[i].rot.y) * 75.0f);
 
 		// 操作の処理
@@ -138,11 +138,15 @@ void UpdatePlayer(void)
 		InputGamePadPlayer1();
 		InputGamePadPlayer2();
 		
-		if (i == 1)
+		if (GetStage() == TITLE)
+		{
+			NonePlayerPatrol(i);
+		}
+		else if (i == 1)
 		{
 			NonePlayerAttack();
 			//NonePlayerMove();
-			//NonePlayerPatrol();
+			NonePlayerPatrol(i);
 		}
 
 		// 壁ずり処理
@@ -471,21 +475,21 @@ void InputGamePadPlayer1(void)
 				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.25f;
+				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.25f;
 			}
 			else if (IsButtonPressed(P1,BUTTON_DOWN))
 			{// 右後移動
 				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.75f;
+				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.75f;
 			}
 			else
 			{// 右移動
 				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
+				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 		}
 		else if (IsButtonPressed(P1,BUTTON_LEFT))
@@ -495,21 +499,21 @@ void InputGamePadPlayer1(void)
 				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.25f;
+				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.25f;
 			}
 			else if (IsButtonPressed(P1,BUTTON_DOWN))
 			{// 左後移動
 				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.75f;
+				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.75f;
 			}
 			else
 			{// 左移動
 				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
 				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
 
-				player[P1].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
+				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 		}
 		else if (IsButtonPressed(P1,BUTTON_UP))
@@ -518,7 +522,7 @@ void InputGamePadPlayer1(void)
 			player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P1].speed;
 			player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P1].speed;
 
-			player[P1].rotDest.y = camera->rot.y;
+			player[P1].rot.y = camera->rot.y;
 		}
 		else if (IsButtonPressed(P1,BUTTON_DOWN))
 		{
@@ -526,7 +530,7 @@ void InputGamePadPlayer1(void)
 			player[P1].move.x -= sinf(camera->rot.y) * player[P1].speed;
 			player[P1].move.z -= cosf(camera->rot.y) * player[P1].speed;
 
-			player[P1].rotDest.y = D3DX_PI + camera->rot.y;
+			player[P1].rot.y = D3DX_PI + camera->rot.y;
 		}
 
 		// バレットのチャージ

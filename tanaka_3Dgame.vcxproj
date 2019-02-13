@@ -150,9 +150,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="explosion.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="icon.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="rightArm.cpp" />
-    <ClCompile Include="score.cpp" />
+    <ClCompile Include="time.cpp" />
     <ClCompile Include="shadow.cpp" />
     <ClCompile Include="bulletEffect.cpp" />
     <ClCompile Include="title.cpp" />
@@ -180,9 +181,10 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="explosion.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="icon.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="rightArm.h" />
-    <ClInclude Include="score.h" />
+    <ClInclude Include="time.h" />
     <ClInclude Include="shadow.h" />
     <ClInclude Include="bulletEffect.h" />
     <ClInclude Include="title.h" />

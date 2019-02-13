@@ -8,13 +8,15 @@
 #include "checkhit.h"
 #include "player.h"
 #include "bullet.h"
-#include "score.h"
+#include "time.h"
 #include "result.h"
 #include "effect.h"
 #include "block.h" 
 #include "explosion.h"
 #include "field.h"
 #include "child.h" 
+
+
 D3DXVECTOR3				p3;
 D3DXVECTOR3				nor;
 //=============================================================================
@@ -37,29 +39,28 @@ void CheckHit(void)
 			CheckBlockHitBullet(i, j, block->pos);
 		}
 
+		// P1の子供モデルとの判定
+		CHILD *child = GetChild(P1);
+		for (k = 0; k < CHILD_ONESET_MAX; k++)
 		{
-			// P1の子供モデルとの判定
-			CHILD *child = GetChild(P1);
-			for (k = 0; k < child[P1].cnt; k++)
+			if (!child->use[k]) continue;
+			if (CheckHitBC(block->pos, child->pos[k], 10.0f, 10.0f))
 			{
-				if (!child->use[k]) continue;
-				if (CheckHitBC(block->pos, child->pos[k], 10.0f, 10.0f))
-				{
-					child->pos[k] = child->prevPos[k];
-				}
-			}
-
-			// P2の子供モデルとの判定
-			child = GetChild(P2);
-			for (k = 0; k < child[P2].cnt; k++)
-			{
-				if (!child->use[k]) continue;
-				if (CheckHitBC(block->pos, child->pos[k], 10.0f, 10.0f))
-				{
-					child->pos[k] = child->prevPos[k];
-				}
+				child->pos[k] = child->prevPos[k];
 			}
 		}
+
+		// P2の子供モデルとの判定
+		child = GetChild(P2);
+		for (k = 0; k < CHILD_ONESET_MAX; k++)
+		{
+			if (!child->use[k]) continue;
+			if (CheckHitBC(block->pos, child->pos[k], 10.0f, 10.0f))
+			{
+				child->pos[k] = child->prevPos[k];
+			}
+		}
+
 	}
 
 	/* 対プレイヤーの当たり判定 */

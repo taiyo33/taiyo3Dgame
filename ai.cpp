@@ -16,7 +16,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define PATROL_PATTERN_MAX					(8) 
+#define PATROL_PATTERN_MAX					(9) 
 
 // NPCの移動マクロ
 #define MOVE_DISTANCE_CHASE_FUZZY_X1		(150.0f)
@@ -59,7 +59,7 @@
 // プロトタイプ宣言
 //*****************************************************************************
 int SwitchPatrolPattern(int pattern);
-void NonePlayerDest(D3DXVECTOR3 vecDest);
+void NonePlayerDest(D3DXVECTOR3 vecDest, int index);
 bool StopRoutineNonePlayer(void);
 
 //*****************************************************************************
@@ -91,38 +91,43 @@ enum {
 	PATROL06,
 	PATROL07,
 	PATROL08,
+	PATROL09
 };
 
 // 巡回のパターン
 D3DXVECTOR3			MovePattern[PATROL_PATTERN_MAX]{
 
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
-	D3DXVECTOR3(-FIELD_SIZE_X / 2, 0.0f, -FIELD_SIZE_Z + 50.0f),
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z / 2),
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),
-	D3DXVECTOR3(FIELD_SIZE_X / 2, 0.0f, FIELD_SIZE_Z - 100.0f),
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z / 2)
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),	// 左下
+	D3DXVECTOR3(-FIELD_SIZE_X / 2, 0.0f, -FIELD_SIZE_Z + 50.0f),		// 左中央
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),	// 左上
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z / 2),		// 上中央
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),	// 右上
+	D3DXVECTOR3(FIELD_SIZE_X / 2, 0.0f, FIELD_SIZE_Z - 100.0f),			// 右中央
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),	// 右下
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z / 2),		// 下中央
+	D3DXVECTOR3(0.0f, 0.0f, 0.0f)										// 中央
 
 };
+
 int			cntFrame;
-AI			aiWk;
+AI			aiWk[PLAYER_MAX];
 //=============================================================================
 // 初期化処理
 //=============================================================================
 HRESULT InitAi(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	AI *ai = &aiWk;
+	AI *ai = &aiWk[0];
 
-	ai->patrolNum = PATROL01;		// 巡回パターンの番号を初期化
 	ai->cmpPattern[CHASE] = 0.0f;	// 比較の合計値を初期化
 	ai->cmpPattern[ESCAPE] = 0.0f;	//
 	ai->cmpPattern[PATROL] = 0.0f;	// 
 	ai->decision = 0.0f;			// 比較結果を初期化
 	ai->cntMemory = 0;				// 結果記憶配列の添え字を初期化
+	ai[P1].patrolNum = PATROL05;	// 巡回パターンの番号を初期化
+	ai[P2].patrolNum = PATROL01;	//
 	cntFrame = 0;
+
 	for (int i = 0; i < CMP_PATTERN_MAX; i++)
 	{
 		ai->atc[i] = 0.0f;		// 攻撃の値を初期化
@@ -146,7 +151,7 @@ HRESULT InitAi(void)
 //==========================================================================
 void NonePlayerMove(void)
 {
-	AI *ai = &aiWk;
+	AI *ai = &aiWk[0];
 	PLAYER *player = GetPlayer(0);
 	
 	// 思考するか
@@ -221,7 +226,7 @@ void NonePlayerMove(void)
 	// 追跡
 	if (ai->decision == ai->cmpPattern[CHASE])
 	{
-		NonePlayerDest(player[P1].pos);
+		NonePlayerDest(player[P1].pos, P2);
 		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
 		D3DXVec3Normalize(&vec, &vec);
 		D3DXVec3Normalize(&player[P2].frontVec, &player[P2].frontVec);
@@ -259,7 +264,7 @@ void NonePlayerMove(void)
 	// 巡回
 	else if (ai->decision == ai->cmpPattern[PATROL])
 	{
-		NonePlayerPatrol();
+		NonePlayerPatrol(P2);
 		ai->deciMemory[ai->cntMemory] = PATROL;
 	}
 	// 待機
@@ -276,7 +281,7 @@ void NonePlayerMove(void)
 //==============================================================================
 bool StopRoutineNonePlayer(void)
 {
-	AI *ai = &aiWk;
+	AI *ai = &aiWk[0];
 	int cnt = 0;
 
 	// 過去4回の結果と比較
@@ -300,9 +305,9 @@ bool StopRoutineNonePlayer(void)
 // 引　数：D3DXVECTOR3 vecDest(進む方向の終点)
 // 戻り値：な　し
 //==============================================================================
-void NonePlayerDest(D3DXVECTOR3 vecDest)
+void NonePlayerDest(D3DXVECTOR3 vecDest,int index)
 {
-	PLAYER *player = GetPlayer(P2);
+	PLAYER *player = GetPlayer(index);
 	CAMERA *camera = GetCamera();
 	D3DXVECTOR3 vec = vecDest - player->pos;	// 進行方向ベクトル
 	D3DXVec3Normalize(&vec, &vec);
@@ -325,11 +330,11 @@ void NonePlayerDest(D3DXVECTOR3 vecDest)
 // 引　数：な　し
 // 戻り値：な　し
 //==============================================================================
-void NonePlayerPatrol(void)
+void NonePlayerPatrol(int index)
 {
-	PLAYER *player = GetPlayer(P2);
+	PLAYER *player = GetPlayer(index);
 	BLOCK *block = GetBlock(0);
-	AI *ai = &aiWk;
+	AI *ai = &aiWk[index];
 	D3DXVECTOR3 rayPos = player->frontVec + player->pos;	// 前方ベクトルの終点
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
@@ -340,7 +345,7 @@ void NonePlayerPatrol(void)
 	}
 
 	// 向きを進行方向へ
-	NonePlayerDest(MovePattern[ai->patrolNum]);
+	NonePlayerDest(MovePattern[ai->patrolNum], index);
 
 	// 目的地まで移動
 	vec = MovePattern[ai->patrolNum] - player->pos;
@@ -395,7 +400,7 @@ int SwitchPatrolPattern(int pattern)
 //==========================================================================
 void NonePlayerAttack(void)
 {
-	AI *ai = &aiWk;
+	AI *ai = &aiWk[0];
 	PLAYER *player = GetPlayer(0);
 	BULLET *bullet = GetBullet(P2);
 	BLOCK *block = GetBlock(0);

@@ -74,7 +74,9 @@ HRESULT InitChild(void)
 		for (int j = 0; j < CHILD_ONESET_MAX / 2; j++)
 		{
 			// 位置・回転・スケールの初期設定
-			child[i].pos[j] = player[i].pos;
+			child[i].pos[j].x = player[i].pos.x + rand() % 50;
+			child[i].pos[j].y = player[i].pos.y;
+			child[i].pos[j].z = player[i].pos.z + rand() % 50;
 			child[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			child[i].scl[j] = D3DXVECTOR3(0.4f, 0.4f, 0.4f);
 			child[i].use[j] = true;
@@ -83,6 +85,7 @@ HRESULT InitChild(void)
 			child[i].vec[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		}
 	}
+
 
 	D3DTexture = NULL;
 
@@ -114,8 +117,6 @@ HRESULT InitChild(void)
 		}
 	}
 
-	//g_shadownum = CreateShadow(child[i].pos[j], 25.0f, 25.0f);
-	//g_shadowcolor = D3DXCOLOR(1.5f,1.5f,1.5f,1.5f);
 
 	return S_OK;
 }

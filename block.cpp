@@ -175,23 +175,23 @@ void DrawBlock(void)
 				D3DXMeshBlock->DrawSubset(nCntMat);
 			}
 
-			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&MtxWorldVtx);
+			//// ワールドマトリックスの初期化
+			//D3DXMatrixIdentity(&MtxWorldVtx);
 
-			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &MtxWorldVtx);
+			//// ワールドマトリックスの設定
+			//pDevice->SetTransform(D3DTS_WORLD, &MtxWorldVtx);
 
-			// 頂点バッファをデバイスのデータストリームにバインド
-			pDevice->SetStreamSource(0, D3DVtxBuffBlock, 0, sizeof(VERTEX_3D));
+			//// 頂点バッファをデバイスのデータストリームにバインド
+			//pDevice->SetStreamSource(0, D3DVtxBuffBlock, 0, sizeof(VERTEX_3D));
 
-			// 頂点フォーマットの設定
-			pDevice->SetFVF(FVF_VERTEX_3D);
+			//// 頂点フォーマットの設定
+			//pDevice->SetFVF(FVF_VERTEX_3D);
 
-			// テクスチャの設定
-			pDevice->SetTexture(0, D3DTextureBlock[0]);
+			//// テクスチャの設定
+			//pDevice->SetTexture(0, D3DTextureBlock[0]);
 
-			// ポリゴンの描画
-			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
+			//// ポリゴンの描画
+			//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
 
 		}
 	}

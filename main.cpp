@@ -16,7 +16,7 @@
 #include "title.h"
 #include "tutorial.h"
 #include "result.h"
-#include "score.h"
+#include "time.h"
 #include "field.h"
 #include "checkhit.h"
 #include "explosion.h"
@@ -32,12 +32,13 @@
 #include "ai.h"
 #include "buttleGauge.h"
 #include "gaugeEffect.h"
+#include "icon.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define CLASS_NAME		"AppClass"		// ウインドウのクラス名
-#define WINDOW_NAME		"就プレ作品"		// ウインドウのキャプション名
+#define CLASS_NAME		"AppClass"					// ウインドウのクラス名
+#define WINDOW_NAME		"3Dゲーム「Re:Plection」"	// ウインドウのキャプション名
 
 //*****************************************************************************
 // 構造体定義
@@ -395,6 +396,9 @@ void Uninit(void)
 	//
 	UninitGaugeEffect();
 
+	//
+	UninitIcon();
+
 }
 
 //=============================================================================
@@ -416,6 +420,21 @@ void Update(void)
 		{
 			// タイトルの終了処理
 			UpdateTitle();
+
+			// モデル処理の更新
+			UpdatePlayer();
+
+			// 左腕の更新
+			UpdateLeftArm();
+
+			// 右腕の更新
+			UpdateRightArm();
+
+			// 頭の更新
+			UpdateHead();
+
+			// 子供の更新
+			UpdateChild();
 
 			break;
 		}
@@ -452,6 +471,9 @@ void Update(void)
 			// 頭の更新
 			UpdateHead();
 			
+			// キャラクターアイコンの更新
+			UpdateIcon();
+
 			// 子供の更新
 			UpdateChild();
 
@@ -471,7 +493,7 @@ void Update(void)
 			UpdateItem();
 
 			// スコアの更新
-			UpdateScore();
+			UpdateTime();
 			
 			// バレットゲージの更新
 			UpdateBulletGauge();
@@ -515,6 +537,30 @@ void Draw(void)
 		{
 			case TITLE:
 			{
+				// カメラの設定
+				SetCamera();
+
+				// フィールドの描画
+				DrawField();
+
+				// ブロックの描画
+				DrawBlock();
+
+				// プレイヤー処理の描画
+				DrawPlayer();
+
+				// 頭の描画
+				DrawHead();
+
+				// 左腕の描画
+				DrawLeftArm();
+
+				// 右腕の描画
+				DrawRightArm();
+
+				// 子供モデルの描画
+				DrawChild();
+
 				// タイトルの終了処理
 				DrawTitle();
 
@@ -532,11 +578,11 @@ void Draw(void)
 				// カメラの設定
 				SetCamera();
 				
-				// ブロックの描画
-				DrawBlock();
-
 				// フィールドの描画
 				DrawField();
+
+				// ブロックの描画
+				DrawBlock();
 
 				// アイテムの描画
 				DrawItem();
@@ -571,8 +617,11 @@ void Draw(void)
 				// 子供モデルの描画
 				DrawChild();
 
+				// キャラクターアイコンの描画
+				//DrawIcon();
+
 				// スコアの描画
-				DrawScore();
+				DrawTime();
 
 				// ライフゲージの描画
 				DrawLifeGauge();
@@ -672,7 +721,7 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	InitExplosion(0);
 
 	// スコアの初期化
-	InitScore(0);
+	InitTime(0);
 
 	// タイトルの初期化
 	InitTitle(0);
@@ -700,6 +749,9 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 
 	// 頭モデルの初期化
 	InitHead();
+
+	// キャラクターアイコンの初期化
+	InitIcon(0);
 
 	// バレットゲージの初期化
 	InitBulletGauge(0);
@@ -743,6 +795,9 @@ void InitGame(void)
 	// プレイヤーの初期化
 	InitPlayer(INIT_GAME);
 
+	// キャラクターアイコンの初期化
+	InitIcon(INIT_GAME);
+
 	// バレットの初期化
 	InitBullet(INIT_GAME);
 
@@ -750,7 +805,7 @@ void InitGame(void)
 	InitEffect(INIT_GAME);
 
 	// スコアの初期化
-	InitScore(INIT_GAME);
+	InitTime(INIT_GAME);
 
 	// タイトルの初期化
 	InitTitle(INIT_GAME);
