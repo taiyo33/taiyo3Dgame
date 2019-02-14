@@ -12,6 +12,7 @@
 #include "debugproc.h"
 #include "block.h"
 #include "explosion.h"
+#include "result.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -262,14 +263,18 @@ CHILD *GetChild(int index)
 }
 
 //========================================================================
-// 子供モデルのダメージ判定処理
-// 引　数：int index(組子供モデルのアドレス), int blockNo(ブロックのアドレス)
-//		   D3DXVECTOR3 pos(対象子供モデルの位置)
-// 戻り値：bool型　trueであれば、falseならば消滅
+// 子供モデル数のによるリザルト変更判定処理
+// 引　数：な　し
+// 戻り値：な　し
 //========================================================================
-void ChildDamageManager(void)
+void ComprareChild(void)
 {
+	CHILD *child = &childWk[0];
+	int max;
+
+	max = max(child[P1].cnt, child[P2].cnt);
 	
+	max == child[P1].cnt ? SetResult(P1) : SetResult(P2);
 }
 
 //========================================================================

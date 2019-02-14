@@ -8,11 +8,15 @@
 #include "result.h"
 #include "input.h"
 #include "player.h"
+#include "gameCall.h"
+#include "lifeGauge.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-
+#define TEXTURE_WINNER01		"data/TEXTURE/winner_logo01.png"
+#define TEXTURE_WINNER02		"data/TEXTURE/winner_logo02.png"
+#define TEXTURE_MAX			(4)
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -22,13 +26,23 @@ HRESULT MakeVertexResult(void);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		pD3DTextureResult[RESULT_MAX];			// テクスチャへのポリゴン
 
-VERTEX_2D				vertexWk_RESULT[NUM_VERTEX];		// 頂点情報格納ワーク
+enum {
+	WINNER,
+	ICON
+};
 
-D3DXVECTOR3				posResult;						// ポリゴンの移動量
-D3DXVECTOR3				rotResult;						// ポリゴンの回転量
-static int				TextureNum;
+// テクスチャー番号
+enum {
+	TEX_WINNER01,
+	TEX_WINNER02,
+	TEX_PLAYERICON01,
+	TEX_PLAYERICON02
+};
+
+LPDIRECT3DTEXTURE9		D3DTextureResult[TEXTURE_MAX];				// テクスチャへのポリゴン
+VERTEX_2D				vertexWk_RESULT[RESULT_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
+int						TextureNumResult;
 
 //=============================================================================
 // 初期化処理
@@ -37,22 +51,27 @@ HRESULT InitResult(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	posResult = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	rotResult = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-
 	if (type == 0)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,		// デバイスのポインタ
-			TEXTURE_CLEAR,						// ファイルの名前
-			&pD3DTextureResult[CLEAR]);			// 読み込むメモリのポインタ
+			TEXTURE_WINNER01,						// ファイルの名前
+			&D3DTextureResult[TEX_WINNER01]);			// 読み込むメモリのポインタ
+
+				// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,		// デバイスのポインタ
+			TEXTURE_WINNER02,						// ファイルの名前
+			&D3DTextureResult[TEX_WINNER02]);			// 読み込むメモリのポインタ
 
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,		// デバイスのポインタ
-			TEXTURE_GAMEOVER,					// ファイルの名前
-			&pD3DTextureResult[GAMEOVER]);		// 読み込むメモリのポインタ
-
+			TEXTURE_ICON01,					// ファイルの名前
+			&D3DTextureResult[TEX_PLAYERICON01]);		// 読み込むメモリのポインタ
+		
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,		// デバイスのポインタ
+			TEXTURE_ICON02,					// ファイルの名前
+			&D3DTextureResult[TEX_PLAYERICON02]);		// 読み込むメモリのポインタ
 	}
 
 	// 頂点情報の作成
@@ -66,10 +85,13 @@ HRESULT InitResult(int type)
 //=============================================================================
 void UninitResult(void)
 {
-	if( pD3DTextureResult[TextureNum] != NULL )	//
-	{	// テクスチャの開放
-		 pD3DTextureResult[TextureNum]->Release();
-		 pD3DTextureResult[TextureNum] = NULL;
+	for (int i = 0; i < TEXTURE_MAX; i++)
+	{
+		if (D3DTextureResult[i] != NULL)
+		{	// テクスチャの開放
+			D3DTextureResult[i]->Release();
+			D3DTextureResult[i] = NULL;
+		}
 	}
 }
 
@@ -78,7 +100,7 @@ void UninitResult(void)
 //=============================================================================
 void UpdateResult(void)
 {
-	// アニメーション
+	// 遷移
 	if (GetKeyboardTrigger(DIK_SPACE))
 	{
 		SetStage(TITLE);
@@ -94,7 +116,6 @@ void UpdateResult(void)
 		SetStage(TITLE);
 		InitGame();
 	}
-
 }
 
 //=============================================================================
@@ -104,14 +125,32 @@ void DrawResult(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	// αテストを有効に
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 150);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
+
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 	
 	// テクスチャの設定
-	pDevice->SetTexture( 0, pD3DTextureResult[TextureNum] );
+	pDevice->SetTexture( 0, D3DTextureResult[TextureNumResult] );
 
 	// ポリゴンの描画
-	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_RESULT, vertexWk_RESULT, sizeof(VERTEX_2D));
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_RESULT, vertexWk_RESULT[WINNER], sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, D3DTextureResult[TextureNumResult + 2]);
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_RESULT, vertexWk_RESULT[ICON], sizeof(VERTEX_2D));
+
+	// αテストを無効に
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+
 }
 
 //=============================================================================
@@ -121,35 +160,71 @@ HRESULT MakeVertexResult(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	// 頂点座標の設定
-	vertexWk_RESULT[0].vtx = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	vertexWk_RESULT[1].vtx = D3DXVECTOR3(0.0f+TEXTURE_SAMPLE00_SIZE_X_RESULT, 0.0f, 0.0f);
-	vertexWk_RESULT[2].vtx = D3DXVECTOR3(0.0f, 0.0f+TEXTURE_SAMPLE00_SIZE_Y_RESULT, 0.0f);
-	vertexWk_RESULT[3].vtx = D3DXVECTOR3(0.0f+TEXTURE_SAMPLE00_SIZE_X_RESULT, 0.0f+TEXTURE_SAMPLE00_SIZE_Y_RESULT, 0.0f);
+	// 勝者テクスチャー
+	{
+		// 頂点座標の設定
+		vertexWk_RESULT[WINNER][0].vtx = D3DXVECTOR3(TEXTURE_WINNER_POS_X, TEXTURE_WINNER_POS_Y, 0.0f);
+		vertexWk_RESULT[WINNER][1].vtx = D3DXVECTOR3(TEXTURE_WINNER_POS_X + TEXTURE_WINNER_SIZE_X, TEXTURE_WINNER_POS_Y, 0.0f);
+		vertexWk_RESULT[WINNER][2].vtx = D3DXVECTOR3(TEXTURE_WINNER_POS_X, TEXTURE_WINNER_POS_Y + TEXTURE_WINNER_SIZE_Y, 0.0f);
+		vertexWk_RESULT[WINNER][3].vtx = D3DXVECTOR3(TEXTURE_WINNER_POS_X + TEXTURE_WINNER_SIZE_X, TEXTURE_WINNER_POS_Y + TEXTURE_WINNER_SIZE_Y, 0.0f);
 
-	// rhwの設定
-	vertexWk_RESULT[0].rhw =
-	vertexWk_RESULT[1].rhw =
-	vertexWk_RESULT[2].rhw =
-	vertexWk_RESULT[3].rhw = 1.0f;
+		// rhwの設定
+		vertexWk_RESULT[WINNER][0].rhw =
+			vertexWk_RESULT[WINNER][1].rhw =
+			vertexWk_RESULT[WINNER][2].rhw =
+			vertexWk_RESULT[WINNER][3].rhw = 1.0f;
 
-	// 反射光の設定
-	vertexWk_RESULT[0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk_RESULT[1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk_RESULT[2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk_RESULT[3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		// 反射光の設定
+		vertexWk_RESULT[WINNER][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk_RESULT[WINNER][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk_RESULT[WINNER][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk_RESULT[WINNER][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
-	// テクスチャ座標の設定
-	vertexWk_RESULT[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	vertexWk_RESULT[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	vertexWk_RESULT[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	vertexWk_RESULT[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		// テクスチャ座標の設定
+		vertexWk_RESULT[WINNER][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk_RESULT[WINNER][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk_RESULT[WINNER][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk_RESULT[WINNER][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
+
+	// プレイヤーアイコン
+	{
+		// 頂点座標の設定
+		vertexWk_RESULT[ICON][0].vtx = D3DXVECTOR3(TEXTURE_ICON_POS_X, TEXTURE_ICON_POS_Y, 0.0f);
+		vertexWk_RESULT[ICON][1].vtx = D3DXVECTOR3(TEXTURE_ICON_POS_X + TEXTURE_ICON_SIZE_X, TEXTURE_ICON_POS_Y, 0.0f);
+		vertexWk_RESULT[ICON][2].vtx = D3DXVECTOR3(TEXTURE_ICON_POS_X, TEXTURE_ICON_POS_Y + TEXTURE_ICON_SIZE_Y, 0.0f);
+		vertexWk_RESULT[ICON][3].vtx = D3DXVECTOR3(TEXTURE_ICON_POS_X + TEXTURE_ICON_SIZE_X, TEXTURE_ICON_POS_Y + TEXTURE_ICON_SIZE_Y, 0.0f);
+
+		// rhwの設定
+		vertexWk_RESULT[ICON][0].rhw =
+			vertexWk_RESULT[ICON][1].rhw =
+			vertexWk_RESULT[ICON][2].rhw =
+			vertexWk_RESULT[ICON][3].rhw = 1.0f;
+
+		// 反射光の設定
+		vertexWk_RESULT[ICON][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk_RESULT[ICON][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk_RESULT[ICON][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		vertexWk_RESULT[ICON][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+
+		// テクスチャ座標の設定
+		vertexWk_RESULT[ICON][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		vertexWk_RESULT[ICON][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		vertexWk_RESULT[ICON][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		vertexWk_RESULT[ICON][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
 
 	return S_OK;
 }
 
-
-void SetTextureResult(int num)
+//===============================================================================
+// リザルトへの遷移処理
+// 引　数：int pno(勝ったプレイヤー番号)
+// 戻り値：な　し
+//===============================================================================
+void SetResult(int pno)
 {
-	TextureNum = num;
+	TextureNumResult = pno;
+
+	SetStage(RESULT);
 }

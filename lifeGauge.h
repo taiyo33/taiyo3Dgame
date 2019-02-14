@@ -8,6 +8,9 @@
 #define _LIFEGAUGE_H_
 
 // マクロ定義
+#define TEXTURE_ICON01	("data/TEXTURE/player01.png")	// 歩行用画像
+#define TEXTURE_ICON02	("data/TEXTURE/player02.png")	// 歩行用画像
+
 #define TEXTURE_LIFEGAUGE_OUTER_SIZE_X	 (500)	 // テクスチャサイズ
 #define TEXTURE_LIFEGAUGE_OUTER_SIZE_Y	 (100)	 // 
 #define TEXTURE_LIFEGAUGE_INNER_SIZE_X	 (480)	 // テクスチャサイズ

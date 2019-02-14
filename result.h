@@ -9,16 +9,17 @@
 
 
 // マクロ定義
-#define TEXTURE_CLEAR 		("data/TEXTURE/gameclear.png")	// サンプル用画像
-#define TEXTURE_GAMEOVER 	("data/TEXTURE/gameover.png")	// サンプル用画像
+#define TEXTURE_WINNER_SIZE_X	(300) // テクスチャサイズ
+#define TEXTURE_WINNER_SIZE_Y	(150) // 同上
 
+#define TEXTURE_ICON_SIZE_X		(200) // テクスチャサイズ
+#define TEXTURE_ICON_SIZE_Y		(200) // 同上
 
-#define TEXTURE_SAMPLE00_SIZE_X_RESULT	(1280) // テクスチャサイズ
-#define TEXTURE_SAMPLE00_SIZE_Y_RESULT	(800) // 同上
+#define TEXTURE_WINNER_POS_X	(390)
+#define TEXTURE_WINNER_POS_Y	(300)
+#define TEXTURE_ICON_POS_X		(670)
+#define TEXTURE_ICON_POS_Y		(275)
 
-#define TEXTURE_PATTERN_DIVIDE_X_RESULT	(8)	// アニメパターンのテクスチャ内分割数（X)
-#define TEXTURE_PATTERN_DIVIDE_Y_RESULT	(1)	// アニメパターンのテクスチャ内分割数（Y)
-#define TIME_ANIMATION_RESULT			(100)	// アニメーションの切り替わるカウント
 #define	NUM_RESULT						(2)		// ポリゴン数
 #define RESULT_MAX						(2)		// リザルトの種類
 
@@ -34,7 +35,7 @@ HRESULT InitResult(int type);
 void UninitResult(void);
 void UpdateResult(void);
 void DrawResult(void);
-void SetTextureResult(int num);
+void SetResult(int pno);
 
 
 #endif

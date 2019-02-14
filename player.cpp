@@ -14,6 +14,7 @@
 #include "block.h"
 #include "checkhit.h"
 #include "ai.h"
+#include "result.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -35,7 +36,6 @@ void InputPlayer1(void);
 void InputKeyPlayer2(void);
 void InputGamePadPlayer1(void);
 void InputGamePadPlayer2(void);
-D3DXVECTOR3 WallShear(D3DXVECTOR3 pos, D3DXVECTOR3 normal, int index);
 void WallShearPlayer(int index);
 
 //*****************************************************************************
@@ -63,14 +63,13 @@ HRESULT InitPlayer(int type)
 	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
 	player[P1].use = true;								// 使用状態を初期化
 	player[P2].use = true;								//
-	player[P1].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
-	player[P2].life = 0;								// 
 	player[P1].rot = D3DXVECTOR3(0.0f, 90.0f, 0.0f);	// 回転の初期化
 	player[P2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
+		player[P1].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
 		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
 		player[i].cntFrame= 0;
@@ -153,8 +152,6 @@ void UpdatePlayer(void)
 		WallShearPlayer(i);
 		// プレイヤーの操作
 		MovePlayer(i);
-
-		PlayerDamageManager(i);
 
 		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rot.y);
 		PrintDebugProc("プレイヤーの位置: [X:(%f),z:(%f)]\n", player[i].pos.x, player[i].pos.z);
@@ -708,15 +705,13 @@ void WallShearPlayer(int index)
 // 引　数：なし
 // 戻り値：なし
 //=============================================================================
-bool PlayerDamageManager(int index)
+void PlayerDamageManager(int index)
 {
-	if (player[index].pos.y < PLAYER_POS_Y_LIMIT)
+	// プレイヤーのライフがなくなったとき
+	if (player[index].life < 0)
 	{
-		SetStage(RESULT);
-		return false;
+		SetResult(index);
 	}
-
-	return true;
 }
 
 //=============================================================================

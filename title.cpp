@@ -19,7 +19,6 @@
 #define OFF_COUNT					(30)	//
 #define	TEXTURE_TITLE		("data/TEXTURE/title_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_ENTHER		("data/TEXTURE/push_logo.png")	// 読み込むテクスチャファイル名
-#define	TEXTURE_BUTTON		("data/TEXTURE/button_a.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_GAMESTART	("data/TEXTURE/start_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_OPTION		("data/TEXTURE/option_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_EXIT		("data/TEXTURE/exit_logo.png")	// 読み込むテクスチャファイル名
@@ -142,12 +141,12 @@ void UpdateTitle(void)
 		SelectNum = (SelectNum + 1) % 3;
 		SetVertexSelect(SelectNum);
 	}
-	else if (IsButtonPressed(P1, BUTTON_DOWN))
+	else if (IsButtonTriggered(P1, BUTTON_DOWN))
 	{
 		SelectNum = (SelectNum + 1) % 3;
 		SetVertexSelect(SelectNum);
 	}
-	else if (IsButtonPressed(P2, BUTTON_DOWN))
+	else if (IsButtonTriggered(P2, BUTTON_DOWN))
 	{
 		SelectNum = (SelectNum + 1) % 3;
 		SetVertexSelect(SelectNum);
@@ -159,12 +158,12 @@ void UpdateTitle(void)
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexSelect(SelectNum);
 	}
-	else if (IsButtonPressed(P1, BUTTON_UP))
+	else if (IsButtonTriggered(P1, BUTTON_UP))
 	{
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexSelect(SelectNum);
 	}
-	else if (IsButtonPressed(P2, BUTTON_UP))
+	else if (IsButtonTriggered(P2, BUTTON_UP))
 	{
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexSelect(SelectNum);

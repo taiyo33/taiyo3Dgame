@@ -111,6 +111,7 @@ void CheckHit(void)
 			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos, 
 								bullet[P1].size[i].x, 10.0f))
 			{
+				PlayerDamageManager(P2);
 				player[P2].life += 15.0f;
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
@@ -143,6 +144,7 @@ void CheckHit(void)
 			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
 								  bullet[P2].size[i].x, 10.0f))
 			{
+				PlayerDamageManager(P1);
 				player[P1].life -= 15.0f;
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;

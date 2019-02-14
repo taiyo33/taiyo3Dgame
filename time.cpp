@@ -6,6 +6,7 @@
 #include "main.h"
 #include "time.h"
 #include "input.h"
+#include "child.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -29,7 +30,7 @@ void SetTextureTime(void);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		g_pD3DTextureTime = NULL;		// テクスチャへのポリゴン
+LPDIRECT3DTEXTURE9		g_pD3DTextureTime = NULL;				// テクスチャへのポリゴン
 VERTEX_2D				VertexWkTime[TIME_DIGIT][NUM_VERTEX];	// 頂点情報格納ワーク
 
 D3DXVECTOR3				PosTime;					// ポリゴンの移動量
@@ -50,7 +51,8 @@ HRESULT InitTime(int type)
 			TEXTURE_GAME_TIME,				// ファイルの名前
 			&g_pD3DTextureTime);				// 読み込むメモリのポインタ
 	}
-	//for (int i = 0; i < TIME_DIGIT; i++)
+
+	for (int i = 0; i < TIME_DIGIT; i++)
 	{
 
 		PosTime = D3DXVECTOR3((float)TIME_POS_X - 16.0f, (float)TIME_POS_Y, 0.0f);
@@ -60,6 +62,7 @@ HRESULT InitTime(int type)
 		// 頂点情報の作成
 		MakeVertexTime();
 	}
+
 	return S_OK;
 }
 
@@ -87,13 +90,18 @@ void UpdateTime(void)
 
 	if (Time == NULL) 
 	{
-		SetStage(RESULT);
+		ComprareChild();
 	}
 	
 	if(CntFrame % TIME_COUNT_FRAME == 0)
 	{
 		Time--;
 		CntFrame = 0;
+	}
+
+	if (GetKeyboardTrigger(DIK_T))
+	{
+		Time = 3;
 	}
 }
 

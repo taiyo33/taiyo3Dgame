@@ -140,6 +140,7 @@
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="effect.cpp" />
     <ClCompile Include="field.cpp" />
+    <ClCompile Include="gameCall.cpp" />
     <ClCompile Include="gaugeEffect.cpp" />
     <ClCompile Include="head.cpp" />
     <ClCompile Include="input.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="effect.h" />
     <ClInclude Include="field.h" />
+    <ClInclude Include="gameCall.h" />
     <ClInclude Include="gaugeEffect.h" />
     <ClInclude Include="head.h" />
     <ClInclude Include="input.h" />

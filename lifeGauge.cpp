@@ -17,8 +17,6 @@
 #define TEXTURE_LIFEGAUGE2	("data/TEXTURE/gauge_01.png")	// 歩行用画像
 #define TEXTURE_LIFEGAUGE3	("data/TEXTURE/gauge_02.png")	// 歩行用画像
 #define TEXTURE_LIFEGAUGE4	("data/TEXTURE/gauge_03.png")	// 歩行用画像
-#define TEXTURE_LIFEICON01	("data/TEXTURE/player01.png")	// 歩行用画像
-#define TEXTURE_LIFEICON02	("data/TEXTURE/player02.png")	// 歩行用画像
 #define LIFEGAUGE_RED_P1	(20.0f)
 #define LIFEGAUGE_YELLOW_P1	(50.0f)
 #define LIFEGAUGE_RED_P2	(80.0f)
@@ -87,12 +85,12 @@ HRESULT InitLifeGauge(int type)
 
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_LIFEICON01,						// ファイルの名前
+			TEXTURE_ICON01,						// ファイルの名前
 			&D3DTextureLifeGauge[PLAYERICON01]);		// 読み込むメモリー
 			
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_LIFEICON02,						// ファイルの名前
+			TEXTURE_ICON02,						// ファイルの名前
 			&D3DTextureLifeGauge[PLAYERICON02]);		// 読み込むメモリー
 
 	}
@@ -134,16 +132,18 @@ void UpdateLifeGauge(void)
 
 	for (int i = 0; i < LIFEGAUGE_MAX; i++, player++)
 	{
-		val = player->life / PLAYER_LIFE_MAX;
 		
 		if (i == 0)
 		{
+			val = player->life / PLAYER_LIFE_MAX;
 			SetLifeGaugeTextureType01(i, player->life);
 			SetTextureLifeGauge01(val);
 			SetVertexLifeGauge01(val);
 		}
-		if (i == 1)
+		else if (i == 1)
 		{
+			val = PLAYER_LIFE_MAX - player->life;
+			val = val / PLAYER_LIFE_MAX;
 			SetLifeGaugeTextureType02(i, player->life);
 			SetTextureLifeGauge02(val);
 			SetVertexLifeGauge02(val);
@@ -466,12 +466,12 @@ void SetLifeGaugeTextureType01(int index, float life)
 void SetLifeGaugeTextureType02(int index, float life)
 {
 	// 赤ゲージへ変化
-	if (life > LIFEGAUGE_RED_P2)
+	if (life < LIFEGAUGE_RED_P2)
 	{
 		TextureNumLifeGauge[index] = LIFEGAUGE004;
 	}
 	// 黄色ゲージへ変化
-	else if (life > LIFEGAUGE_YELLOW_P2)
+	else if (life < LIFEGAUGE_YELLOW_P2)
 	{
 		TextureNumLifeGauge[index] = LIFEGAUGE003;
 	}

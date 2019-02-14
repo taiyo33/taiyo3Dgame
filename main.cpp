@@ -33,6 +33,7 @@
 #include "buttleGauge.h"
 #include "gaugeEffect.h"
 #include "icon.h"
+#include "gameCall.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -399,6 +400,9 @@ void Uninit(void)
 	//
 	UninitIcon();
 
+	// ゲーム遷移テロップの終了処理
+	UninitGameCall();
+
 }
 
 //=============================================================================
@@ -440,8 +444,21 @@ void Update(void)
 		}
 		case TUTORIAL:
 		{
-			// チュートリアルの終了処理
+			// チュートリアルの更新処理
 			UpdateTutorial();
+
+			break;
+		}
+		case STARTCALL:
+		{
+			// ゲーム遷移テロップの更新処理
+			UpdateGameCall();
+
+			// 子供の更新
+			UpdateChild();
+
+			// ゲージエフェクトの更新
+			UpdateGaugeEffect();
 
 			break;
 		}
@@ -472,7 +489,7 @@ void Update(void)
 			UpdateHead();
 			
 			// キャラクターアイコンの更新
-			UpdateIcon();
+			//UpdateIcon();
 
 			// 子供の更新
 			UpdateChild();
@@ -492,7 +509,7 @@ void Update(void)
 			// アイテムの更新
 			UpdateItem();
 
-			// スコアの更新
+			// 時間の更新
 			UpdateTime();
 			
 			// バレットゲージの更新
@@ -509,6 +526,13 @@ void Update(void)
 
 			// 当たり判定
 			CheckHit();
+
+			break;
+		}
+		case FINISHCALL:
+		{
+			// ゲーム遷移テロップの更新処理
+			UpdateGameCall();
 
 			break;
 		}
@@ -573,6 +597,49 @@ void Draw(void)
 
 				break;
 			}
+			case STARTCALL:
+			{
+				// カメラの設定
+				SetCamera();
+
+				// フィールドの描画
+				DrawField();
+
+				// ブロックの描画
+				DrawBlock();
+
+				// プレイヤー処理の描画
+				DrawPlayer();
+
+				// 頭の描画
+				DrawHead();
+
+				// 左腕の描画
+				DrawLeftArm();
+
+				// 右腕の描画
+				DrawRightArm();
+
+				// 子供モデルの描画
+				DrawChild();
+
+				// ライフゲージの描画
+				DrawLifeGauge();
+
+				// バレットゲージの描画
+				DrawBulletGauge();
+
+				// バトルゲージの描画
+				DrawButtleGauge();
+
+				// ゲージエフェクトの描画
+				DrawGaugeEffect();
+
+				// ゲーム遷移テロップの描画
+				DrawGameCall();
+
+				break;
+			}
 			case START:
 			{
 				// カメラの設定
@@ -620,7 +687,7 @@ void Draw(void)
 				// キャラクターアイコンの描画
 				//DrawIcon();
 
-				// スコアの描画
+				// 時間の描画
 				DrawTime();
 
 				// ライフゲージの描画
@@ -643,8 +710,89 @@ void Draw(void)
 
 				break;
 			}
+			case FINISHCALL:
+			{
+				// カメラの設定
+				SetCamera();
+
+				// フィールドの描画
+				DrawField();
+
+				// ブロックの描画
+				DrawBlock();
+
+				// プレイヤー処理の描画
+				DrawPlayer();
+
+				// 頭の描画
+				DrawHead();
+
+				// 左腕の描画
+				DrawLeftArm();
+
+				// 右腕の描画
+				DrawRightArm();
+
+				// 子供モデルの描画
+				DrawChild();
+
+				// ライフゲージの描画
+				DrawLifeGauge();
+
+				// バレットゲージの描画
+				DrawBulletGauge();
+
+				// バトルゲージの描画
+				DrawButtleGauge();
+
+				// ゲージエフェクトの描画
+				DrawGaugeEffect();
+
+				// ゲーム遷移テロップの描画
+				DrawGameCall();
+
+				break;
+			}
 			case RESULT:
 			{
+
+				// カメラの設定
+				SetCamera();
+
+				// フィールドの描画
+				DrawField();
+
+				// ブロックの描画
+				DrawBlock();
+
+				// プレイヤー処理の描画
+				DrawPlayer();
+
+				// 頭の描画
+				DrawHead();
+
+				// 左腕の描画
+				DrawLeftArm();
+
+				// 右腕の描画
+				DrawRightArm();
+
+				// 子供モデルの描画
+				DrawChild();
+
+				// ライフゲージの描画
+				DrawLifeGauge();
+
+				// バレットゲージの描画
+				DrawBulletGauge();
+
+				// バトルゲージの描画
+				DrawButtleGauge();
+
+				// ゲージエフェクトの描画
+				DrawGaugeEffect();
+
+
 				// リザルトの終了処理
 				DrawResult();
 
@@ -720,7 +868,7 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	// 爆発エフェクトの初期化
 	InitExplosion(0);
 
-	// スコアの初期化
+	// 時間の初期化
 	InitTime(0);
 
 	// タイトルの初期化
@@ -774,6 +922,8 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	// ゲージエフェクトの初期化
 	InitGaugeEffect(0);
 
+	// ゲーム遷移テロップの初期化
+	InitGameCall(0);
 }
 
 //============================================================================
@@ -804,7 +954,7 @@ void InitGame(void)
 	// エフェクトの初期化
 	InitEffect(INIT_GAME);
 
-	// スコアの初期化
+	// 時間の初期化
 	InitTime(INIT_GAME);
 
 	// タイトルの初期化
@@ -836,5 +986,9 @@ void InitGame(void)
 
 	// AIの初期化
 	InitAi();
+
+	// ゲーム遷移テロップの初期化
+	InitGameCall(INIT_GAME);
+
 }
 

@@ -69,7 +69,9 @@ typedef struct
 enum {
 	TITLE,
 	TUTORIAL,
+	STARTCALL,
 	START,
+	FINISHCALL,
 	RESULT
 };
 
