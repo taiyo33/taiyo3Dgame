@@ -18,6 +18,7 @@ void UninitTime(void);
 void UpdateTime(void);
 void DrawTime(void);
 
+int GetTime(void);
 void AddTime( int add );
 
 #endif

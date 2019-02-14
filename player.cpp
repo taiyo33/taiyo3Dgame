@@ -61,13 +61,12 @@ HRESULT InitPlayer(int type)
 	D3DXBuffMat = NULL;	// マテリアルの初期化
 	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
 	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
-	player[P1].use = true;								// 使用状態を初期化
-	player[P2].use = true;								//
 	player[P1].rot = D3DXVECTOR3(0.0f, 90.0f, 0.0f);	// 回転の初期化
 	player[P2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
+		player[i].use = true;								// 使用状態を初期化
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
 		player[i].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
 		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);

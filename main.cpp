@@ -457,9 +457,6 @@ void Update(void)
 			// 子供の更新
 			UpdateChild();
 
-			// ゲージエフェクトの更新
-			UpdateGaugeEffect();
-
 			break;
 		}
 		case START:
@@ -531,6 +528,12 @@ void Update(void)
 		}
 		case FINISHCALL:
 		{
+			// 子供の更新
+			UpdateChild();
+
+			// ゲージエフェクトの更新
+			UpdateGaugeEffect();
+
 			// ゲーム遷移テロップの更新処理
 			UpdateGameCall();
 
@@ -622,18 +625,6 @@ void Draw(void)
 
 				// 子供モデルの描画
 				DrawChild();
-
-				// ライフゲージの描画
-				DrawLifeGauge();
-
-				// バレットゲージの描画
-				DrawBulletGauge();
-
-				// バトルゲージの描画
-				DrawButtleGauge();
-
-				// ゲージエフェクトの描画
-				DrawGaugeEffect();
 
 				// ゲーム遷移テロップの描画
 				DrawGameCall();

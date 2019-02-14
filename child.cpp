@@ -118,7 +118,6 @@ HRESULT InitChild(void)
 		}
 	}
 
-
 	return S_OK;
 }
 

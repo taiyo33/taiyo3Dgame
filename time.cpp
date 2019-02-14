@@ -90,7 +90,7 @@ void UpdateTime(void)
 
 	if (Time == NULL) 
 	{
-		ComprareChild();
+		SetStage(FINISHCALL);
 	}
 	
 	if(CntFrame % TIME_COUNT_FRAME == 0)
@@ -101,7 +101,7 @@ void UpdateTime(void)
 
 	if (GetKeyboardTrigger(DIK_T))
 	{
-		Time = 3;
+		Time = 0;
 	}
 }
 
@@ -225,5 +225,13 @@ void AddTime( int add )
 	{
 		Time = 0;
 	}
-
+}
+//==============================================================================
+// 残り時間を取得
+// 引　数：な　し
+// 戻り値：int 型　
+//==============================================================================
+int GetTime(void)
+{
+	return Time;
 }

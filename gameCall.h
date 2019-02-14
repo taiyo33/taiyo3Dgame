@@ -12,10 +12,10 @@
 //*****************************************************************************
 
 
-#define	GAMECALL_POS_X		(260)			// タイトルの表示位置
-#define	GAMECALL_POS_Y		(230)			// タイトルの表示位置
-#define	GAMECALL_SIZE_X		(300)			// タイトルの幅
-#define	GAMECALL_SIZE_Y		(100)			// タイトルの高さ
+#define	GAMECALL_POS_X		(400)			// タイトルの表示位置
+#define	GAMECALL_POS_Y		(250)			// タイトルの表示位置
+#define	GAMECALL_SIZE_X		(500)			// タイトルの幅
+#define	GAMECALL_SIZE_Y		(300)			// タイトルの高さ
 
 #define NUM_GAMECALL		(2)
 

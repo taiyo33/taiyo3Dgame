@@ -9,6 +9,9 @@
 #include "input.h"
 #include "player.h"
 #include "ai.h"
+#include "child.h"
+#include "time.h"
+#include "result.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -17,9 +20,9 @@
 #define LOGOSPACE_OFF			(0)		//
 #define ON_COUNT				(70)	//
 #define OFF_COUNT				(30)	//
-#define READY_SHOW_FRAME		(60)	// READYテロップ表示フレーム数
-#define GO_SHOW_FRAME			(40)	// GOテッロプ表示フレーム数
-#define FINISH_SHOW_FRAME		(60)	// FINISHテロップ表示フレーム数
+#define READY_SHOW_FRAME		(120)	// READYテロップ表示フレーム数
+#define GO_SHOW_FRAME			(60)	// GOテッロプ表示フレーム数
+#define FINISH_SHOW_FRAME		(120)	// FINISHテロップ表示フレーム数
 
 
 #define	TEXTURE_READY			("data/TEXTURE/ready_logo.png")	// 読み込むテクスチャファイル名
@@ -93,7 +96,6 @@ void UninitGameCall(void)
 //=============================================================================
 void UpdateGameCall(void)
 {
-
 	CntFrame++;
 
 	// 表示時間
@@ -119,9 +121,11 @@ void UpdateGameCall(void)
 		case FINISH:
 			if (CntFrame % FINISH_SHOW_FRAME == 0)
 			{
-				SetStage(RESULT);
+				ComprareChild();
+
 				CntFrame = 0;
 			}
+
 			break;
 
 		default :
