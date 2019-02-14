@@ -69,12 +69,6 @@ void CheckHit(void)
 	{
 		if (!player->use) continue;
 
-		// プレイヤーのフィール内外判定
-		if (!CheckBlockInPlayer(i))
-		{
-			PlayerDamageManager(i);
-			player->pos.y -= PLAYER_FALL_SPEED;
-		}
 		// フィールドの４つ角との判定
 		if (HitCheckCornerBlock(player->pos))
 		{
@@ -111,8 +105,7 @@ void CheckHit(void)
 			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos, 
 								bullet[P1].size[i].x, 10.0f))
 			{
-				PlayerDamageManager(P2);
-				player[P2].life += 15.0f;
+				player[P2].life -= BULLET_DAMAGE;
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
 				bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
@@ -144,8 +137,7 @@ void CheckHit(void)
 			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
 								  bullet[P2].size[i].x, 10.0f))
 			{
-				PlayerDamageManager(P1);
-				player[P1].life -= 15.0f;
+				player[P1].life -= BULLET_DAMAGE;
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;
 				bullet[P2].cntReflect[i] = INIT_REFLECT_CNT;

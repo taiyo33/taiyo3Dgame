@@ -25,6 +25,7 @@
 #define PLAYER02_INITPOS_Y		(10.0f)
 #define PLAYER02_INITPOS_Z		(-200.0f)
 
+
 typedef struct {
 	
 	D3DXMATRIX					mtxWorld;			// ワールドマトリックス
@@ -59,7 +60,7 @@ void UpdatePlayer(void);
 void DrawPlayer(void);
 
 PLAYER *GetPlayer(int index);
-void PlayerDamageManager(int index);
+void PlayerDamageManager(void);
 bool CheckBlockInPlayer(int index);
 void CheckNorPlayer(D3DXVECTOR3 nor0, int index);
 

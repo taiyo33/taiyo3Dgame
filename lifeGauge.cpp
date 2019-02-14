@@ -19,7 +19,7 @@
 #define TEXTURE_LIFEGAUGE4	("data/TEXTURE/gauge_03.png")	// ï‡çsópâÊëú
 #define LIFEGAUGE_RED_P1	(20.0f)
 #define LIFEGAUGE_YELLOW_P1	(50.0f)
-#define LIFEGAUGE_RED_P2	(80.0f)
+#define LIFEGAUGE_RED_P2	(20.0f)
 #define LIFEGAUGE_YELLOW_P2	(50.0f)
 #define LIFEGAUGE_VTX_MAX	(12)
 #define TEXTURE_MAX			(6)
@@ -132,7 +132,6 @@ void UpdateLifeGauge(void)
 
 	for (int i = 0; i < LIFEGAUGE_MAX; i++, player++)
 	{
-		
 		if (i == 0)
 		{
 			val = player->life / PLAYER_LIFE_MAX;
@@ -142,8 +141,8 @@ void UpdateLifeGauge(void)
 		}
 		else if (i == 1)
 		{
-			val = PLAYER_LIFE_MAX - player->life;
-			val = val / PLAYER_LIFE_MAX;
+			float life = PLAYER_LIFE_MAX - player->life;
+			val = life / PLAYER_LIFE_MAX;
 			SetLifeGaugeTextureType02(i, player->life);
 			SetTextureLifeGauge02(val);
 			SetVertexLifeGauge02(val);

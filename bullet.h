@@ -10,13 +10,14 @@
 #include "main.h"
 
 
-#define BULLET_MAX				(128)
-#define BULLET_ONESET_MAX		(1)
-#define BULLET_SET_MAX			(2)
-#define BULLET_CHARGE_FRAME_CNT	(10)
-#define BULLET_CHARGE_MAX		(10.0f)
-#define INIT_REFLECT_CNT		(1)								// 反射回数
-#define INIT_BULLET_SPEED		(5.0f)
+#define BULLET_MAX				(128)				// 使用可能のバレット数
+#define BULLET_ONESET_MAX		(1)					// バレット1組の最大数
+#define BULLET_SET_MAX			(2)					// バレットの組数
+#define BULLET_CHARGE_FRAME_CNT	(10)				// チャージ速度の調整フレーム数
+#define BULLET_CHARGE_MAX		(10.0f)				// 速度チャージの最大値
+#define INIT_REFLECT_CNT		(1)					// 反射回数
+#define INIT_BULLET_SPEED		(5.0f)				// バレット速度の初期値
+#define BULLET_DAMAGE			(10.0f)				// バレットのダメージ値
 
 typedef struct
 {

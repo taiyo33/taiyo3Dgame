@@ -69,7 +69,7 @@ HRESULT InitPlayer(int type)
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
-		player[P1].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
+		player[i].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
 		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
 		player[i].cntFrame= 0;
@@ -152,6 +152,8 @@ void UpdatePlayer(void)
 		WallShearPlayer(i);
 		// プレイヤーの操作
 		MovePlayer(i);
+
+		PlayerDamageManager();
 
 		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rot.y);
 		PrintDebugProc("プレイヤーの位置: [X:(%f),z:(%f)]\n", player[i].pos.x, player[i].pos.z);
@@ -705,12 +707,16 @@ void WallShearPlayer(int index)
 // 引　数：なし
 // 戻り値：なし
 //=============================================================================
-void PlayerDamageManager(int index)
+void PlayerDamageManager(void)
 {
 	// プレイヤーのライフがなくなったとき
-	if (player[index].life < 0)
+	if (player[P1].life < 0)
 	{
-		SetResult(index);
+		SetResult(P2);
+	}
+	else if (player[P2].life < 0)
+	{
+		SetResult(P1);
 	}
 }
 
