@@ -34,6 +34,7 @@
 #include "gaugeEffect.h"
 #include "icon.h"
 #include "gameCall.h"
+#include "sound.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -58,13 +59,13 @@ void Draw(void);
 //*****************************************************************************
 // グローバル変数:
 //*****************************************************************************
-LPDIRECT3D9			g_pD3D = NULL;			// Direct3D オブジェクト
-LPDIRECT3DDEVICE9	g_pD3DDevice = NULL;	// Deviceオブジェクト(描画に必要)
+LPDIRECT3D9				g_pD3D = NULL;			// Direct3D オブジェクト
+LPDIRECT3DDEVICE9		g_pD3DDevice = NULL;	// Deviceオブジェクト(描画に必要)
 #ifdef _DEBUG
-int					g_nCountFPS;			// FPSカウンタ
+int						g_nCountFPS;			// FPSカウンタ
 #endif
-bool				g_bDispDebug = true;	// デバッグ表示ON/OFF
-int					StageSelect;
+bool					g_bDispDebug = true;	// デバッグ表示ON/OFF
+int						StageSelect;
 
 //=============================================================================
 // メイン関数
@@ -832,6 +833,9 @@ int GetStage(void)
 //============================================================================
 void Init(HINSTANCE hInstance, HWND hWnd)
 {
+	// サウンド初期化
+	InitSound(hWnd);
+
 	// 入力処理の初期化
 	InitInput(hInstance, hWnd);
 

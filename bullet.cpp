@@ -16,12 +16,15 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	TEXTURE_BULLET		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
+#define	TEXTURE_BULLET001		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
+#define	TEXTURE_BULLET002		"data/TEXTURE/bullet002.png"	// 読み込むテクスチャファイル名
+
 #define	BULLET_SIZE_X		(20.0f)							// バレットの幅
 #define	BULLET_SIZE_Y		(20.0f)							// バレットの高さ
 #define	BULLET_SIZE_Z		(20.0f)							// バレットの奥行
 #define	BULLET_SPEED		(8.0f)							// 移動速度
 #define BULLET_RADY_FRAME	(10)							// 発射間隔
+#define TEXTURE_MAX			(2)								// テクスチャーの最大数
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -36,8 +39,13 @@ void MoveBullet(int index, int bno);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		g_pD3DTextureBullet = NULL;	// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pD3DVtxBuffBullet = NULL;	// 頂点バッファインターフェースへのポインタ
+
+enum {
+	TEX_NUM001,
+	TEX_NUM002
+};
+LPDIRECT3DTEXTURE9		D3DTextureBullet[TEXTURE_MAX];	// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBullet = NULL;	// 頂点バッファインターフェースへのポインタ
 static float			dif_mi[BULLET_MAX];
 static int				cntFrame[BULLET_SET_MAX];
 BULLET					bulletWk[BULLET_SET_MAX];
@@ -59,8 +67,12 @@ HRESULT InitBullet(int type)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_BULLET,			// ファイルの名前
-			&g_pD3DTextureBullet);	// 読み込むメモリー
+			TEXTURE_BULLET001,			// ファイルの名前
+			&D3DTextureBullet[TEX_NUM001]);	// 読み込むメモリー
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
+			TEXTURE_BULLET002,			// ファイルの名前
+			&D3DTextureBullet[TEX_NUM002]);	// 読み込むメモリー
 	}
 
 
@@ -92,16 +104,18 @@ HRESULT InitBullet(int type)
 //===============================================================================
 void UninitBullet(void)
 {
-	if (g_pD3DTextureBullet != NULL)
-	{// テクスチャの開放
-		g_pD3DTextureBullet->Release();
-		g_pD3DTextureBullet = NULL;
+	for (int i = 0; i < TEXTURE_MAX; i++)
+	{
+		if (D3DTextureBullet[i] != NULL)
+		{// テクスチャの開放
+			D3DTextureBullet[i]->Release();
+			D3DTextureBullet[i] = NULL;
+		}
 	}
-
-	if (g_pD3DVtxBuffBullet != NULL)
+	if (D3DVtxBuffBullet != NULL)
 	{// 頂点バッファの開放
-		g_pD3DVtxBuffBullet->Release();
-		g_pD3DVtxBuffBullet = NULL;
+		D3DVtxBuffBullet->Release();
+		D3DVtxBuffBullet = NULL;
 	}
 }
 
@@ -146,8 +160,6 @@ void UpdateBullet(void)
 			}
 		}
 	}
-
-	PrintDebugProc("バレットの速度[(%f)]\n", bullet[P1].speed[P1]);
  }
 
 //===============================================================================
@@ -210,19 +222,20 @@ void DrawBullet(void)
 				pDevice->SetTransform(D3DTS_WORLD, &bullet[i].mtxWorld);
 
 				// 頂点バッファをデバイスのデータストリームにバインド
-				pDevice->SetStreamSource(0, g_pD3DVtxBuffBullet, 0, sizeof(VERTEX_3D));
+				pDevice->SetStreamSource(0, D3DVtxBuffBullet, 0, sizeof(VERTEX_3D));
 
 				// 頂点フォーマットの設定
 				pDevice->SetFVF(FVF_VERTEX_3D);
 
 				// テクスチャの設定
-				pDevice->SetTexture(0, g_pD3DTextureBullet);
+				pDevice->SetTexture(0, D3DTextureBullet[i]);
 
 				// ポリゴンの描画
 				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
 			}
 		}
 	}
+
 	// ラインティングを有効にする
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 
@@ -249,7 +262,7 @@ HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice)
 		D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
 		FVF_VERTEX_3D,				// 使用する頂点フォーマット
 		D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
-		&g_pD3DVtxBuffBullet,	// 頂点バッファインターフェースへのポインタ
+		&D3DVtxBuffBullet,	// 頂点バッファインターフェースへのポインタ
 		NULL)))						// NULLに設定
 	{
 		return E_FAIL;
@@ -259,7 +272,7 @@ HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice)
 		VERTEX_3D *pVtx;
 
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-		g_pD3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
+		D3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
 
 		for (int i = 0; i < BULLET_MAX; i++, pVtx += 4)
 		{
@@ -286,7 +299,7 @@ HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice)
 
 		}
 		// 頂点データをアンロックする
-		g_pD3DVtxBuffBullet->Unlock();
+		D3DVtxBuffBullet->Unlock();
 	}
 
 	return S_OK;
@@ -303,7 +316,7 @@ void SetVertexBullet(int Index, float fSizeX, float fSizeY)
 		VERTEX_3D *pVtx;
 
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-		g_pD3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
+		D3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
 
 		pVtx += (Index * 4);
 
@@ -314,7 +327,7 @@ void SetVertexBullet(int Index, float fSizeX, float fSizeY)
 		pVtx[3].vtx = D3DXVECTOR3(fSizeX / 2, fSizeY / 2, 0.0f);
 
 		// 頂点データをアンロックする
-		g_pD3DVtxBuffBullet->Unlock();
+		D3DVtxBuffBullet->Unlock();
 	}
 }
 

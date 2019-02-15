@@ -17,6 +17,7 @@
 #define LOGOSPACE_OFF				(0)		//
 #define ON_COUNT					(70)	//
 #define OFF_COUNT					(30)	//
+#define MOVE_MENU_CNT_FREAM			(60)	//
 #define	TEXTURE_TITLE		("data/TEXTURE/title_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_ENTHER		("data/TEXTURE/push_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_GAMESTART	("data/TEXTURE/start_logo.png")	// 読み込むテクスチャファイル名
@@ -35,18 +36,20 @@ void SetLogoTextureDiffuse(int ver);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		D3DTextureTitle = NULL;			// テクスチャへのポインタ
-LPDIRECT3DTEXTURE9		D3DTextureLogo[LOGO_MAX];	// テクスチャへのポインタ
-LPDIRECT3DTEXTURE9		D3DTextureSelect;			// テクスチャへのポインタ
+LPDIRECT3DTEXTURE9				D3DTextureTitle = NULL;			// テクスチャへのポインタ
+LPDIRECT3DTEXTURE9				D3DTextureLogo[LOGO_MAX];	// テクスチャへのポインタ
+LPDIRECT3DTEXTURE9				D3DTextureSelect;			// テクスチャへのポインタ
 
-
-VERTEX_2D				vertexWkTitle[NUM_VERTEX];					// 頂点情報格納ワーク
-VERTEX_2D				vertexWkLogo[LOGO_MAX][NUM_VERTEX];		// 頂点情報格納ワーク
-VERTEX_2D				vertexWkSelect[NUM_VERTEX];				// 頂点情報格納ワーク
-static float			y_move;
-static int				SelectNum;
-static int				cnt_frame;
-
+VERTEX_2D						vertexWkTitle[NUM_VERTEX];				// 頂点情報格納ワーク
+VERTEX_2D						vertexWkLogo[LOGO_MAX][NUM_VERTEX];		// 頂点情報格納ワーク
+VERTEX_2D						vertexWkSelect[NUM_VERTEX];				// 頂点情報格納ワーク
+static float					yMove;				// ロゴの位置調整
+static int						SelectNum;			// セレクトのされているロゴ番号
+static int						CntFrame;			// 点滅処理のフレームカウント
+LPDIRECTSOUNDBUFFER8			TitleBGM = NULL;	// タイトルのBGM
+LPDIRECTSOUNDBUFFER8			DecisionSE = NULL;	// タイトルのメニュー決定SE
+LPDIRECTSOUNDBUFFER8			SelectSE = NULL;	// 選択ロゴのSE
+bool							SelectFlag;			// メニュー決定フラグ
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -54,9 +57,10 @@ HRESULT InitTitle(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	
-	// セレクトテクスチャの移動量
-	y_move = 0.0;
-	cnt_frame = 0;
+	// 変数初期化
+	yMove = 0.0;
+	CntFrame = 0;
+	SelectFlag = false;
 
 	if (type == 0)
 	{
@@ -93,6 +97,14 @@ HRESULT InitTitle(int type)
 	// 頂点情報の作成
 	MakeVertexTitle();
 	
+	// BGMのロードと再生
+	TitleBGM = LoadSound(BGM_00);
+	PlaySound(TitleBGM, E_DS8_FLAG_LOOP);
+	
+	// SEのロード
+	DecisionSE = LoadSound(SE_SPACE);
+	SelectSE = LoadSound(SE_SELECT);
+
 	return S_OK;
 }
 
@@ -123,31 +135,42 @@ void UninitTitle(void)
 void UpdateTitle(void)
 {
 
-	cnt_frame++;
+	if (SelectFlag)
+	{
+		if (CntFrame % MOVE_MENU_CNT_FREAM == 0)
+		{
+			SetStage(TUTORIAL);
+		}
+	}
 
-	if (cnt_frame % OFF_COUNT == 0)
+	CntFrame++;
+
+	if (CntFrame % OFF_COUNT == 0)
 	{
 		SetLogoTextureDiffuse(LOGOSPACE_OFF);
 	}
-	if (cnt_frame % ON_COUNT == 0)
+	if (CntFrame % ON_COUNT == 0)
 	{
 		SetLogoTextureDiffuse(LOGOSPACE_ON);
-		cnt_frame = 0;
+		CntFrame = 0;
 	}
 
 	// 下方向へセレクトを移動
 	if (GetKeyboardTrigger(DIK_DOWN)) 
 	{
+		PlaySound(SelectSE, E_DS8_FLAG_NONE);
 		SelectNum = (SelectNum + 1) % 3;
 		SetVertexSelect(SelectNum);
 	}
 	else if (IsButtonTriggered(P1, BUTTON_DOWN))
 	{
+		PlaySound(SelectSE, E_DS8_FLAG_NONE);
 		SelectNum = (SelectNum + 1) % 3;
 		SetVertexSelect(SelectNum);
 	}
 	else if (IsButtonTriggered(P2, BUTTON_DOWN))
 	{
+		PlaySound(SelectSE, E_DS8_FLAG_NONE);
 		SelectNum = (SelectNum + 1) % 3;
 		SetVertexSelect(SelectNum);
 	}
@@ -155,16 +178,19 @@ void UpdateTitle(void)
 	// 上方向のセレクトを移動
 	if (GetKeyboardTrigger(DIK_UP))
 	{
+		PlaySound(SelectSE, E_DS8_FLAG_NONE);
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexSelect(SelectNum);
 	}
 	else if (IsButtonTriggered(P1, BUTTON_UP))
 	{
+		PlaySound(SelectSE, E_DS8_FLAG_NONE);
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexSelect(SelectNum);
 	}
 	else if (IsButtonTriggered(P2, BUTTON_UP))
 	{
+		PlaySound(SelectSE, E_DS8_FLAG_NONE);
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexSelect(SelectNum);
 	}
@@ -175,15 +201,18 @@ void UpdateTitle(void)
 	{
 		if ((GetKeyboardTrigger(DIK_RETURN)))
 		{
-			SetStage(TUTORIAL);
+			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			SelectFlag = true;
 		}
 		else if (IsButtonPressed(P1, BUTTON_A))
 		{
-			SetStage(TUTORIAL);
+			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			SelectFlag = true;
 		}
 		else if (IsButtonPressed(P2, BUTTON_B))
 		{
-			SetStage(TUTORIAL);
+			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			SelectFlag = true;
 		}
 	}
 	// コンフィングへ遷移
@@ -192,9 +221,20 @@ void UpdateTitle(void)
 			// コンフィング
 	}
 	// 強制終了
-	else if ((GetKeyboardTrigger(DIK_RETURN)) && (SelectNum == SELECT_EXIT))
+	else if (SelectNum == SELECT_EXIT)
 	{
-		exit(0);
+		if ((GetKeyboardTrigger(DIK_RETURN)))
+		{
+			exit(NULL);
+		}
+		else if (IsButtonPressed(P1, BUTTON_A))
+		{
+			exit(NULL);
+		}
+		else if (IsButtonPressed(P2, BUTTON_B))
+		{
+			exit(NULL);
+		}
 	}
 }
 
@@ -396,13 +436,13 @@ HRESULT MakeVertexTitle(void)
 void SetVertexSelect(int move)
 {
 	// セレクトテクスチャの移動値
-	y_move = (SELECT_MOVE * (float) move);
+	yMove = (SELECT_MOVE * (float) move);
 
 	// 頂点座標の設定
-	vertexWkSelect[0].vtx = D3DXVECTOR3(TITLE_SELECT_POS_X, TITLE_SELECT_POS_Y + y_move, 0.0f);
-	vertexWkSelect[1].vtx = D3DXVECTOR3(TITLE_SELECT_POS_X + TITLE_SELECT_SIZE_X, TITLE_SELECT_POS_Y + y_move, 0.0f);
-	vertexWkSelect[2].vtx = D3DXVECTOR3(TITLE_SELECT_POS_X, TITLE_SELECT_POS_Y + TITLE_SELECT_SIZE_Y + y_move, 0.0f);
-	vertexWkSelect[3].vtx = D3DXVECTOR3(TITLE_SELECT_POS_X + TITLE_SELECT_SIZE_X, TITLE_SELECT_POS_Y + TITLE_SELECT_SIZE_Y + y_move, 0.0f);
+	vertexWkSelect[0].vtx = D3DXVECTOR3(TITLE_SELECT_POS_X, TITLE_SELECT_POS_Y + yMove, 0.0f);
+	vertexWkSelect[1].vtx = D3DXVECTOR3(TITLE_SELECT_POS_X + TITLE_SELECT_SIZE_X, TITLE_SELECT_POS_Y + yMove, 0.0f);
+	vertexWkSelect[2].vtx = D3DXVECTOR3(TITLE_SELECT_POS_X, TITLE_SELECT_POS_Y + TITLE_SELECT_SIZE_Y + yMove, 0.0f);
+	vertexWkSelect[3].vtx = D3DXVECTOR3(TITLE_SELECT_POS_X + TITLE_SELECT_SIZE_X, TITLE_SELECT_POS_Y + TITLE_SELECT_SIZE_Y + yMove, 0.0f);
 }
 
 void SetLogoTextureDiffuse(int ver) 
@@ -420,3 +460,9 @@ void SetLogoTextureDiffuse(int ver)
 		vertexWkLogo[BUTTON][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255 * ver);
 
 }
+
+LPDIRECTSOUNDBUFFER8 *GetTitleSound(void)
+{
+	return &TitleBGM;
+}
+

@@ -7,6 +7,8 @@
 #ifndef _TITLE_H_
 #define _TITLE_H_
 
+#include "sound.h"
+
 //*****************************************************************************
 // É}ÉNÉçíËã`
 //*****************************************************************************
@@ -65,5 +67,6 @@ HRESULT InitTitle(int type);
 void UninitTitle(void);
 void UpdateTitle(void);
 void DrawTitle(void);
+LPDIRECTSOUNDBUFFER8 *GetTitleSound(void);
 
 #endif

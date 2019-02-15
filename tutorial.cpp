@@ -10,6 +10,7 @@
 #include "field.h"
 #include "player.h"
 #include "title.h"
+#include "sound.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -91,14 +92,17 @@ void UpdateTutorial(void)
 {
 	if (GetKeyboardTrigger(DIK_RETURN))
 	{
+		StopSound(*GetTitleSound());
 		SetStage(STARTCALL);
 	}
 	else if (IsButtonTriggered(P1, BUTTON_A))
 	{
+		StopSound(*GetTitleSound());
 		SetStage(STARTCALL);
 	}
 	else if (IsButtonPressed(P2, BUTTON_B))
 	{
+		StopSound(*GetTitleSound());
 		SetStage(STARTCALL);
 	}
 }

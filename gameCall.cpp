@@ -12,6 +12,7 @@
 #include "child.h"
 #include "time.h"
 #include "result.h"
+#include "sound.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -44,6 +45,9 @@ LPDIRECT3DTEXTURE9		D3DTextureGameCall[TEXTURE_MAX];	// テクスチャへのポインタ
 VERTEX_2D				vertexWkGameCall[NUM_VERTEX];					// 頂点情報格納ワーク
 static int				CntFrame;
 static int				TextureNum;
+LPDIRECTSOUNDBUFFER8	ReadySE = NULL;	// 選択ロゴのSE
+LPDIRECTSOUNDBUFFER8	FinishSE = NULL;	// 選択ロゴのSE
+
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -73,6 +77,10 @@ HRESULT InitGameCall(int type)
 	// 頂点情報の作成
 	MakeVertexGameCall();
 	
+	// SEロード
+	FinishSE = LoadSound(SE_FINISH);
+	ReadySE = LoadSound(SE_STARTCALL);
+
 	return S_OK;
 }
 

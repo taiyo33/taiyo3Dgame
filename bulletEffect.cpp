@@ -14,11 +14,14 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	TEXTURE_BULLETEFFECT		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
+#define	TEXTURE_BULLETEFFECT001		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
+#define	TEXTURE_BULLETEFFECT002		"data/TEXTURE/bullet002.png"	// 読み込むテクスチャファイル名
+
 #define	BULLETEFFECT_SIZE_X		(5.0f)						// ビルボードの幅
 #define	BULLETEFFECT_SIZE_Y		(5.0f)						// ビルボードの高さ
 #define BULLETEFFECT_MAX			(60)						// 煙エフェクトの最大数
 #define DEL_TIME			(10)						// エフェクトの寿命
+#define TEXTURE_MAX			(2)
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -31,7 +34,12 @@ void SetDiffuseBulletEffect(int Index, float val);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		D3DTextureBulletEffect = NULL;	// テクスチャへのポインタ
+enum {
+	TEX_NUM001,
+	TEX_NUM002
+};
+
+LPDIRECT3DTEXTURE9		D3DTextureBulletEffect[TEXTURE_MAX];	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBulletEffect = NULL;	// 頂点バッファインターフェースへのポインタ
 
 float					s_curveAngle[BULLETEFFECT_MAX];	// Sinカーブの角度
@@ -54,8 +62,13 @@ HRESULT InitBulletEffect(int type)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
-			TEXTURE_BULLETEFFECT,					// ファイルの名前
-			&D3DTextureBulletEffect);			// 読み込むメモリー
+			TEXTURE_BULLETEFFECT001,					// ファイルの名前
+			&D3DTextureBulletEffect[TEX_NUM001]);			// 読み込むメモリー
+
+				// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
+			TEXTURE_BULLETEFFECT002,					// ファイルの名前
+			&D3DTextureBulletEffect[TEX_NUM002]);			// 読み込むメモリー
 	}
 
 	for (int i = 0; i < BULLETEFFECT_SET_MAX; i++)
@@ -78,12 +91,14 @@ HRESULT InitBulletEffect(int type)
 //=============================================================================
 void UninitBulletEffect(void)
 {
-	if (D3DTextureBulletEffect != NULL)
-	{// テクスチャの開放
-		D3DTextureBulletEffect->Release();
-		D3DTextureBulletEffect = NULL;
+	for (int i = 0; i < TEXTURE_MAX; i++)
+	{
+		if (D3DTextureBulletEffect[i] != NULL)
+		{// テクスチャの開放
+			D3DTextureBulletEffect[i]->Release();
+			D3DTextureBulletEffect[i] = NULL;
+		}
 	}
-
 	if (D3DVtxBuffBulletEffect != NULL)
 	{// 頂点バッファの開放
 		D3DVtxBuffBulletEffect->Release();
@@ -195,7 +210,7 @@ void DrawBulletEffect(void)
 				pDevice->SetFVF(FVF_VERTEX_3D);
 
 				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTextureBulletEffect);
+				pDevice->SetTexture(0, D3DTextureBulletEffect[i]);
 
 				// ポリゴンの描画
 				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);

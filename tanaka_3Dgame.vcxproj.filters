@@ -55,6 +55,12 @@
     <Filter Include="ヘッダー ファイル\game">
       <UniqueIdentifier>{c7fd1ba2-c8f2-4bda-92b7-fc81306ca027}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\sound">
+      <UniqueIdentifier>{9fa2bb01-f06d-4b3d-ba25-5292e178f534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\sound">
+      <UniqueIdentifier>{45e2b5ce-ee9a-48bd-8de8-e0f2e9c1c9cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bullet.cpp">
@@ -147,6 +153,9 @@
     <ClCompile Include="result.cpp">
       <Filter>ソース ファイル\game</Filter>
     </ClCompile>
+    <ClCompile Include="sound.cpp">
+      <Filter>ソース ファイル\sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet.h">
@@ -238,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="tutorial.h">
       <Filter>ヘッダー ファイル\game</Filter>
+    </ClInclude>
+    <ClInclude Include="sound.h">
+      <Filter>ヘッダー ファイル\sound</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
