@@ -33,6 +33,8 @@ typedef struct
 	D3DXVECTOR3		scl[BULLET_ONESET_MAX];			// スケール
 	D3DXVECTOR3		size[BULLET_ONESET_MAX];		// 大きさ
 	D3DXVECTOR3		sclIncrease;					// スケールの増加値
+	LPDIRECTSOUNDBUFFER8	BulletSE;		// バレット発射時のSE
+	LPDIRECTSOUNDBUFFER8	ReflectSE;		// 反射時のSE
 	int				time[BULLET_ONESET_MAX];		// 寿命
 	int				cntReflect[BULLET_ONESET_MAX];	// 反射回数
 	bool			use[BULLET_ONESET_MAX];			// 使用状態

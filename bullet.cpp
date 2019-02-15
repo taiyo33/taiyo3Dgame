@@ -81,6 +81,9 @@ HRESULT InitBullet(int type)
 		cntFrame[i] = BULLET_RADY_FRAME;						// フレームを初期化
 		bullet[i].sclIncrease = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加量
 		bullet[i].speedIncrease = 0.0f;	// スケールの増加量
+		// SEのロード
+		bullet[i].BulletSE = LoadSound(SE_BULLET);
+		bullet[i].ReflectSE = LoadSound(SE_REFLECT);
 
 		for (int j = 0; j < BULLET_ONESET_MAX; j++)
 		{	
@@ -94,6 +97,7 @@ HRESULT InitBullet(int type)
 			bullet[i].speed[j] = INIT_BULLET_SPEED;
 		}
 	}
+
 	return S_OK;
 }
 
@@ -355,6 +359,7 @@ void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int in
 	{
 		if (!bullet->use[i])
 		{
+			PlaySound(bullet[i].BulletSE, E_DS8_FLAG_NONE);
 			bullet->use[i] = true;									// 使用中へ
 			bullet->pos[i].x = pos.x + cosf(rot.y) * Dest;			// プレイヤーの位置へ　
 			bullet->pos[i].z = pos.z + sinf(rot.y) * Dest;			//　
@@ -392,6 +397,7 @@ void MoveBullet(int index, int bno)
 		// バレットとブロックの当たり判定
 		if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno], BLOCK_VTX_MAX))
 		{
+			PlaySound(bullet->ReflectSE, E_DS8_FLAG_NONE);
 			bullet->refVec[bno] = ReflectVector(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno],GetNormal());
 			bullet->move[bno] = bullet->refVec[bno] * bullet->speed[bno];
 			bullet->reflect[bno] = true;

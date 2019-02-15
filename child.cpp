@@ -14,6 +14,7 @@
 #include "explosion.h"
 #include "result.h"
 
+
 //*****************************************************************************
 // É}ÉNÉçíËã`
 //*****************************************************************************
@@ -71,6 +72,7 @@ HRESULT InitChild(void)
 		D3DXBuffMat[i] = NULL;
 		NumMat[i] = 0;
 		child[i].cnt = 50;
+		child[i].damageSE = LoadSound(SE_CHILDDAMAGE);
 
 		for (int j = 0; j < CHILD_ONESET_MAX / 2; j++)
 		{

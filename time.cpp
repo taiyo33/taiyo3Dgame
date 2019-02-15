@@ -7,6 +7,7 @@
 #include "time.h"
 #include "input.h"
 #include "child.h"
+#include "gameCall.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -20,6 +21,7 @@
 #define TIME_DIGIT				(2)			// 桁数
 #define NUM_TIME				(2)
 #define TIME_COUNT_FRAME		(60)		// 時間経過のフレーム数
+#define CHANGE_BGM				(10)		// BGMを鳴らす秒数
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -36,6 +38,7 @@ VERTEX_2D				VertexWkTime[TIME_DIGIT][NUM_VERTEX];	// 頂点情報格納ワーク
 D3DXVECTOR3				PosTime;					// ポリゴンの移動量
 static int				CntFrame;
 int						Time;						// 制限時間
+LPDIRECTSOUNDBUFFER8	GameBGM002 = NULL;			// ゲームBGM
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -63,6 +66,8 @@ HRESULT InitTime(int type)
 		MakeVertexTime();
 	}
 
+	GameBGM002 = LoadSound(BGM_GAME02);
+
 	return S_OK;
 }
 
@@ -88,11 +93,19 @@ void UpdateTime(void)
 	SetTextureTime();
 	CntFrame++;
 
+	// 0秒で遷移
 	if (Time == NULL) 
 	{
 		SetStage(FINISHCALL);
 	}
-	
+	// 残り10秒でBGM変更
+	else if (Time == CHANGE_BGM)
+	{
+		StopSound(GetGameBGM01());
+		PlaySound(GameBGM002, E_DS8_FLAG_NONE);
+	}
+
+	// 秒数カウント処理
 	if(CntFrame % TIME_COUNT_FRAME == 0)
 	{
 		Time--;
@@ -101,7 +114,7 @@ void UpdateTime(void)
 
 	if (GetKeyboardTrigger(DIK_T))
 	{
-		Time = 0;
+		Time = 15;
 	}
 }
 
@@ -234,4 +247,14 @@ void AddTime( int add )
 int GetTime(void)
 {
 	return Time;
+}
+
+//==============================================================================
+// ゲームBGM２を取得
+// 引　数：な　し
+// 戻り値：int 型　
+//==============================================================================
+LPDIRECTSOUNDBUFFER8 GetGameBGM02(void)
+{
+	return GameBGM002;
 }

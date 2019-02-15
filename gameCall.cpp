@@ -12,7 +12,8 @@
 #include "child.h"
 #include "time.h"
 #include "result.h"
-#include "sound.h"
+
+#include "time.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -21,10 +22,10 @@
 #define LOGOSPACE_OFF			(0)		//
 #define ON_COUNT				(70)	//
 #define OFF_COUNT				(30)	//
-#define READY_SHOW_FRAME		(120)	// READYテロップ表示フレーム数
+#define READY_SHOW_FRAME		(200)	// READYテロップ表示フレーム数
 #define GO_SHOW_FRAME			(60)	// GOテッロプ表示フレーム数
 #define FINISH_SHOW_FRAME		(120)	// FINISHテロップ表示フレーム数
-
+#define STOP_FINISH_FRAME		(60)
 
 #define	TEXTURE_READY			("data/TEXTURE/ready_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_GO				("data/TEXTURE/go_logo.png")	// 読み込むテクスチャファイル名
@@ -35,6 +36,8 @@
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT MakeVertexGameCall(void);
+void FinishGameCall(int frame);
+
 
 //*****************************************************************************
 // グローバル変数
@@ -47,6 +50,7 @@ static int				CntFrame;
 static int				TextureNum;
 LPDIRECTSOUNDBUFFER8	ReadySE = NULL;	// 選択ロゴのSE
 LPDIRECTSOUNDBUFFER8	FinishSE = NULL;	// 選択ロゴのSE
+LPDIRECTSOUNDBUFFER8	GameBGM01 = NULL;	// ゲーム内のBGM
 
 //=============================================================================
 // 初期化処理
@@ -78,8 +82,9 @@ HRESULT InitGameCall(int type)
 	MakeVertexGameCall();
 	
 	// SEロード
-	FinishSE = LoadSound(SE_FINISH);
+	GameBGM01 = LoadSound(BGM_GAME01);	
 	ReadySE = LoadSound(SE_STARTCALL);
+	FinishSE = LoadSound(SE_FINISH);
 
 	return S_OK;
 }
@@ -110,6 +115,7 @@ void UpdateGameCall(void)
 	switch (TextureNum)
 	{
 		case READY:
+			PlaySound(ReadySE, E_DS8_FLAG_NONE);
 			if (CntFrame % READY_SHOW_FRAME == 0)
 			{
 				TextureNum = GO;
@@ -120,6 +126,7 @@ void UpdateGameCall(void)
 		case GO:
 			if (CntFrame % GO_SHOW_FRAME == 0)
 			{
+				PlaySound(GameBGM01, E_DS8_FLAG_LOOP);
 				SetStage(START);
 				TextureNum = FINISH;
 				CntFrame = 0;
@@ -127,12 +134,7 @@ void UpdateGameCall(void)
 			break;
 
 		case FINISH:
-			if (CntFrame % FINISH_SHOW_FRAME == 0)
-			{
-				ComprareChild();
-
-				CntFrame = 0;
-			}
+			FinishGameCall(CntFrame);
 
 			break;
 
@@ -204,8 +206,43 @@ HRESULT MakeVertexGameCall(void)
 	return S_OK;
 }
 
+void FinishGameCall(int frame)
+{
+	if (frame == 1)
+	{
+		StopSound(GameBGM01);
+		StopSound(GetGameBGM02());
+		PlaySound(FinishSE, E_DS8_FLAG_NONE);
+	}
+	else if (frame % STOP_FINISH_FRAME == 0)
+	{
+		StopSound(FinishSE);
+	}
+	if (frame % FINISH_SHOW_FRAME == 0)
+	{
+		PLAYER *player = GetPlayer(0);
+		if (player[P1].life <= 0)
+		{
+			SetResult(P2);
+		}
+		else if (player[P2].life <= 0)
+		{
+			SetResult(P1);
+		}
+
+		ComprareChild();
+
+		frame = 0;
+	}
+
+}
 
 void SetGameCallTextureNum(int num)
 {
 	TextureNum = num;
+}
+
+LPDIRECTSOUNDBUFFER8 GetGameBGM01(void)
+{
+	return GameBGM01;
 }

@@ -15,7 +15,7 @@
 #include "checkhit.h"
 #include "ai.h"
 #include "result.h"
-#include "sound.h"
+
 
 //*****************************************************************************
 // マクロ定義
@@ -48,7 +48,6 @@ static LPD3DXBUFFER					D3DXBuffMat;			// メッシュのマテリアル情報を格納
 static DWORD						NumMat;					// 属性情報の総数
 static int							cntFrame[PLAYER_MAX];	// フレームカウント
 
-LPDIRECTSOUNDBUFFER8				BulletSE = NULL;		// バレット発射時のSE
 PLAYER								player[PLAYER_MAX];		// プレイヤー構造体
 //=============================================================================
 // 初期化処理
@@ -75,6 +74,7 @@ HRESULT InitPlayer(int type)
 		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
 		player[i].cntFrame= 0;
+		player[i].hitSE = LoadSound(SE_HIT);
 	}
 
 	// Xファイルの読み込み
@@ -92,9 +92,6 @@ HRESULT InitPlayer(int type)
 
 	// 法線正規化の設定
 	pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
-
-	// SEのロード
-	BulletSE = LoadSound(SE_BULLET);
 
 	return S_OK;
 }
@@ -137,11 +134,14 @@ void UpdatePlayer(void)
 		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 75.0f, 0.0f, cosf(player[i].rot.y) * 75.0f);
 
 		// 操作の処理
-		InputPlayer1();
-		InputKeyPlayer2();
-		InputGamePadPlayer1();
-		InputGamePadPlayer2();
-		
+		if (GetStage() == START)
+		{
+			InputPlayer1();
+			InputKeyPlayer2();
+			InputGamePadPlayer1();
+			InputGamePadPlayer2();
+		}
+
 		if (GetStage() == TITLE)
 		{
 			NonePlayerPatrol(i);
@@ -149,8 +149,7 @@ void UpdatePlayer(void)
 		else if (i == 1)
 		{
 			NonePlayerAttack();
-			//NonePlayerMove();
-			NonePlayerPatrol(i);
+			NonePlayerMove();
 		}
 
 		// 壁ずり処理
@@ -346,7 +345,6 @@ void InputPlayer1(void)
 		// バレットの発射
         else if(GetKeyboardRelease(DIK_SPACE))
 		{
-			PlaySound(BulletSE);
           	SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
@@ -455,7 +453,7 @@ void InputKeyPlayer2(void)
 		}
 		else if (GetKeyboardRelease(DIK_Z))
 		{
-			PlaySound(BulletSE);
+			
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
 		}
@@ -559,7 +557,7 @@ void InputGamePadPlayer1(void)
 		// バレットの発射
 		else if (IsButtonRelease(P1, BUTTON_B))
 		{
-			PlaySound(BulletSE);
+			
 			SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
@@ -662,7 +660,7 @@ void InputGamePadPlayer2(void)
 		// バレットの発射
 		else if (IsButtonRelease(P2, BUTTON_C))
 		{
-			PlaySound(BulletSE);
+			
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
 		}
@@ -721,11 +719,11 @@ void PlayerDamageManager(void)
 	// プレイヤーのライフがなくなったとき
 	if (player[P1].life < 0)
 	{
-		SetResult(P2);
+		SetStage(FINISHCALL);
 	}
 	else if (player[P2].life < 0)
 	{
-		SetResult(P1);
+		SetStage(FINISHCALL);
 	}
 }
 

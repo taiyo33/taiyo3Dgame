@@ -26,6 +26,8 @@ typedef struct {
 	float	patrol[MOVE_PATTERN_MAX];			// „‰ñ
 	int		deciMemory[DECISION_MEMORY_MAX];
 	int		cntMemory;
+	bool	atcFlag;							// UŒ‚ó‘Ô
+
 }AI;
 
 //*****************************************************************************

@@ -8,6 +8,7 @@
 #define _TIME_H_
 
 
+
 #define BULLET_HIT			(10)
 
 //*****************************************************************************
@@ -20,5 +21,6 @@ void DrawTime(void);
 
 int GetTime(void);
 void AddTime( int add );
+LPDIRECTSOUNDBUFFER8 GetGameBGM02(void);
 
 #endif

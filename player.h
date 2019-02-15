@@ -42,6 +42,7 @@ typedef struct {
 	float						SizeShadow;			// 影のサイズ
 	D3DXCOLOR					colShadow;			// 影の色
 	int							cntFrame;
+	LPDIRECTSOUNDBUFFER8		hitSE;				// 被弾時SE
 
 
 }PLAYER;

@@ -19,20 +19,20 @@
 #define PATROL_PATTERN_MAX					(9) 
 
 // NPCの移動マクロ
-#define MOVE_DISTANCE_CHASE_FUZZY_X1		(150.0f)
-#define MOVE_DISTANCE_CHASE_FUZZY_X2		(250.0f)
+#define MOVE_DISTANCE_CHASE_FUZZY_X1		(100.0f)
+#define MOVE_DISTANCE_CHASE_FUZZY_X2		(150.0f)
 #define MOVE_DISTANCE_CHASE_FUZZY_X3		(300.0f)
-#define MOVE_DISTANCE_CHASE_FUZZY_X4		(800.0f)
-#define MOVE_DISTANCE_ESCAPE_FUZZY_X1		(200.0f)
-#define MOVE_DISTANCE_ESCAPE_FUZZY_X2		(800.0f)
-#define MOVE_DISTANCE_PATROL_FUZZY_X1		(200.0f)
-#define MOVE_DISTANCE_PATROL_FUZZY_X2		(300.0f)
-#define MOVE_DISTANCE_PATROL_FUZZY_X3		(500.0f)
-#define MOVE_DISTANCE_PATROL_FUZZY_X4		(800.0f)
-#define MOVE_DISTANCE_WAIT_FUZZY_X1			(100.0f)
-#define MOVE_DISTANCE_WAIT_FUZZY_X2			(150.0f)
-#define MOVE_DISTANCE_WAIT_FUZZY_X3			(300.0f)
-#define MOVE_DISTANCE_WAIT_FUZZY_X4			(800.0f)
+#define MOVE_DISTANCE_CHASE_FUZZY_X4		(500.0f)
+#define MOVE_DISTANCE_ESCAPE_FUZZY_X1		(100.0f)
+#define MOVE_DISTANCE_ESCAPE_FUZZY_X2		(600.0f)
+#define MOVE_DISTANCE_PATROL_FUZZY_X1		(100.0f)
+#define MOVE_DISTANCE_PATROL_FUZZY_X2		(200.0f)
+#define MOVE_DISTANCE_PATROL_FUZZY_X3		(400.0f)
+#define MOVE_DISTANCE_PATROL_FUZZY_X4		(600.0f)
+#define MOVE_DISTANCE_WAIT_FUZZY_X1			(0.0f)
+#define MOVE_DISTANCE_WAIT_FUZZY_X2			(100.0f)
+#define MOVE_DISTANCE_WAIT_FUZZY_X3			(150.0f)
+#define MOVE_DISTANCE_WAIT_FUZZY_X4			(500.0f)
 
 
 #define MOVE_NPCLIFE_CHASE_FUZZY_X1			(0.0f)
@@ -54,6 +54,8 @@
 #define ATTACK_PLAYERLIFE_WAIT_FUZZY_X2		(100.0f)
 
 #define STOP_ROUTINE_CNT					(2)
+#define RELOAD_ATTCK_FRAME					(60)		// 攻撃の可能までの間隔
+
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -155,35 +157,35 @@ void NonePlayerMove(void)
 	PLAYER *player = GetPlayer(0);
 	
 	// 思考するか
-	if (!StopRoutineNonePlayer())
-	{
-		cntFrame++;
-		// 30フレーム思考停止
-		if (cntFrame % 30 == 0)
-		{
-			for (int i = 0; i < DECISION_MEMORY_MAX; i++)
-			{
-				ai->deciMemory[i] = 0;	//初期化
-			}
+	//if (!StopRoutineNonePlayer())
+	//{
+	//	cntFrame++;
+	//	// 30フレーム思考停止
+	//	if (cntFrame % 30 == 0)
+	//	{
+	//		for (int i = 0; i < DECISION_MEMORY_MAX; i++)
+	//		{
+	//			ai->deciMemory[i] = 0;	//初期化
+	//		}
 
-			cntFrame = 0;
-		}
+	//		cntFrame = 0;
+	//	}
 
-		return;
-	}
+	//	return;
+	//}
 
 	ai->cntMemory < DECISION_MEMORY_MAX ? ai->cntMemory++ : ai->cntMemory = 0;	// 配列の添え字を更新
 
 	// 相手との距離による判定
-	D3DXVECTOR3 pvpVec = player[P2].pos - player[P1].pos;
+	D3DXVECTOR3 pvpVec = player[P1].pos - player[P2].pos;
 	float vecLength = D3DXVec3Length(&pvpVec);
 	ai->chase[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_CHASE_FUZZY_X1, MOVE_DISTANCE_CHASE_FUZZY_X2,
 													MOVE_DISTANCE_CHASE_FUZZY_X3, MOVE_DISTANCE_CHASE_FUZZY_X4);
 	ai->escape[PATTERN1] = FuzzyRightDown(vecLength, MOVE_DISTANCE_ESCAPE_FUZZY_X1, MOVE_DISTANCE_ESCAPE_FUZZY_X2);
 	ai->patrol[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_PATROL_FUZZY_X1, MOVE_DISTANCE_PATROL_FUZZY_X2,
 												     MOVE_DISTANCE_PATROL_FUZZY_X3, MOVE_DISTANCE_PATROL_FUZZY_X4);
-	ai->wait[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_WAIT_FUZZY_X1, MOVE_DISTANCE_WAIT_FUZZY_X2, 
-												   MOVE_DISTANCE_WAIT_FUZZY_X3, MOVE_DISTANCE_WAIT_FUZZY_X4);
+	//ai->wait[PATTERN1] = FuzzyTrapezoid(vecLength, MOVE_DISTANCE_WAIT_FUZZY_X1, MOVE_DISTANCE_WAIT_FUZZY_X2, 
+	//												   MOVE_DISTANCE_WAIT_FUZZY_X3, MOVE_DISTANCE_WAIT_FUZZY_X4);
 
 	// 自ライフによる判定
 	if (player[P2].life > 0.0f)
@@ -194,7 +196,7 @@ void NonePlayerMove(void)
 		ai->cmpPattern[CHASE] = ai->chase[PATTERN1] * ai->chase[PATTERN2];
 		ai->cmpPattern[ESCAPE] = ai->escape[PATTERN1] * ai->escape[PATTERN2];
 		ai->cmpPattern[PATROL] = ai->patrol[PATTERN1];
-		ai->cmpPattern[WAIT] = ai->wait[PATTERN1];
+		//ai->cmpPattern[WAIT] = ai->wait[PATTERN1];
 	}
 	// 相手ライフが最高値の時は考慮しない
 	else if (player[P2].life == 0.0f)
@@ -229,7 +231,6 @@ void NonePlayerMove(void)
 		NonePlayerDest(player[P1].pos, P2);
 		D3DXVECTOR3 vec = player[P1].pos - player[P2].pos;
 		D3DXVec3Normalize(&vec, &vec);
-		D3DXVec3Normalize(&player[P2].frontVec, &player[P2].frontVec);
 
 		player[P2].speed = 5.0f * ai->cmpPattern[CHASE];
 
@@ -433,15 +434,18 @@ void NonePlayerAttack(void)
 		}
 	}
 
-	// 攻撃開始判定
-	if (CheckHitRay(player[P1].pos, player[P2].pos, player[P2].frontVec, 15.0f))
+	if (cntFrame % RELOAD_ATTCK_FRAME == 0)
 	{
-		SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
-	}
-	// 反射を考慮した攻撃
-	else if (CheckHitRay(player[P1].pos, player[P2].pos, reflectVec, 15.0f))
-	{
-		SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
+		// 攻撃開始判定
+		if (CheckHitRay(player[P1].pos, player[P2].pos, player[P2].frontVec, 15.0f))
+		{
+			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
+		}
+		// 反射を考慮した攻撃
+		else if (CheckHitRay(player[P1].pos, player[P2].pos, reflectVec, 15.0f))
+		{
+			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
+		}
 	}
 
 }

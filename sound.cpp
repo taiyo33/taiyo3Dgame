@@ -1,5 +1,5 @@
 #include "main.h"
-#include "sound.h"
+
 
 // おまじない
 #pragma comment ( lib, "dxguid.lib" )
@@ -9,15 +9,17 @@
 // サウンドファイルのパス（hの通しナンバーと合わせること）
 const TCHAR* c_soundFilename[] = {
 
-	_T("data/BGM/BGM.wav"),
+	_T("data/BGM/title_bgm.wav"),
 	_T("data/BGM/game_bgm.wav"),
 	_T("data/BGM/game_speedup_bgm.wav"),
 	_T("data/SE/pushspace.wav"),
 	_T("data/SE/title_select_se.wav"),
 	_T("data/SE/game_startcall.wav"),
 	_T("data/SE/finish_se.wav"),
-	_T("data/SE/bullet_se.wav")
-	//_T("data/SE/finish_se.wav"),
+	_T("data/SE/bullet_se.wav"),
+	_T("data/SE/reflect_se.wav"),
+	_T("data/SE/child_damage_se.wav"),
+	_T("data/SE/hit.wav"),
 
 };
 

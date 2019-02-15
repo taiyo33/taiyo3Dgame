@@ -17,6 +17,7 @@
 #include "child.h" 
 
 
+
 D3DXVECTOR3				p3;
 D3DXVECTOR3				nor;
 //=============================================================================
@@ -86,13 +87,13 @@ void CheckHit(void)
 		{
 			// P2の子供モデルとの判定
 			CHILD *child = GetChild(0);
-			for (j = 0; j < child[i].cnt; j++)
+			for (j = 0; j < CHILD_ONESET_MAX; j++)
 			{
 				if (!child[P2].use[j]) continue;
 
 				if (CheckHitBC(bullet[P1].pos[i], child[P2].pos[j], 15.0f, 15.0f))
 				{
-					player = GetPlayer(0);
+					PlaySound(child[P2].damageSE, E_DS8_FLAG_NONE);
 					child[P2].use[j] = false;
 					child[P2].cnt --;
 					child[P1].cnt ++;
@@ -105,6 +106,7 @@ void CheckHit(void)
 			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos, 
 								bullet[P1].size[i].x, 10.0f))
 			{
+				PlaySound(player[P2].hitSE, E_DS8_FLAG_NONE);
 				player[P2].life -= BULLET_DAMAGE;
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
@@ -118,13 +120,13 @@ void CheckHit(void)
 		{
 			// P1の子供モデルとの判定
 			CHILD *child = GetChild(0);
-			for (j = 0; j < child[i].cnt; j++)
+			for (j = 0; j < CHILD_ONESET_MAX; j++)
 			{
 				if (!child[P1].use[j]) continue;
 
 				if (CheckHitBC(bullet[P2].pos[i], child[P1].pos[j], 15.0f, 15.0f))
 				{
-					player = GetPlayer(0);
+					PlaySound(child[P1].damageSE, E_DS8_FLAG_NONE);
 					child[P1].use[j] = false;
 					child[P1].cnt --;
 					child[P2].cnt ++;
@@ -137,6 +139,7 @@ void CheckHit(void)
 			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
 								  bullet[P2].size[i].x, 10.0f))
 			{
+				PlaySound(player[P1].hitSE, E_DS8_FLAG_NONE);
 				player[P1].life -= BULLET_DAMAGE;
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;

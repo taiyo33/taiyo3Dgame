@@ -1,11 +1,13 @@
 //=============================================================================
 //
-// タイトル画面処理 [title.h]
+// ゲームの開始修了処理 [gameCall.h]
 // Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
 #ifndef _GAMECALL_H_
 #define _GAMECALL_H_
+
+
 
 //*****************************************************************************
 // マクロ定義
@@ -34,5 +36,6 @@ void UninitGameCall(void);
 void UpdateGameCall(void);
 void DrawGameCall(void);
 void SetGameCallTextureNum(int num);
+LPDIRECTSOUNDBUFFER8 GetGameBGM01(void);
 
 #endif
