@@ -11,7 +11,7 @@
 #include "player.h"
 #include "shadow.h"
 #include "debugproc.h"
-#include "effect.h"
+#include "hitEffect.h"
 #include "bullet.h"
 #include "title.h"
 #include "tutorial.h"
@@ -347,7 +347,7 @@ void Uninit(void)
 	UninitPlayer();
 
 	// エフェクトの終了処理
-	UninitEffect();
+	UninitHitEffect();
 
 	// タイトルの終了処理
 	UninitTitle();
@@ -492,7 +492,7 @@ void Update(void)
 			UpdateChild();
 
 			// エフェクトの更新
-			UpdateEffect();
+			UpdateHitEffect();
 
 			// 弾痕の更新
 			UpdateExplosion();
@@ -651,9 +651,6 @@ void Draw(void)
 				// バレットの描画
 				DrawBullet();
 
-				// ガンエフェクトの描画
-				DrawEffect();
-
 				// 爆発エフェクトの描画
 				DrawExplosion();
 
@@ -674,6 +671,9 @@ void Draw(void)
 
 				// 子供モデルの描画
 				DrawChild();
+
+				// 被弾エフェクトの描画
+				DrawHitEffect();
 
 				// キャラクターアイコンの描画
 				//DrawIcon();
@@ -857,7 +857,7 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	InitBullet(0);
 
 	// エフェクトの初期化
-	InitEffect(0);
+	InitHitEffect(0);
 
 	// 爆発エフェクトの初期化
 	InitExplosion(0);
@@ -946,7 +946,7 @@ void InitGame(void)
 	InitBullet(INIT_GAME);
 
 	// エフェクトの初期化
-	InitEffect(INIT_GAME);
+	InitHitEffect(INIT_GAME);
 
 	// 時間の初期化
 	InitTime(INIT_GAME);

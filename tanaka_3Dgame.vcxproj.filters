@@ -81,9 +81,6 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル\main</Filter>
     </ClCompile>
-    <ClCompile Include="effect.cpp">
-      <Filter>ソース ファイル\effect</Filter>
-    </ClCompile>
     <ClCompile Include="player.cpp">
       <Filter>ソース ファイル\player</Filter>
     </ClCompile>
@@ -156,6 +153,9 @@
     <ClCompile Include="sound.cpp">
       <Filter>ソース ファイル\sound</Filter>
     </ClCompile>
+    <ClCompile Include="hitEffect.cpp">
+      <Filter>ソース ファイル\effect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet.h">
@@ -178,9 +178,6 @@
     </ClInclude>
     <ClInclude Include="main.h">
       <Filter>ヘッダー ファイル\main</Filter>
-    </ClInclude>
-    <ClInclude Include="effect.h">
-      <Filter>ヘッダー ファイル\effect</Filter>
     </ClInclude>
     <ClInclude Include="checkhit.h">
       <Filter>ヘッダー ファイル\main</Filter>
@@ -250,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="sound.h">
       <Filter>ヘッダー ファイル\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="hitEffect.h">
+      <Filter>ヘッダー ファイル\effect</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

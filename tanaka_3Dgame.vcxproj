@@ -138,7 +138,7 @@
     <ClCompile Include="checkhit.cpp" />
     <ClCompile Include="child.cpp" />
     <ClCompile Include="debugproc.cpp" />
-    <ClCompile Include="effect.cpp" />
+    <ClCompile Include="hitEffect.cpp" />
     <ClCompile Include="field.cpp" />
     <ClCompile Include="gameCall.cpp" />
     <ClCompile Include="gaugeEffect.cpp" />
@@ -171,7 +171,7 @@
     <ClInclude Include="checkhit.h" />
     <ClInclude Include="child.h" />
     <ClInclude Include="debugproc.h" />
-    <ClInclude Include="effect.h" />
+    <ClInclude Include="hitEffect.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="gameCall.h" />
     <ClInclude Include="gaugeEffect.h" />

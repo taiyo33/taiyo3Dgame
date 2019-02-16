@@ -17,8 +17,8 @@ typedef struct
 	D3DXMATRIX mtxWorld;	// ワールドマトリックス
 	D3DXVECTOR3 pos[BULLETEFFECT_ONESET_MAX];		// 位置
 	D3DXVECTOR3 scl[BULLETEFFECT_ONESET_MAX];		// スケール
-	bool		use[BULLETEFFECT_ONESET_MAX];				// 使用しているかどうか
-	int			time[BULLETEFFECT_ONESET_MAX];
+	bool		use[BULLETEFFECT_ONESET_MAX];		// 使用しているかどうか
+	int			time[BULLETEFFECT_ONESET_MAX];		// エフェクト寿命
 	float		Alpha[BULLETEFFECT_ONESET_MAX];
 	float		angle;
 

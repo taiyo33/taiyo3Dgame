@@ -8,7 +8,6 @@
 #include "camera.h"
 #include "input.h"
 #include "shadow.h"
-#include "effect.h"
 #include "checkhit.h"
 #include "explosion.h"
 #include "bullet.h"

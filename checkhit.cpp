@@ -10,7 +10,7 @@
 #include "bullet.h"
 #include "time.h"
 #include "result.h"
-#include "effect.h"
+#include "hitEffect.h"
 #include "block.h" 
 #include "explosion.h"
 #include "field.h"
@@ -107,6 +107,7 @@ void CheckHit(void)
 								bullet[P1].size[i].x, 10.0f))
 			{
 				PlaySound(player[P2].hitSE, E_DS8_FLAG_NONE);
+				SetHitEffect(bullet[P1].pos[i], D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0);
 				player[P2].life -= BULLET_DAMAGE;
 				bullet[P1].use[i] = false;
 				bullet[P1].reflect[i] = false;
@@ -140,6 +141,7 @@ void CheckHit(void)
 								  bullet[P2].size[i].x, 10.0f))
 			{
 				PlaySound(player[P1].hitSE, E_DS8_FLAG_NONE);
+				SetHitEffect(bullet[P2].pos[i], D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0);
 				player[P1].life -= BULLET_DAMAGE;
 				bullet[P2].use[i] = false;
 				bullet[P2].reflect[i] = false;
