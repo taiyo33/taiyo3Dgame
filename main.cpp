@@ -34,6 +34,7 @@
 #include "gaugeEffect.h"
 #include "icon.h"
 #include "gameCall.h"
+#include "chargeEffect.h"
 
 
 //*****************************************************************************
@@ -403,6 +404,9 @@ void Uninit(void)
 	// ゲーム遷移テロップの終了処理
 	UninitGameCall();
 
+	// チャージエフェクトの終了処理
+	UninitChargeEffect();
+
 }
 
 //=============================================================================
@@ -490,6 +494,9 @@ void Update(void)
 
 			// 子供の更新
 			UpdateChild();
+
+			// チャージエフェクトの更新
+			UpdateChargeEffect();
 
 			// エフェクトの更新
 			UpdateHitEffect();
@@ -656,6 +663,12 @@ void Draw(void)
 
 				// バレットエフェクトの描画
 				DrawBulletEffect();
+				
+				// 子供モデルの描画
+				DrawChild();
+
+				// チャージエフェクトの描画
+				DrawChargeEffect();
 
 				// プレイヤー処理の描画
 				DrawPlayer();
@@ -668,9 +681,6 @@ void Draw(void)
 
 				// 右腕の描画
 				DrawRightArm();
-
-				// 子供モデルの描画
-				DrawChild();
 
 				// 被弾エフェクトの描画
 				DrawHitEffect();
@@ -918,6 +928,9 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 
 	// ゲーム遷移テロップの初期化
 	InitGameCall(0);
+
+	// チャージエフェクトの初期化
+	InitChargeEffect(0);
 }
 
 //============================================================================
@@ -983,6 +996,9 @@ void InitGame(void)
 
 	// ゲーム遷移テロップの初期化
 	InitGameCall(INIT_GAME);
+
+	// チャージエフェクトの初期化
+	InitChargeEffect(INIT_GAME);
 
 }
 

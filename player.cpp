@@ -15,13 +15,12 @@
 #include "checkhit.h"
 #include "ai.h"
 #include "result.h"
-
+#include "chargeEffect.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
 #define	PLAYER_AIRPLANE		"data/MODEL/model_body.x"	// 読み込むモデル名
-#define HANDGUM_TEXTURE		"data/TEXTURE/handgun.jpg"	// 読み込むテクスチャー
 #define	RATE_MOVE_PLAYER		(0.20f)					// 移動慣性係数
 #define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.02f)			// 回転速度
 #define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
@@ -328,6 +327,8 @@ void InputPlayer1(void)
 		// バレットのチャージ
 		if (GetKeyboardPress(DIK_SPACE))
 		{
+			SetChargeEffect(player[P1].pos, player[P1].rot, 0, P1);
+
 			// バレットが使用中はチャージ不可
 			if (bullet->use[P1]) return;
 

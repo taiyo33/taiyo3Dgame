@@ -40,10 +40,6 @@ void MoveBullet(int index, int bno);
 // グローバル変数
 //*****************************************************************************
 
-enum {
-	TEX_NUM001,
-	TEX_NUM002
-};
 LPDIRECT3DTEXTURE9		D3DTextureBullet[TEXTURE_MAX];	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBullet = NULL;	// 頂点バッファインターフェースへのポインタ
 static float			dif_mi[BULLET_MAX];

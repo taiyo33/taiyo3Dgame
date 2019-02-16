@@ -14,10 +14,11 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	TEXTURE_HITEFFECT		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
+#define	TEXTURE_HITEFFECT01		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
 #define	HITEFFECT_SIZE_X		(25.0f)							// ビルボードの幅
 #define	HITEFFECT_SIZE_Y		(50.0f)							// ビルボードの高さ
 #define INIT_SPEED				(2.0f)
+#define TEXTURE_MAX				(2)								// テクスチャーの最大数					
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -31,13 +32,10 @@ void TyouseiHitEffect(int index, int hno);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		D3DTextureHitEffect = NULL;	// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 D3DTVtxBuffHitEffect = NULL;	// 頂点バッファインターフェースへのポインタ
-
-static int				CntFrame;
+LPDIRECT3DTEXTURE9		D3DTextureHitEffect[TEXTURE_MAX];	// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 D3DTVtxBuffHitEffect = NULL;		// 頂点バッファインターフェースへのポインタ
 
 HITEFFECT				hitEffectWk[HITEFFECT_SET_MAX];
-
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -53,8 +51,9 @@ HRESULT InitHitEffect(int type)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
-			TEXTURE_HITEFFECT,					// ファイルの名前
-			&D3DTextureHitEffect);			// 読み込むメモリー
+			TEXTURE_HITEFFECT01,					// ファイルの名前
+			&D3DTextureHitEffect[TEX_NUM001]);			// 読み込むメモリー
+
 	}
 
 	for (int i = 0; i < HITEFFECT_SET_MAX ; i++)
@@ -70,7 +69,6 @@ HRESULT InitHitEffect(int type)
 			hitEffect[i].angle[j] = 0.0f;
 		}
 	}
-	CntFrame = 0;
 
 	return S_OK;
 }
@@ -80,12 +78,14 @@ HRESULT InitHitEffect(int type)
 //=============================================================================
 void UninitHitEffect(void)
 {
-	if(D3DTextureHitEffect != NULL)
-	{// テクスチャの開放
-		D3DTextureHitEffect->Release();
-		D3DTextureHitEffect = NULL;
+	for (int i = 0; i < TEXTURE_MAX; i++)
+	{
+		if (D3DTextureHitEffect[i] != NULL)
+		{// テクスチャの開放
+			D3DTextureHitEffect[i]->Release();
+			D3DTextureHitEffect[i] = NULL;
+		}
 	}
-
 	if(D3DTVtxBuffHitEffect != NULL)
 	{// 頂点バッファの開放
 		D3DTVtxBuffHitEffect->Release();
@@ -117,7 +117,6 @@ void UpdateHitEffect(void)
 				if (hitEffect[i].speed[j] < 0.0f)
 				{
 					hitEffect[i].use = false;
-					hitEffect[i].angle[j] = 0.0f;
 				}
 			}
 		}
@@ -138,7 +137,7 @@ void DrawHitEffect(void)
 
 	// αテストを有効に
 	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
-	pDevice->SetRenderState(D3DRS_ALPHAREF, 0);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 200);
 	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 
 	// ラインティングを無効にする
@@ -192,7 +191,7 @@ void DrawHitEffect(void)
 				pDevice->SetFVF(FVF_VERTEX_3D);
 
 				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTextureHitEffect);
+				pDevice->SetTexture(0, D3DTextureHitEffect[TEX_NUM001]);
 
 				// ポリゴンの描画
 				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);

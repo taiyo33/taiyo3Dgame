@@ -469,6 +469,7 @@ void AlignmentChild(int index, int cno)
 	child->v1[cno].z = (child->v1[cno].z - child->move[cno].z) / 2;
 
 }
+
 // Œ‹‡
 void ChesionChild(int index, int cno)
 {
@@ -481,6 +482,7 @@ void ChesionChild(int index, int cno)
 		child->v2[cno].x += child->pos[i].x;
 		child->v2[cno].z += child->pos[i].z;
 	}
+
 	child->v2[cno].x += player->pos.x;
 	child->v2[cno].z += player->pos.z;
 

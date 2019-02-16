@@ -135,6 +135,7 @@
     <ClCompile Include="bulletGauge.cpp" />
     <ClCompile Include="buttleGauge.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="chargeEffect.cpp" />
     <ClCompile Include="checkhit.cpp" />
     <ClCompile Include="child.cpp" />
     <ClCompile Include="debugproc.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="bulletGauge.h" />
     <ClInclude Include="buttleGauge.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="chargeEffect.h" />
     <ClInclude Include="checkhit.h" />
     <ClInclude Include="child.h" />
     <ClInclude Include="debugproc.h" />

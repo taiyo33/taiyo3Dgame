@@ -34,10 +34,6 @@ void SetDiffuseBulletEffect(int Index, float val);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-enum {
-	TEX_NUM001,
-	TEX_NUM002
-};
 
 LPDIRECT3DTEXTURE9		D3DTextureBulletEffect[TEXTURE_MAX];	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBulletEffect = NULL;	// 頂点バッファインターフェースへのポインタ
@@ -99,6 +95,7 @@ void UninitBulletEffect(void)
 			D3DTextureBulletEffect[i] = NULL;
 		}
 	}
+
 	if (D3DVtxBuffBulletEffect != NULL)
 	{// 頂点バッファの開放
 		D3DVtxBuffBulletEffect->Release();

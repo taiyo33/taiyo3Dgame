@@ -12,6 +12,8 @@
 #define MOVE_PATTERN_MAX			(3)
 #define CMP_PATTERN_MAX				(4)
 #define DECISION_MEMORY_MAX			(5)
+#define ROUTEDATA_MAX				(9) 
+#define ROUTEDATA_ARRAY_MAX			(3)
 
 typedef struct {
 
@@ -21,13 +23,17 @@ typedef struct {
 	float	atc[MOVE_PATTERN_MAX];				// 攻撃
 	float	chase[MOVE_PATTERN_MAX];			// 追跡
 	float	escape[MOVE_PATTERN_MAX];			// 逃走
-	float	avoid[1];							// 回避
 	float	wait[MOVE_PATTERN_MAX];				// 待機
 	float	patrol[MOVE_PATTERN_MAX];			// 巡回
 	int		deciMemory[DECISION_MEMORY_MAX];
 	int		cntMemory;
 	bool	atcFlag;							// 攻撃状態
-
+	
+	// 巡回データ関係変数
+	float	lenVec[ROUTEDATA_MAX];						// ベクトルの大きさ
+	int		lapingTime[ROUTEDATA_MAX];					// 経路通過の経過時間
+	float	routeRot[ROUTEDATA_MAX][ROUTEDATA_ARRAY_MAX];	// 
+	int		routeIndex;
 }AI;
 
 //*****************************************************************************
