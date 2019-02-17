@@ -147,8 +147,8 @@ void UpdatePlayer(void)
 		}
 		else if (i == 1)
 		{
-			NonePlayerAttack();
 			NonePlayerMove();
+			NonePlayerAttack();
 		}
 
 		// •Ç‚¸‚èˆ—

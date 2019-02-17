@@ -20,20 +20,21 @@ typedef struct {
 	int		patrolNum;							// 巡回のパターン番号
 	float	cmpPattern[CMP_PATTERN_MAX];		// 比較の合計値
 	float	decision;							// 比較結果
-	float	atc[MOVE_PATTERN_MAX];				// 攻撃
 	float	chase[MOVE_PATTERN_MAX];			// 追跡
 	float	escape[MOVE_PATTERN_MAX];			// 逃走
-	float	wait[MOVE_PATTERN_MAX];				// 待機
-	float	patrol[MOVE_PATTERN_MAX];			// 巡回
-	int		deciMemory[DECISION_MEMORY_MAX];
+	float	routine[MOVE_PATTERN_MAX];			// 巡回
+	int		deciMemory[DECISION_MEMORY_MAX];	//
 	int		cntMemory;
-	bool	atcFlag;							// 攻撃状態
 	
 	// 巡回データ関係変数
 	float	lenVec[ROUTEDATA_MAX];						// ベクトルの大きさ
 	int		lapingTime[ROUTEDATA_MAX];					// 経路通過の経過時間
 	float	routeRot[ROUTEDATA_MAX][ROUTEDATA_ARRAY_MAX];	// 
 	int		routeIndex;
+	int		routineCntFrame;
+	int		atcCntFrame;
+	bool	routineStart;
+
 }AI;
 
 //*****************************************************************************
