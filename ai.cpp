@@ -57,10 +57,10 @@
 // ルート巡回マクロ
 #define STOP_ROUTINE_CNT					(2)
 #define ROUTE_DISTANCE_FUZZY_X1				(0.0f)
-#define ROUTE_DISTANCE_FUZZY_X2				(600.0f)
+#define ROUTE_DISTANCE_FUZZY_X2				(800.0f)
 #define ROUTE_TIME_FUZZY_X1					(0.0f)
 #define ROUTE_TIME_FUZZY_X2					(60.0f)
-#define ROUTE_CNT_TIME						(90)
+#define ROUTE_CNT_TIME						(80)
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -93,15 +93,15 @@ enum {
 
 // 巡回の種類
 enum {
-	PATROL01,
-	PATROL02,
-	PATROL03,
-	PATROL04,
-	PATROL05,
-	PATROL06,
-	PATROL07,
-	PATROL08,
-	PATROL09
+	ROUTE00,
+	ROUTE01,
+	ROUTE02,
+	ROUTE03,
+	ROUTE04,
+	ROUTE05,
+	ROUTE06,
+	ROUTE07,
+	ROUTE08,
 };
 
 enum {
@@ -113,16 +113,15 @@ enum {
 // 巡回のパターン
 D3DXVECTOR3			RouteData[ROUTEDATA_MAX]{
 
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),	// 左下
-	D3DXVECTOR3(-FIELD_SIZE_X / 2, 0.0f, -FIELD_SIZE_Z + 50.0f),		// 左中央
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),	// 左上
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 0.0f, FIELD_SIZE_Z / 2),		// 上中央
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, FIELD_SIZE_Z - 100.0f),	// 右上
-	D3DXVECTOR3(FIELD_SIZE_X / 2, 0.0f, FIELD_SIZE_Z - 100.0f),			// 右中央
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z + 100.0f),	// 右下
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 0.0f, -FIELD_SIZE_Z / 2),		// 下中央
-	D3DXVECTOR3(0.0f, 0.0f, 0.0f)										// 中央
-
+	D3DXVECTOR3(0.0f, 0.0f, 0.0f),										// 中央
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, -FIELD_SIZE_Z + 50.0f),	// 右下
+	D3DXVECTOR3(0.0f, 10.0f, -FIELD_SIZE_Z + 80.0f),	// 下中央
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, -FIELD_SIZE_Z + 80.0f),	// 左下
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, 0.0f),	// 左中央
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, FIELD_SIZE_Z - 50.0f),	// 左上
+	D3DXVECTOR3(0.0f, 10.0f, FIELD_SIZE_Z - 80.0f),	// 上中央
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, FIELD_SIZE_Z - 80.0f),	// 右上
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, 0.0f),	// 右中央
 };
 
 int			CntFrame;
@@ -140,8 +139,8 @@ HRESULT InitAi(void)
 	ai->cmpPattern[PATROL] = 0.0f;	// 
 	ai->decision = 0.0f;			// 比較結果を初期化
 	ai->cntMemory = 0;				// 結果記憶配列の添え字を初期化
-	ai[P1].patrolNum = PATROL05;	// 巡回パターンの番号を初期化
-	ai[P2].patrolNum = PATROL01;	//
+	ai[P1].patrolNum = ROUTE05;	// 巡回パターンの番号を初期化
+	ai[P2].patrolNum = ROUTE01;	//
 	CntFrame = 0;
 
 	for (int i = 0; i < CMP_PATTERN_MAX; i++)
@@ -296,9 +295,20 @@ void DistancePlayer(int index)
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	float vestRoute = 0.0;
 
+	//if (ai->lapingTime[PATROL09] > 180 && ai->routeIndex % 2 == 0)
+	//{
+	//	ai->routeIndex = PATROL09;
+	//	ai->lapingTime[PATROL09] = 0;
+	//}
+
 	for (int i = 0; i < ROUTEDATA_MAX; i++)
 	{
 		ai->lapingTime[i]++;
+
+		if (ai->routeIndex == ROUTE00)
+		{
+
+		}
 
 		// ベクトルの大きさを計算
 		vec = player->pos - RouteData[i];
@@ -312,8 +322,6 @@ void DistancePlayer(int index)
 
 		vestRoute = max(ai->routeRot[i][ROUTE_DECISION], vestRoute);
 		
-		if (ai->routeIndex == i) continue;
-
 		if (vestRoute == ai->routeRot[i][ROUTE_DECISION])
 		{
 			ai->routeIndex = i;
@@ -406,7 +414,8 @@ void NonePlayerPatrol(int index)
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// 前方ベクトルのとブロックの判定
-	if (!HitCheckBlock(rayPos, player->pos, BLOCK_NUM_WALL))
+	//if (!HitCheckBlock(rayPos, player->pos, BLOCK_NUM_WALL))
+	if (CheckHitBC(player->pos, RouteData[ai->patrolNum], 15.0f, 15.0f))
 	{
 		ai->patrolNum = SwitchPatrolPattern(ai->patrolNum);
 	}
@@ -432,29 +441,29 @@ int SwitchPatrolPattern(int pattern)
 
 	switch (pattern)
 	{
-		case PATROL01 : out = PATROL03;
+		case ROUTE01 : out = ROUTE02;
 			break;
 
-		case PATROL03 : out = PATROL05;
+		case ROUTE02 : out = ROUTE03;
 			break;
 
-		case PATROL05 : out = PATROL07;
+		case ROUTE03 : out = ROUTE04;
 			break;
 
-		case PATROL07 : out = PATROL01;
+		case ROUTE04 : out = ROUTE05;
 			break;
 
-		//case PATROL05: out = PATROL06;
-		//	break;
+		case ROUTE05: out = ROUTE06;
+			break;
 
-		//case PATROL06: out = PATROL07;
-		//	break;
+		case ROUTE06: out = ROUTE07;
+			break;
 
-		//case PATROL07: out = PATROL08;
-		//	break;
+		case ROUTE07: out = ROUTE08;
+			break;
 
-		//case PATROL08: out = PATROL01;
-		//	break;
+		case ROUTE08: out = ROUTE01;
+			break;
 	}
 
 	return out;
