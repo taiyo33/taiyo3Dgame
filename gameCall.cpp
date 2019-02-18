@@ -51,6 +51,7 @@ static int				TextureNum;
 LPDIRECTSOUNDBUFFER8	ReadySE = NULL;	// 選択ロゴのSE
 LPDIRECTSOUNDBUFFER8	FinishSE = NULL;	// 選択ロゴのSE
 LPDIRECTSOUNDBUFFER8	GameBGM01 = NULL;	// ゲーム内のBGM
+LPDIRECTSOUNDBUFFER8	GameBGM03 = NULL;	// ゲーム内のBGM
 
 //=============================================================================
 // 初期化処理
@@ -83,6 +84,7 @@ HRESULT InitGameCall(int type)
 	
 	// SEロード
 	GameBGM01 = LoadSound(BGM_GAME01);	
+	GameBGM03 = LoadSound(BGM_GAME03);
 	ReadySE = LoadSound(SE_STARTCALL);
 	FinishSE = LoadSound(SE_FINISH);
 
@@ -221,6 +223,7 @@ void FinishGameCall(int frame)
 	if (frame % FINISH_SHOW_FRAME == 0)
 	{
 		PLAYER *player = GetPlayer(0);
+		PlaySound(GameBGM03, E_DS8_FLAG_NONE);
 		if (player[P1].life <= 0)
 		{
 			SetResult(P2);
@@ -245,4 +248,9 @@ void SetGameCallTextureNum(int num)
 LPDIRECTSOUNDBUFFER8 GetGameBGM01(void)
 {
 	return GameBGM01;
+}
+
+LPDIRECTSOUNDBUFFER8 GetGameBGM03(void)
+{
+	return GameBGM03;
 }

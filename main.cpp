@@ -116,7 +116,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 						NULL);
 
 	// 初期化処理(ウィンドウを作成してから行う)
-	if(FAILED(Init(hInstance, hWnd, true)))
+	if(FAILED(Init(hInstance, hWnd, false)))
 	{
 		return -1;
 	}
@@ -407,6 +407,8 @@ void Uninit(void)
 	// チャージエフェクトの終了処理
 	UninitChargeEffect();
 
+	// サウンドの終了処理
+	UninitSound();
 }
 
 //=============================================================================
@@ -952,14 +954,14 @@ void InitGame(void)
 	// プレイヤーの初期化
 	InitPlayer(INIT_GAME);
 
-	// キャラクターアイコンの初期化
-	InitIcon(INIT_GAME);
-
 	// バレットの初期化
 	InitBullet(INIT_GAME);
 
 	// エフェクトの初期化
 	InitHitEffect(INIT_GAME);
+
+	// 爆発エフェクトの初期化
+	InitExplosion(INIT_GAME);
 
 	// 時間の初期化
 	InitTime(INIT_GAME);
@@ -967,26 +969,41 @@ void InitGame(void)
 	// タイトルの初期化
 	InitTitle(INIT_GAME);
 
+	// ブロックの初期化
+	InitBlock(INIT_GAME);
+
 	// リザルトの初期化
 	InitResult(INIT_GAME);
 
 	// チュートリアルの初期化
 	InitTutorial(INIT_GAME);
 
-	// バトルゲージの初期化
-	InitButtleGauge(INIT_GAME);
-
 	// フィールドの初期化
 	InitField(INIT_GAME);
 
-	// ブロックの初期化
-	InitBlock(INIT_GAME);
-	
+	// バレットエフェクトの初期化
+	InitBulletEffect(INIT_GAME);
+
+	// 左腕モデルの初期化
+	InitLeftArm();
+
+	// 右腕モデルの初期化
+	InitRightArm();
+
+	// 頭モデルの初期化
+	InitHead();
+
+	// キャラクターアイコンの初期化
+	InitIcon(INIT_GAME);
+
+	// バレットゲージの初期化
+	InitBulletGauge(INIT_GAME);
+
+	// ライフゲージの初期化
+	InitLifeGauge(INIT_GAME);
+
 	// アイテムの初期化
 	InitItem(INIT_GAME);
-
-	// ゲージエフェクトの初期化
-	InitGaugeEffect(INIT_GAME);
 
 	// 子供モデルの初期化
 	InitChild();
@@ -994,11 +1011,16 @@ void InitGame(void)
 	// AIの初期化
 	InitAi();
 
+	// バトルゲージの初期化
+	InitButtleGauge(INIT_GAME);
+
+	// ゲージエフェクトの初期化
+	InitGaugeEffect(INIT_GAME);
+
 	// ゲーム遷移テロップの初期化
 	InitGameCall(INIT_GAME);
 
 	// チャージエフェクトの初期化
 	InitChargeEffect(INIT_GAME);
-
 }
 

@@ -14,10 +14,10 @@
 //*****************************************************************************
 
 
-#define	GAMECALL_POS_X		(400)			// タイトルの表示位置
-#define	GAMECALL_POS_Y		(250)			// タイトルの表示位置
+#define	GAMECALL_POS_X		(690)			// タイトルの表示位置
+#define	GAMECALL_POS_Y		(350)			// タイトルの表示位置
 #define	GAMECALL_SIZE_X		(500)			// タイトルの幅
-#define	GAMECALL_SIZE_Y		(300)			// タイトルの高さ
+#define	GAMECALL_SIZE_Y		(350)			// タイトルの高さ
 
 #define NUM_GAMECALL		(2)
 
@@ -37,5 +37,6 @@ void UpdateGameCall(void);
 void DrawGameCall(void);
 void SetGameCallTextureNum(int num);
 LPDIRECTSOUNDBUFFER8 GetGameBGM01(void);
+LPDIRECTSOUNDBUFFER8 GetGameBGM03(void);
 
 #endif

@@ -9,6 +9,8 @@
 #include "input.h"
 #include "player.h"
 #include "ai.h"
+#include "lifeGauge.h"
+#include "child.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -20,8 +22,8 @@
 #define MOVE_MENU_CNT_FREAM			(60)	//
 #define	TEXTURE_TITLE		("data/TEXTURE/title_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_ENTHER		("data/TEXTURE/push_logo.png")	// 読み込むテクスチャファイル名
-#define	TEXTURE_GAMESTART	("data/TEXTURE/start_logo.png")	// 読み込むテクスチャファイル名
-#define	TEXTURE_OPTION		("data/TEXTURE/option_logo.png")	// 読み込むテクスチャファイル名
+#define	TEXTURE_PVP			("data/TEXTURE/pvp_logo.png")	// 読み込むテクスチャファイル名
+#define	TEXTURE_NPC			("data/TEXTURE/pvc_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_EXIT		("data/TEXTURE/exit_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_SELECT		("data/TEXTURE/yajirusi.png")	// 読み込むテクスチャファイル名
 
@@ -61,6 +63,7 @@ HRESULT InitTitle(int type)
 	yMove = 0.0;
 	CntFrame = 0;
 	SelectFlag = false;
+	SelectNum = 0;
 
 	if (type == 0)
 	{
@@ -78,12 +81,12 @@ HRESULT InitTitle(int type)
 			&D3DTextureLogo[BUTTON]);		// 読み込むメモリー
 
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
-			TEXTURE_GAMESTART,				// ファイルの名前
-			&D3DTextureLogo[GAMESTART]);	// 読み込むメモリー
+			TEXTURE_NPC,					// ファイルの名前
+			&D3DTextureLogo[NCP]);			// 読み込むメモリー
 
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
-			TEXTURE_OPTION,					// ファイルの名前
-			&D3DTextureLogo[OPTION]);		// 読み込むメモリー
+			TEXTURE_PVP,					// ファイルの名前
+			&D3DTextureLogo[PVP]);			// 読み込むメモリー
 
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
 			TEXTURE_EXIT,					// ファイルの名前
@@ -134,11 +137,14 @@ void UninitTitle(void)
 //=============================================================================
 void UpdateTitle(void)
 {
+	PLAYER *player = GetPlayer(0);
 
 	if (SelectFlag)
 	{
 		if (CntFrame % MOVE_MENU_CNT_FREAM == 0)
 		{
+			SetInitPosPlayer();
+			SetInitPosChild();
 			SetStage(TUTORIAL);
 		}
 	}
@@ -162,7 +168,7 @@ void UpdateTitle(void)
 		SelectNum = (SelectNum + 1) % 3;
 		SetVertexSelect(SelectNum);
 	}
-	else if (IsButtonTriggered(P1, BUTTON_DOWN))
+	else if (IsButtonTriggered(P2, BUTTON_DOWN))
 	{
 		PlaySound(SelectSE, E_DS8_FLAG_NONE);
 		SelectNum = (SelectNum + 1) % 3;
@@ -196,29 +202,52 @@ void UpdateTitle(void)
 	}
 
 
-	// ゲームへ遷移
-	if (SelectNum == SELECT_START)
+	// NPC戦へ遷移
+	if (SelectNum == SELECT_NPC)
 	{
 		if ((GetKeyboardTrigger(DIK_RETURN)))
 		{
 			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			player[P2].npc = true;
+			SetIconTextureType(NPCICON);
 			SelectFlag = true;
 		}
 		else if (IsButtonPressed(P1, BUTTON_A))
 		{
 			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			player[P2].npc = true;
+			SetIconTextureType(NPCICON);
 			SelectFlag = true;
 		}
 		else if (IsButtonPressed(P2, BUTTON_B))
 		{
 			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			player[P2].npc = true;
+			SetIconTextureType(NPCICON);
 			SelectFlag = true;
 		}
 	}
-	// コンフィングへ遷移
-	else if ((GetKeyboardTrigger(DIK_RETURN)) && (SelectNum == SELECT_OPTION))
+	// PVPへ遷移
+	else if (SelectNum == SELECT_PVP)
 	{
-			// コンフィング
+		if ((GetKeyboardTrigger(DIK_RETURN)))
+		{
+			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			SetIconTextureType(PLAYERICON02);
+			SelectFlag = true;
+		}
+		else if (IsButtonPressed(P1, BUTTON_A))
+		{
+			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			SetIconTextureType(PLAYERICON02);
+			SelectFlag = true;
+		}
+		else if (IsButtonPressed(P2, BUTTON_B))
+		{
+			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+			SetIconTextureType(PLAYERICON02);
+			SelectFlag = true;
+		}
 	}
 	// 強制終了
 	else if (SelectNum == SELECT_EXIT)

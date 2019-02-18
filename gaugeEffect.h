@@ -9,14 +9,14 @@
 
 #include "main.h"
 
-#define TEXTURE_GAUGEEFFECT_SIZE_X	 (100)	 // テクスチャサイズ
-#define TEXTURE_GAUGEEFFECT_SIZE_Y	 (120)	 // 
+#define TEXTURE_GAUGEEFFECT_SIZE_X	 (200)	 // テクスチャサイズ
+#define TEXTURE_GAUGEEFFECT_SIZE_Y	 (150)	 // 
 
-#define GAUGEEFFECT_POS_X_01				 (310)	 // 初期X座標 
-#define GAUGEEFFECT_POS_Y_01				 (-10)	 // 初期Y座標
+#define GAUGEEFFECT_POS_X_01				 (428)	 // 初期X座標 
+#define GAUGEEFFECT_POS_Y_01				 (0)	 // 初期Y座標
 
-#define GAUGEEFFECT_POS_X_02				 (470)	 // 初期X座標 
-#define GAUGEEFFECT_POS_Y_02				 (-10)	 // 初期Y座標
+#define GAUGEEFFECT_POS_X_02				 (754)	 // 初期X座標 
+#define GAUGEEFFECT_POS_Y_02				 (0)	 // 初期Y座標
 
 
 //*****************************************************************************

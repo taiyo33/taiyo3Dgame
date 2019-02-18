@@ -42,6 +42,7 @@ typedef struct {
 	float						SizeShadow;			// 影のサイズ
 	D3DXCOLOR					colShadow;			// 影の色
 	int							cntFrame;
+	bool						npc;
 	LPDIRECTSOUNDBUFFER8		hitSE;				// 被弾時SE
 
 
@@ -64,5 +65,6 @@ PLAYER *GetPlayer(int index);
 void PlayerDamageManager(void);
 bool CheckBlockInPlayer(int index);
 void CheckNorPlayer(D3DXVECTOR3 nor0, int index);
+void SetInitPosPlayer(void);
 
 #endif

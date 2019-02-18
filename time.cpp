@@ -13,10 +13,10 @@
 // マクロ定義
 //*****************************************************************************
 #define TEXTURE_GAME_TIME		("data/TEXTURE/number16x32.png")	// サンプル用画像
-#define TEXTURE_TIME00_SIZE_X	(50)	// テクスチャサイズ
-#define TEXTURE_TIME00_SIZE_Y	(70)	// 同上
-#define TIME_POS_X				(630)		// ポリゴンの初期位置X
-#define TIME_POS_Y				(90)		// 同上
+#define TEXTURE_TIME00_SIZE_X	(70)	// テクスチャサイズ
+#define TEXTURE_TIME00_SIZE_Y	(100)	// 同上
+#define TIME_POS_X				(930)		// ポリゴンの初期位置X
+#define TIME_POS_Y				(120)		// 同上
 #define TIME_MAX				(60)		// スコアの最大値
 #define TIME_DIGIT				(2)			// 桁数
 #define NUM_TIME				(2)
@@ -99,7 +99,7 @@ void UpdateTime(void)
 		SetStage(FINISHCALL);
 	}
 	// 残り10秒でBGM変更
-	else if (Time == CHANGE_BGM)
+	else if (Time < CHANGE_BGM)
 	{
 		StopSound(GetGameBGM01());
 		PlaySound(GameBGM002, E_DS8_FLAG_NONE);
@@ -111,11 +111,13 @@ void UpdateTime(void)
 		Time--;
 		CntFrame = 0;
 	}
-
+#ifdef _DEBUG
 	if (GetKeyboardTrigger(DIK_T))
 	{
-		Time = 15;
+		Time = 5;
 	}
+#endif // !_DEBUG
+
 }
 
 //=============================================================================
@@ -163,7 +165,7 @@ void DrawTime(void)
 HRESULT MakeVertexTime(void)
 {
 	int i;
-	float haba_x = 30.0f;	// 数字の横幅
+	float haba_x = 40.0f;	// 数字の横幅
 	
 	// 桁数分処理する
 	for( i = 0; i < TIME_DIGIT; i++ )

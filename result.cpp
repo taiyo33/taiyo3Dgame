@@ -101,18 +101,21 @@ void UninitResult(void)
 void UpdateResult(void)
 {
 	// ‘JˆÚ
-	if (GetKeyboardTrigger(DIK_SPACE))
+	if (GetKeyboardTrigger(DIK_RETURN))
 	{
+		StopSound(GetGameBGM03());
 		SetStage(TITLE);
 		InitGame();
 	}
 	else if (IsButtonTriggered(P1, BUTTON_A))
 	{
+		StopSound(GetGameBGM03());
 		SetStage(TITLE);
 		InitGame();
 	}
 	else if (IsButtonTriggered(P2, BUTTON_B))
 	{
+		StopSound(GetGameBGM03());
 		SetStage(TITLE);
 		InitGame();
 	}

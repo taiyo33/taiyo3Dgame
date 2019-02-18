@@ -68,6 +68,7 @@ HRESULT InitPlayer(int type)
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		player[i].use = true;								// 使用状態を初期化
+		player[i].npc = false;								// 使用状態を初期化
 		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
 		player[i].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
 		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
@@ -136,19 +137,23 @@ void UpdatePlayer(void)
 		if (GetStage() == START)
 		{
 			InputPlayer1();
-			InputKeyPlayer2();
 			InputGamePadPlayer1();
-			InputGamePadPlayer2();
 		}
 
 		if (GetStage() == TITLE)
 		{
 			NonePlayerPatrol(i);
 		}
-		else if (i == 1)
+		else if (player[i].npc)
 		{
 			NonePlayerMove();
 			NonePlayerAttack();
+		}
+		else
+		{
+			InputKeyPlayer2();
+			InputGamePadPlayer2();
+
 		}
 
 		// 壁ずり処理
@@ -175,45 +180,42 @@ void DrawPlayer(void)
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
-		if (player[i].use)
+		// ワールドマトリックスの初期化
+		D3DXMatrixIdentity(&player[i].mtxWorld);
+
+		mtxView = GetMtxView();
+
+		// 回転を反映
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, player[i].rot.y, player[i].rot.x, player[i].rot.z);
+		D3DXMatrixMultiply(&player[i].mtxWorld, &player[i].mtxWorld, &mtxRot);
+
+		// 移動を反映
+		D3DXMatrixTranslation(&mtxTranslate, player[i].pos.x, player[i].pos.y, player[i].pos.z);
+		D3DXMatrixMultiply(&player[i].mtxWorld, &player[i].mtxWorld, &mtxTranslate);
+
+		// ワールドマトリックスの設定
+		pDevice->SetTransform(D3DTS_WORLD, &player[i].mtxWorld);
+
+		// 現在のマテリアルを取得
+		pDevice->GetMaterial(&matDef);
+
+		// マテリアル情報に対するポインタを取得
+		pD3DXMat = (D3DXMATERIAL*)D3DXBuffMat->GetBufferPointer();
+
+		for (int nCntMat = 0; nCntMat < (int)NumMat; nCntMat++)
 		{
-			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&player[i].mtxWorld);
+			// マテリアルの設定
+			pDevice->SetMaterial(&pD3DXMat[nCntMat].MatD3D);
 
-			mtxView = GetMtxView();
+			// テクスチャの設定
+			pDevice->SetTexture(0, D3DTexture);
 
-			// 回転を反映
-			D3DXMatrixRotationYawPitchRoll(&mtxRot, player[i].rot.y, player[i].rot.x, player[i].rot.z);
-			D3DXMatrixMultiply(&player[i].mtxWorld, &player[i].mtxWorld, &mtxRot);
-
-			// 移動を反映
-			D3DXMatrixTranslation(&mtxTranslate, player[i].pos.x, player[i].pos.y, player[i].pos.z);
-			D3DXMatrixMultiply(&player[i].mtxWorld, &player[i].mtxWorld, &mtxTranslate);
-
-			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &player[i].mtxWorld);
-
-			// 現在のマテリアルを取得
-			pDevice->GetMaterial(&matDef);
-
-			// マテリアル情報に対するポインタを取得
-			pD3DXMat = (D3DXMATERIAL*)D3DXBuffMat->GetBufferPointer();
-
-			for (int nCntMat = 0; nCntMat < (int)NumMat; nCntMat++)
-			{
-				// マテリアルの設定
-				pDevice->SetMaterial(&pD3DXMat[nCntMat].MatD3D);
-
-				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTexture);
-
-				// 描画
-				D3DXMesh->DrawSubset(nCntMat);
-			}
-
-			// マテリアルをデフォルトに戻す
-			pDevice->SetMaterial(&matDef);
+			// 描画
+			D3DXMesh->DrawSubset(nCntMat);
 		}
+
+		// マテリアルをデフォルトに戻す
+		pDevice->SetMaterial(&matDef);
 	}
 }
 
@@ -349,12 +351,14 @@ void InputPlayer1(void)
           	SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
+#ifdef _DEBUG
 
 		// 位置を初期化
 		if (GetKeyboardTrigger(DIK_O))
 		{
 			player[P1].pos = D3DXVECTOR3(0.0f, 10.0f, 0.0f);
 		}
+#endif
 	}
 }
 
@@ -378,21 +382,21 @@ void InputKeyPlayer2(void)
 				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.25f;
+				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.25f;
 			}
 			else if (GetKeyboardPress(DIK_S))
 			{// 右後移動
 				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.75f;
+				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.75f;
 			}
 			else
 			{// 右移動
 				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
+				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 		}
 		else if (GetKeyboardPress(DIK_A))
@@ -402,21 +406,21 @@ void InputKeyPlayer2(void)
 				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.25f;
+				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.25f;
 			}
 			else if (GetKeyboardPress(DIK_S))
 			{// 左後移動
 				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.75f;
+				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.75f;
 			}
 			else
 			{// 左移動
 				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
+				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 		}
 		else if (GetKeyboardPress(DIK_W))
@@ -425,7 +429,7 @@ void InputKeyPlayer2(void)
 			player[P2].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P2].speed;
 			player[P2].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P2].speed;
 
-			player[P2].rotDest.y = camera->rot.y;
+			player[P2].rot.y = camera->rot.y;
 		}
 		else if (GetKeyboardPress(DIK_S))
 		{
@@ -433,7 +437,7 @@ void InputKeyPlayer2(void)
 			player[P2].move.x -= sinf(camera->rot.y) * player[P2].speed;
 			player[P2].move.z -= cosf(camera->rot.y) * player[P2].speed;
 
-			player[P2].rotDest.y = D3DX_PI + camera->rot.y;
+			player[P2].rot.y = D3DX_PI + camera->rot.y;
 		}
 
 		if (GetKeyboardPress(DIK_Z))
@@ -583,21 +587,21 @@ void InputGamePadPlayer2(void)
 				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.25f;
+				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.25f;
 			}
 			else if (IsButtonPressed(P2, BUTTON_DOWN))
 			{// 右後移動
 				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.75f;
+				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.75f;
 			}
 			else
 			{// 右移動
 				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y + D3DX_PI * 0.50f;
+				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 		}
 		else if (IsButtonPressed(P2, BUTTON_LEFT))
@@ -607,21 +611,21 @@ void InputGamePadPlayer2(void)
 				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.25f;
+				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.25f;
 			}
 			else if (IsButtonPressed(P2, BUTTON_DOWN))
 			{// 左後移動
 				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.75f;
+				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.75f;
 			}
 			else
 			{// 左移動
 				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
 				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
 
-				player[P2].rotDest.y = camera->rot.y - D3DX_PI * 0.50f;
+				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 		}
 		else if (IsButtonPressed(P2, BUTTON_UP))
@@ -630,7 +634,7 @@ void InputGamePadPlayer2(void)
 			player[P2].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P2].speed;
 			player[P2].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P2].speed;
 
-			player[P2].rotDest.y = camera->rot.y;
+			player[P2].rot.y = camera->rot.y;
 		}
 		else if (IsButtonPressed(P2, BUTTON_DOWN))
 		{
@@ -638,7 +642,7 @@ void InputGamePadPlayer2(void)
 			player[P2].move.x -= sinf(camera->rot.y) * player[P2].speed;
 			player[P2].move.z -= cosf(camera->rot.y) * player[P2].speed;
 
-			player[P2].rotDest.y = D3DX_PI + camera->rot.y;
+			player[P2].rot.y = D3DX_PI + camera->rot.y;
 		}
 
 		// バレットのチャージ
@@ -764,4 +768,17 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 		player[index].pos.z = player[index].prevPos.z;
 		return;
 	}
+}
+
+//=============================================================================
+// プレイヤーのダメージ処理
+// 引　数：なし
+// 戻り値：なし
+//=============================================================================
+void SetInitPosPlayer(void)
+{
+	PLAYER *player = GetPlayer(0);
+
+	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
+	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
 }

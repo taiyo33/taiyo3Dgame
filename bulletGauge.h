@@ -9,13 +9,13 @@
 
 
 // マクロ定義
-#define TEXTURE_BULLETGAUGE_SIZE_X	 (100)	 // テクスチャサイズ
-#define TEXTURE_BULLETGAUGE_SIZE_Y	 (75)	 // 
+#define TEXTURE_BULLETGAUGE_SIZE_X	 (200)	 // テクスチャサイズ
+#define TEXTURE_BULLETGAUGE_SIZE_Y	 (150)	 // 
 
-#define BULLETGAUGE_POS_X_01			 (0)	 // 初期X座標 
-#define BULLETGAUGE_POS_Y_01			 (170)	 // 初期Y座標
-#define BULLETGAUGE_POS_X_02			 (1170)	 // 初期X座標 
-#define BULLETGAUGE_POS_Y_02			 (170)	 // 初期Y座標
+#define BULLETGAUGE_POS_X_01			 (10)	 // 初期X座標 
+#define BULLETGAUGE_POS_Y_01			 (220)	 // 初期Y座標
+#define BULLETGAUGE_POS_X_02			 (1720)	 // 初期X座標 
+#define BULLETGAUGE_POS_Y_02			 (220)	 // 初期Y座標
 
 
 //*****************************************************************************

@@ -445,6 +445,28 @@ void SetChild(D3DXVECTOR3 pos, int index)
 	return;
 }
 
+//=========================================================================
+// 子供モデルの増加
+// 引　数：D3DXVECTOR3 pos(位置)、int index(子供モデルのアドレス番号)
+// 戻り値：bool型　未使用の場合 true、使用中の場合 false
+//=========================================================================
+void SetInitPosChild(void)
+{
+	CHILD *child = &childWk[0];
+	PLAYER *player = GetPlayer(0);
+
+	for (int i = 0; i < CHILD_SET_MAX; i++)
+	{
+		for (int j = 0; j < CHILD_ONESET_MAX / 2; j++)
+		{
+			// 位置・回転・スケールの初期設定
+			child[i].pos[j].x = player[i].pos.x + rand() % 50;
+			child[i].pos[j].y = player[i].pos.y;
+			child[i].pos[j].z = player[i].pos.z + rand() % 50;
+		}
+	}
+}
+
 
 // 整列
 void AlignmentChild(int index, int cno)

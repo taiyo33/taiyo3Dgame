@@ -22,17 +22,9 @@
 #define LIFEGAUGE_RED_P2	(20.0f)
 #define LIFEGAUGE_YELLOW_P2	(50.0f)
 #define LIFEGAUGE_VTX_MAX	(12)
-#define TEXTURE_MAX			(6)
+#define TEXTURE_MAX			(7)
 #define LIFEGAUGE_MAX		(2)
 
-enum {
-	LIFEGAUGE001,
-	LIFEGAUGE002,
-	LIFEGAUGE003,
-	LIFEGAUGE004,
-	PLAYERICON01,
-	PLAYERICON02
-};
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -52,7 +44,8 @@ void SetLifeGaugeTextureType02(int index, float life);
 LPDIRECT3DTEXTURE9			D3DTextureLifeGauge[TEXTURE_MAX];		// テクスチャへのポインタ
 static VERTEX_2D			vertexWk[TEXTURE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
 
-int							TextureNumLifeGauge[LIFEGAUGE_MAX];			// 
+int							TextureNumLifeGauge[LIFEGAUGE_MAX];	//
+int							TextureNumIcon[LIFEGAUGE_MAX];			// 
 bool						LifeGaugeUse[LIFEGAUGE_MAX];		// 
 //=============================================================================
 // 初期化処理
@@ -66,32 +59,37 @@ HRESULT InitLifeGauge(int type)
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
 			TEXTURE_LIFEGAUGE1,						// ファイルの名前
-			&D3DTextureLifeGauge[LIFEGAUGE001]);		// 読み込むメモリー
+			&D3DTextureLifeGauge[LIFEGAUGE001]);	// 読み込むメモリー
 
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
 			TEXTURE_LIFEGAUGE2,						// ファイルの名前
-			&D3DTextureLifeGauge[LIFEGAUGE002]);		// 読み込むメモリー
+			&D3DTextureLifeGauge[LIFEGAUGE002]);	// 読み込むメモリー
 		
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
 			TEXTURE_LIFEGAUGE3,						// ファイルの名前
-			&D3DTextureLifeGauge[LIFEGAUGE003]);		// 読み込むメモリー
+			&D3DTextureLifeGauge[LIFEGAUGE003]);	// 読み込むメモリー
 
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
 			TEXTURE_LIFEGAUGE4,						// ファイルの名前
-			&D3DTextureLifeGauge[LIFEGAUGE004]);		// 読み込むメモリー
+			&D3DTextureLifeGauge[LIFEGAUGE004]);	// 読み込むメモリー
 
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_ICON01,						// ファイルの名前
-			&D3DTextureLifeGauge[PLAYERICON01]);		// 読み込むメモリー
+			TEXTURE_ICON01,							// ファイルの名前
+			&D3DTextureLifeGauge[PLAYERICON01]);	// 読み込むメモリー
 			
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
-			TEXTURE_ICON02,						// ファイルの名前
-			&D3DTextureLifeGauge[PLAYERICON02]);		// 読み込むメモリー
+			TEXTURE_ICON02,							// ファイルの名前
+			&D3DTextureLifeGauge[PLAYERICON02]);	// 読み込むメモリー
+
+				// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,			// デバイスへのポインタ
+			TEXTURE_ICON03,							// ファイルの名前
+			&D3DTextureLifeGauge[NPCICON]);			// 読み込むメモリー
 
 	}
 
@@ -100,6 +98,9 @@ HRESULT InitLifeGauge(int type)
 		TextureNumLifeGauge[i] = LIFEGAUGE002;
 		LifeGaugeUse[i] = true;
 	}
+
+	TextureNumIcon[P1] = PLAYERICON01;
+	TextureNumIcon[P2] = PLAYERICON02;
 
 	// 頂点情報の作成
 	MakeVertexLifeGauge();
@@ -193,7 +194,7 @@ void DrawLifeGauge(void)
 				pDevice->SetFVF(FVF_VERTEX_2D);
 
 				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTextureLifeGauge[PLAYERICON01 + i]);
+				pDevice->SetTexture(0, D3DTextureLifeGauge[TextureNumIcon[i]]);
 
 				// ポリゴンの描画
 				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[PLAYERICON01 + i], sizeof(VERTEX_2D));
@@ -479,4 +480,14 @@ void SetLifeGaugeTextureType02(int index, float life)
 	{
 		TextureNumLifeGauge[index] = LIFEGAUGE002;
 	}
+}
+
+//=============================================================================
+// アイコンのテクスチャタイプの設定
+// 引　数：な　し
+// 戻り値：な　し
+//=============================================================================
+void SetIconTextureType(int index)
+{
+	TextureNumIcon[P2] = index;
 }
