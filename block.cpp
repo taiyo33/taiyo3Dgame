@@ -730,16 +730,16 @@ bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
 
 	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE + 1].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
+		D3DXVECTOR3(20.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
 
 	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE_OBJ].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
+		D3DXVECTOR3(20.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
 
 	if (CheckHitBB(pos0, block[BLOCK_NUM_NEARSIDE_OBJ].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
+		D3DXVECTOR3(20.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
 
 	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE_OBJ].pos,
-		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
+		D3DXVECTOR3(20.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
 
 	return false;
 }

@@ -9,7 +9,7 @@
 
 #include "main.h"
 
-#define MOVE_PATTERN_MAX			(3)
+#define MOVE_PATTERN_MAX			(4)
 #define CMP_PATTERN_MAX				(4)
 #define DECISION_MEMORY_MAX			(5)
 #define ROUTEDATA_MAX				(9) 

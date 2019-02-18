@@ -523,7 +523,7 @@ void SwitchRoutePlayer(int pattern, D3DXVECTOR3 vec)
 			break;
 
 		case ROUTE04: 		
-			DistanceRoutePlayer01(vec, ROUTE07, ROUTEDATA_MAX, NULL);
+			DistanceRoutePlayer01(vec, ROUTE06, ROUTEDATA_MAX, 1);
 			break;
 
 		case ROUTE05: 			
@@ -645,7 +645,8 @@ void NonePlayerAttack(void)
 	PLAYER *player = GetPlayer(0);
 	BULLET *bullet = GetBullet(P2);
 	BLOCK *block = GetBlock(0);
-	
+	CHILD *child = GetChild(0);
+
 	ai->atcCntFrame++;
 
 	// バレット使用中チャージ不可
@@ -692,7 +693,19 @@ void NonePlayerAttack(void)
 		{
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			ai->atcCntFrame = 0;
+		}		
+		
+		for (int i = 0; i < CHILD_ONESET_MAX; i++)
+		{
+			if (!child->use) continue;
+			// 攻撃開始判定
+			if (CheckHitRay(child->pos[i], player[P2].pos, player[P2].frontVec, 15.0f))
+			{
+				SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
+				ai->atcCntFrame = 0;
+			}
 		}
+
 	}
 }
 
