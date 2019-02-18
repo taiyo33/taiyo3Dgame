@@ -337,7 +337,7 @@ void DistanceRoutePlayer01(D3DXVECTOR3 vec, int cnt, int cntMax, int raiseCnt)
 			// メンバーシップの作成
 			ai->routeRot[cnt][ROUTE_LENGTH] = FuzzyRightDown(ai->lenVec[cnt], ROUTE_DISTANCE_FUZZY_X1, ROUTE_DISTANCE_FUZZY_X2);
 
-			ai->routeRot[cnt][ROUTE_TIME] = FuzzyRightUp(ai->lapingTime[cnt], ROUTE_TIME_FUZZY_X1, ROUTE_TIME_FUZZY_X2);
+			ai->routeRot[cnt][ROUTE_TIME] = FuzzyRightUp((float)ai->lapingTime[cnt], ROUTE_TIME_FUZZY_X1, ROUTE_TIME_FUZZY_X2);
 			ai->routeRot[cnt][ROUTE_DECISION] = ai->routeRot[cnt][ROUTE_LENGTH] * ai->routeRot[cnt][ROUTE_TIME];
 
 			vestRoute01 = max(ai->routeRot[cnt][ROUTE_DECISION], vestRoute01);
@@ -402,7 +402,7 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 			// メンバーシップの作成
 			ai->routeRot[arrey][ROUTE_LENGTH] = FuzzyRightDown(ai->lenVec[arrey], ROUTE_DISTANCE_FUZZY_X1, ROUTE_DISTANCE_FUZZY_X2);
 
-			ai->routeRot[arrey][ROUTE_TIME] = FuzzyRightUp(ai->lapingTime[arrey], ROUTE_TIME_FUZZY_X1, ROUTE_TIME_FUZZY_X2);
+			ai->routeRot[arrey][ROUTE_TIME] = FuzzyRightUp((float)ai->lapingTime[arrey], ROUTE_TIME_FUZZY_X1, ROUTE_TIME_FUZZY_X2);
 			ai->routeRot[arrey][ROUTE_DECISION] = ai->routeRot[arrey][ROUTE_LENGTH] * ai->routeRot[arrey][ROUTE_TIME];
 
 			vestRoute01 = max(ai->routeRot[arrey][ROUTE_DECISION], vestRoute01);

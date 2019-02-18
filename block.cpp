@@ -717,6 +717,7 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, int max)
 //=============================================================================
 bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 {
+	// 外枠
 	if (CheckHitBB(pos0, block[0].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
 
@@ -729,10 +730,11 @@ bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
 
+	// 障害物
 	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE + 1].pos,
 		D3DXVECTOR3(20.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE_OBJ].pos,
+	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE_OBJ - 1].pos,
 		D3DXVECTOR3(20.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
 
 	if (CheckHitBB(pos0, block[BLOCK_NUM_NEARSIDE_OBJ].pos,
@@ -740,6 +742,31 @@ bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 
 	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE_OBJ].pos,
 		D3DXVECTOR3(20.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
+
+	// 各中央入口のブロック
+	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE_OBJ - 5].pos,
+		D3DXVECTOR3(15.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
+
+	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE_OBJ - 6].pos,
+		D3DXVECTOR3(15.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
+
+	if (CheckHitBB(pos0, block[BLOCK_NUM_NEARSIDE_OBJ - 5].pos,
+		D3DXVECTOR3(20.0f, 100.0f, 15.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
+
+	if (CheckHitBB(pos0, block[BLOCK_NUM_NEARSIDE_OBJ - 6].pos,
+		D3DXVECTOR3(20.0f, 100.0f, 15.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
+
+	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE_OBJ - 5].pos,
+		D3DXVECTOR3(15.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
+
+	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE_OBJ - 6].pos,
+		D3DXVECTOR3(15.0f, 100.0f, 20.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
+
+	if (CheckHitBB(pos0, block[BLOCK_NUM_FEARSIDE_OBJ - 5].pos,
+		D3DXVECTOR3(20.0f, 100.0f, 15.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
+
+	if (CheckHitBB(pos0, block[BLOCK_NUM_FEARSIDE_OBJ - 6].pos,
+		D3DXVECTOR3(20.0f, 100.0f, 15.0f), D3DXVECTOR3(20.0f, 20.0f, 20.0f))) return true;
 
 	return false;
 }
