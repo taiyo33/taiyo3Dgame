@@ -106,6 +106,10 @@ void UninitResult(void)
 //=============================================================================
 void UpdateResult(void)
 {
+	PLAYER *player = GetPlayer(0);
+	StopSound(player[P1].chargeSE);
+	StopSound(player[P2].chargeSE);
+
 	// ‘JˆÚ
 	if (GetKeyboardTrigger(DIK_RETURN))
 	{

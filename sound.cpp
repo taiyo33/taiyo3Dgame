@@ -22,7 +22,7 @@ const TCHAR* c_soundFilename[] = {
 	_T("data/SE/child_damage_se.wav"),
 	_T("data/SE/hit.wav"),
 	_T("data/SE/charge.wav"),
-
+	 
 };
 
 // グローバル変数
@@ -179,6 +179,7 @@ void StopSound( LPDIRECTSOUNDBUFFER8 pBuffer )
 	if( status & DSBSTATUS_PLAYING )	// 鳴っていたら
 	{
 		pBuffer->Stop();	// 意味的にはPauseになる。
+		pBuffer->SetCurrentPosition(0);
 	}
 }
 

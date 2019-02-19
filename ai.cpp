@@ -647,7 +647,7 @@ void NonePlayerAttack(void)
 	// バレット使用中チャージ不可
 	if (!bullet->use[0])
 	{
-		PlaySound(player[P2].chargeSE, E_DS8_FLAG_NONE);
+		PlaySound(player[P2].chargeSE, E_DS8_FLAG_LOOP);
 		// 最大値になった場合
 		if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
 		{
