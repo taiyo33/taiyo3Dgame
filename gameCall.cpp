@@ -224,9 +224,10 @@ void FinishGameCall(int frame)
 	{
 		PLAYER *player = GetPlayer(0);
 		PlaySound(GameBGM03, E_DS8_FLAG_NONE);
+		
 		if (player[P1].life <= 0)
 		{
-			SetResult(P2);
+			player[P2].npc == false ? SetResult(P2) : SetResult(NPC);
 		}
 		else if (player[P2].life <= 0)
 		{

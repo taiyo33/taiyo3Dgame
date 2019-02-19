@@ -168,7 +168,7 @@ void UpdateTitle(void)
 		SelectNum = (SelectNum + 1) % 3;
 		SetVertexSelect(SelectNum);
 	}
-	else if (IsButtonTriggered(P2, BUTTON_DOWN))
+	else if (IsButtonTriggered(P1, BUTTON_DOWN))
 	{
 		PlaySound(SelectSE, E_DS8_FLAG_NONE);
 		SelectNum = (SelectNum + 1) % 3;
@@ -200,8 +200,6 @@ void UpdateTitle(void)
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexSelect(SelectNum);
 	}
-
-
 	// NPCêÌÇ÷ëJà⁄
 	if (SelectNum == SELECT_NPC)
 	{

@@ -35,6 +35,7 @@
 #include "icon.h"
 #include "gameCall.h"
 #include "chargeEffect.h"
+#include "pause.h"
 
 
 //*****************************************************************************
@@ -67,6 +68,8 @@ int						g_nCountFPS;			// FPSカウンタ
 #endif
 bool					g_bDispDebug = true;	// デバッグ表示ON/OFF
 int						StageSelect;
+bool					screen = true;
+bool					pause = false;
 //=============================================================================
 // メイン関数
 //=============================================================================
@@ -311,7 +314,7 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 
 	// 各初期化
 	Init(hInstance, hWnd);
-	
+
 	return S_OK;
 }
 
@@ -407,6 +410,9 @@ void Uninit(void)
 	// チャージエフェクトの終了処理
 	UninitChargeEffect();
 
+	// メニューの終了処理
+	UninitPause();
+
 	// サウンドの終了処理
 	UninitSound();
 }
@@ -467,71 +473,81 @@ void Update(void)
 		}
 		case START:
 		{
-			// ブロックの更新
-			UpdateBlock();
+			if (!pause)
+			{
+				// ブロックの更新
+				UpdateBlock();
 
-			// フィールドの更新
-			UpdateField();
+				// フィールドの更新
+				UpdateField();
 
-			// 影処理の更新
-			UpdateShadow();
+				// 影処理の更新
+				UpdateShadow();
 
-			// カメラ更新
-			UpdateCamera();
+				// カメラ更新
+				UpdateCamera();
 
-			// モデル処理の更新
-			UpdatePlayer();
-			
-			// 左腕の更新
-			UpdateLeftArm();
-						
-			// 右腕の更新
-			UpdateRightArm();
-					
-			// 頭の更新
-			UpdateHead();
-			
-			// キャラクターアイコンの更新
-			//UpdateIcon();
+				// モデル処理の更新
+				UpdatePlayer();
 
-			// 子供の更新
-			UpdateChild();
+				// 左腕の更新
+				UpdateLeftArm();
 
-			// チャージエフェクトの更新
-			UpdateChargeEffect();
+				// 右腕の更新
+				UpdateRightArm();
 
-			// エフェクトの更新
-			UpdateHitEffect();
+				// 頭の更新
+				UpdateHead();
 
-			// 弾痕の更新
-			UpdateExplosion();
+				// キャラクターアイコンの更新
+				//UpdateIcon();
 
-			// 煙の更新
-			UpdateBulletEffect();
+				// 子供の更新
+				UpdateChild();
 
-			// バレットの更新
-			UpdateBullet();
+				// チャージエフェクトの更新
+				UpdateChargeEffect();
 
-			// アイテムの更新
-			UpdateItem();
+				// エフェクトの更新
+				UpdateHitEffect();
 
-			// 時間の更新
-			UpdateTime();
-			
-			// バレットゲージの更新
-			UpdateBulletGauge();
+				// 弾痕の更新
+				UpdateExplosion();
 
-			// ライフゲージの更新
-			UpdateLifeGauge();
+				// 煙の更新
+				UpdateBulletEffect();
 
-			// バトルゲージ更新
-			UpdateButtleGauge();
+				// バレットの更新
+				UpdateBullet();
 
-			// ゲージエフェクトの更新
-			UpdateGaugeEffect();
+				// アイテムの更新
+				UpdateItem();
 
-			// 当たり判定
-			CheckHit();
+				// 時間の更新
+				UpdateTime();
+
+				// バレットゲージの更新
+				UpdateBulletGauge();
+
+				// ライフゲージの更新
+				UpdateLifeGauge();
+
+				// バトルゲージ更新
+				UpdateButtleGauge();
+
+				// ゲージエフェクトの更新
+				UpdateGaugeEffect();
+
+				// 当たり判定
+				CheckHit();
+			}
+			else if(pause)
+			{
+				// ポーズ画面の更新
+				UpdatePause();
+				// ゲージエフェクトの更新
+				UpdateGaugeEffect();
+			}
 
 			break;
 		}
@@ -705,11 +721,20 @@ void Draw(void)
 				// ゲージエフェクトの描画
 				DrawGaugeEffect();
 
+				// メニューの描画
+				if (pause)
+				{
+					DrawPause();
+				}
+
+#ifdef _DEBUG
 				// デバッグ表示処理の描画
 				if (g_bDispDebug)
 				{
 					DrawDebugProc();
 				}
+
+#endif
 
 				break;
 			}
@@ -840,6 +865,16 @@ int GetStage(void)
 }
 
 //============================================================================
+// ポーズ画面の設置
+// 引数： int Stage(遷移先の番号)
+// 戻り値：なし
+//============================================================================
+bool SetPause(bool on)
+{
+	return pause = on;
+}
+
+//============================================================================
 // 各ファイルの初期化
 //============================================================================
 void Init(HINSTANCE hInstance, HWND hWnd)
@@ -933,6 +968,10 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 
 	// チャージエフェクトの初期化
 	InitChargeEffect(0);
+
+	// ポーズ画面の初期化
+	InitPause(0);
+
 }
 
 //============================================================================
@@ -1010,6 +1049,9 @@ void InitGame(void)
 
 	// AIの初期化
 	InitAi();
+	
+	// ポーズ画面の初期化
+	InitPause(INIT_GAME);
 
 	// バトルゲージの初期化
 	InitButtleGauge(INIT_GAME);
@@ -1023,4 +1065,73 @@ void InitGame(void)
 	// チャージエフェクトの初期化
 	InitChargeEffect(INIT_GAME);
 }
+//============================================================================
+// ゲームポーズ処理後の初期化
+// 引　数：な　し
+// 戻り値：な　し
+//============================================================================
+void InitPauseGame(void)
+{
+	// プレイヤーの初期化
+	InitPlayer(INIT_GAME);
 
+	// バレットの初期化
+	InitBullet(INIT_GAME);
+
+	// エフェクトの初期化
+	InitHitEffect(INIT_GAME);
+
+	// 爆発エフェクトの初期化
+	InitExplosion(INIT_GAME);
+
+	// 時間の初期化
+	InitTime(INIT_GAME);
+
+	// ブロックの初期化
+	InitBlock(INIT_GAME);
+
+	// リザルトの初期化
+	InitResult(INIT_GAME);
+
+	// バレットエフェクトの初期化
+	InitBulletEffect(INIT_GAME);
+
+	// 左腕モデルの初期化
+	InitLeftArm();
+
+	// 右腕モデルの初期化
+	InitRightArm();
+
+	// 頭モデルの初期化
+	InitHead();
+
+	// キャラクターアイコンの初期化
+	InitIcon(INIT_GAME);
+
+	// バレットゲージの初期化
+	InitBulletGauge(INIT_GAME);
+
+	// ライフゲージの初期化
+	InitLifeGauge(INIT_GAME);
+
+	// 子供モデルの初期化
+	InitChild();
+
+	// AIの初期化
+	InitAi();
+
+	// ポーズ画面の初期化
+	InitPause(INIT_GAME);
+
+	// バトルゲージの初期化
+	InitButtleGauge(INIT_GAME);
+
+	// ゲージエフェクトの初期化
+	InitGaugeEffect(INIT_GAME);
+
+	// ゲーム遷移テロップの初期化
+	InitGameCall(INIT_GAME);
+
+	// チャージエフェクトの初期化
+	InitChargeEffect(INIT_GAME);
+}

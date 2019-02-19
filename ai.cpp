@@ -79,8 +79,8 @@
 #define ROUTE_DISTANCE_FUZZY_X1				(0.0f)
 #define ROUTE_DISTANCE_FUZZY_X2				(500.0f)
 #define ROUTE_TIME_FUZZY_X1					(0.0f)
-#define ROUTE_TIME_FUZZY_X2					(60.0f)
-#define ROUTE_CNT_TIME						(60)
+#define ROUTE_TIME_FUZZY_X2					(30.0f)
+#define ROUTE_CNT_TIME						(70)
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -209,26 +209,7 @@ void NonePlayerMove(void)
 
 	if (ai->routineCntFrame % ROUTE_CNT_TIME == 0)
 	{
-
-		// 思考するか
-		//if (!StopRoutineNonePlayer())
-		//{
-		//	ai->routineCntFrame++;
-		//	// 30フレーム思考停止
-		//	if (ai->routineCntFrame % 30 == 0)
-		//	{
-		//		for (int i = 0; i < DECISION_MEMORY_MAX; i++)
-		//		{
-		//			ai->deciMemory[i] = 0;	//初期化
-		//		}
-
-		//		ai->routineCntFrame = 0;
-		//	}
-
-		//	return;
-		//}
-
-		//ai->cntMemory < DECISION_MEMORY_MAX ? ai->cntMemory++ : ai->cntMemory = 0;	// 配列の添え字を更新
+		ai->cntMemory < DECISION_MEMORY_MAX ? ai->cntMemory++ : ai->cntMemory = 0;	// 配列の添え字を更新
 
 		// 自ボールよる判定
 		ai->chase[PATTERN1] = FuzzyRightDown((float)(float)child[P2].cnt, MOVE_NPCCHILD_CHASE_FUZZY_X1, MOVE_NPCCHILD_CHASE_FUZZY_X2);
@@ -281,6 +262,19 @@ void NonePlayerMove(void)
 		ai->decision = Or(ai->cmpPattern[CHASE], ai->cmpPattern[ESCAPE]);
 		ai->decision = Or(ai->cmpPattern[ROUTINE], ai->decision);
 
+		// 同じ処理を繰り返している場合
+		if (!StopRoutineNonePlayer())
+		{
+			for (int i = 0; i < DECISION_MEMORY_MAX; i++)
+			{
+				ai->deciMemory[i] = 0;	//初期化
+			}
+
+			// 移動へ遷移
+			ai->decision = ai->cmpPattern[ROUTINE];
+			ai->routineCntFrame = 0;
+		}
+
 		// 追跡
 		if (ai->decision == ai->cmpPattern[CHASE])
 		{
@@ -304,6 +298,7 @@ void NonePlayerMove(void)
 		}
 		else if (ai->decision == ai->cmpPattern[ROUTINE])
 		{
+			ai->routineStart = true;
 			SwitchRoutePlayer(ai->routeIndex, player[P2].pos);
 			ai->routineCntFrame = 0;
 		}

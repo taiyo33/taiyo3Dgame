@@ -16,6 +16,7 @@
 #include "ai.h"
 #include "result.h"
 #include "chargeEffect.h"
+#include "pause.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -331,9 +332,6 @@ void InputPlayer1(void)
 		{
 			SetChargeEffect(player[P1].pos, player[P1].rot, 0, P1);
 
-			// バレットが使用中はチャージ不可
-			if (bullet->use[P1]) return;
-
 			// 最大値になった場合
 			if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
 			{
@@ -351,6 +349,12 @@ void InputPlayer1(void)
           	SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
+
+		if (GetKeyboardTrigger(DIK_M))
+		{
+			SetPause(true);
+		}
+
 #ifdef _DEBUG
 
 		// 位置を初期化
@@ -463,6 +467,11 @@ void InputKeyPlayer2(void)
 			cntFrame[P2] = 0;
 		}
 		
+		if (GetKeyboardTrigger(DIK_M))
+		{
+			SetPause(true);
+		}
+
 	}
 }
 
@@ -566,6 +575,12 @@ void InputGamePadPlayer1(void)
 			SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
+
+		if (IsButtonTriggered(P1, BUTTON_R))
+		{
+			SetPause(true);
+		}
+
 	}
 }
 
@@ -668,6 +683,11 @@ void InputGamePadPlayer2(void)
 			
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
+		}
+
+		if (IsButtonTriggered(P2, BUTTON_R))
+		{
+			SetPause(true);
 		}
 	}
 }

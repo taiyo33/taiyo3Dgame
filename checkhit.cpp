@@ -39,7 +39,12 @@ void CheckHit(void)
 		{
 			CheckBlockHitBullet(i, j, block->pos);
 		}
+	}
 
+	/* 対ブロックの当たり判定 */
+	block = GetBlock(0);		// ブロックのアドレスを取得
+	for (i = 0; i < BLOCK_NUM_FEARSIDE; i++, block++)
+	{
 		// P1の子供モデルとの判定
 		CHILD *child = GetChild(P1);
 		for (k = 0; k < CHILD_ONESET_MAX; k++)
@@ -61,8 +66,8 @@ void CheckHit(void)
 				child->pos[k] = child->prevPos[k];
 			}
 		}
-
 	}
+
 
 	/* 対プレイヤーの当たり判定 */
 	PLAYER *player = GetPlayer(0);	// プレイヤーのアドレスを取得
@@ -97,7 +102,7 @@ void CheckHit(void)
 					child[P2].use[j] = false;
 					child[P2].cnt --;
 					child[P1].cnt ++;
-					SetChild(player[P1].pos, P1);
+					SetChild(P1);
 					SetExplosion(child[P2].pos[j], child[P2].rot[j], 0);
 				}
 			}
@@ -131,7 +136,7 @@ void CheckHit(void)
 					child[P1].use[j] = false;
 					child[P1].cnt --;
 					child[P2].cnt ++;
-					SetChild(player[P2].pos, P2);
+					SetChild(P2);
 					SetExplosion(child[P1].pos[j], child[P1].rot[j], 0);
 				}
 			}

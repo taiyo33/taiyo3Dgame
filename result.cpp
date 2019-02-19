@@ -16,7 +16,7 @@
 //*****************************************************************************
 #define TEXTURE_WINNER01		"data/TEXTURE/winner_logo01.png"
 #define TEXTURE_WINNER02		"data/TEXTURE/winner_logo02.png"
-#define TEXTURE_MAX			(4)
+#define TEXTURE_MAX			(5)
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -37,7 +37,8 @@ enum {
 	TEX_WINNER01,
 	TEX_WINNER02,
 	TEX_PLAYERICON01,
-	TEX_PLAYERICON02
+	TEX_PLAYERICON02,
+	TEX_NPCICON
 };
 
 LPDIRECT3DTEXTURE9		D3DTextureResult[TEXTURE_MAX];				// テクスチャへのポリゴン
@@ -72,7 +73,12 @@ HRESULT InitResult(int type)
 		D3DXCreateTextureFromFile(pDevice,		// デバイスのポインタ
 			TEXTURE_ICON02,					// ファイルの名前
 			&D3DTextureResult[TEX_PLAYERICON02]);		// 読み込むメモリのポインタ
+				// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,		// デバイスのポインタ
+			TEXTURE_ICON03,					// ファイルの名前
+			&D3DTextureResult[TEX_NPCICON]);		// 読み込むメモリのポインタ
 	}
+
 
 	// 頂点情報の作成
 	MakeVertexResult();

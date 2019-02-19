@@ -38,7 +38,7 @@ void UpdateChild(void);
 void DrawChild(void);
 CHILD *GetChild(int index);
 void ComprareChild(void);
-void SetChild(D3DXVECTOR3 pos, int index);
+void SetChild(int index);
 void SetInitPosChild(void);
 
 #endif

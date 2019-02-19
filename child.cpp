@@ -171,14 +171,16 @@ void UpdateChild(void)
 					child[i].pos[j].y -= PLAYER_FALL_SPEED;
 				}
 
-				// 追跡
-				ChaseChild(i, j);
+				if (child[i].pos[j].y > 0.0f)
+				{
+					// 追跡
+					ChaseChild(i, j);
+					// 移動
+					MoveChild(i, j);
+				}
 
-				// 壁ずり
+				//// 壁ずり
 				//WallShearChild(i, j);
-
-				// 移動
-				MoveChild(i, j);
 
 				//AlignmentChild(i, j);
 				//ChesionChild(i, j);
@@ -420,10 +422,9 @@ void CheckNorChild(D3DXVECTOR3 nor0, int index, int cno)
 // 引　数：D3DXVECTOR3 pos(位置)、int index(子供モデルのアドレス番号)
 // 戻り値：bool型　未使用の場合 true、使用中の場合 false
 //=========================================================================
-void SetChild(D3DXVECTOR3 pos, int index)
+void SetChild(int index)
 {
 	CHILD *child = &childWk[index];
-	PLAYER *player = GetPlayer(index);
 
 	for (int i = 0; i < CHILD_ONESET_MAX; i++)
 	{
@@ -431,7 +432,7 @@ void SetChild(D3DXVECTOR3 pos, int index)
 		{
 			// 初期設定
 			child->use[i] = true;
-			child->pos[i] = player->pos + D3DXVECTOR3(0.0f, 200.0f, 0.0f);
+			child->pos[i] = D3DXVECTOR3(0.0f, 200.0f, 0.0f);
 			child->rot[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			child->scl[i] = D3DXVECTOR3(0.4f, 0.4f, 0.4f);
 			child->prevPos[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);

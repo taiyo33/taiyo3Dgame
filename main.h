@@ -89,5 +89,7 @@ LPDIRECT3DDEVICE9 GetDevice(void);
 void SetStage(int Stage);
 int GetStage(void);
 void InitGame(void);
+bool SetPause(bool on);
+void InitPauseGame(void);
 
 #endif

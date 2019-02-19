@@ -42,15 +42,15 @@ typedef struct {
 	float						SizeShadow;			// 影のサイズ
 	D3DXCOLOR					colShadow;			// 影の色
 	int							cntFrame;
-	bool						npc;
+	bool						npc;				// NPCの使用状態
 	LPDIRECTSOUNDBUFFER8		hitSE;				// 被弾時SE
-
 
 }PLAYER;
 
 enum {
 	P1,
-	P2
+	P2,
+	NPC
 };
 
 //*****************************************************************************
