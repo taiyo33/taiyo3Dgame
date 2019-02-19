@@ -76,6 +76,7 @@ HRESULT InitPlayer(int type)
 		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
 		player[i].cntFrame= 0;
 		player[i].hitSE = LoadSound(SE_HIT);
+		player[i].chargeSE = LoadSound(SE_CHARGE);
 	}
 
 	// Xファイルの読み込み
@@ -133,28 +134,27 @@ void UpdatePlayer(void)
 		player[i].prevPos = player[i].pos;
 		player[i].cntFrame++;
 		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 75.0f, 0.0f, cosf(player[i].rot.y) * 75.0f);
-
-		// 操作の処理
-		if (GetStage() == START)
-		{
-			InputPlayer1();
-			InputGamePadPlayer1();
-		}
-
+		
+		// タイトル内でのプレイヤー制御
 		if (GetStage() == TITLE)
 		{
 			NonePlayerPatrol(i);
 		}
-		else if (player[i].npc)
+		// ゲーム開始時
+		else if (GetStage() == START)
 		{
-			NonePlayerMove();
-			NonePlayerAttack();
-		}
-		else
-		{
-			InputKeyPlayer2();
-			InputGamePadPlayer2();
-
+			InputPlayer1();
+			InputGamePadPlayer1();
+			if (player[i].npc)
+			{
+				NonePlayerMove();
+				NonePlayerAttack();
+			}
+			else
+			{
+				InputKeyPlayer2();
+				InputGamePadPlayer2();
+			}
 		}
 
 		// 壁ずり処理
@@ -331,7 +331,7 @@ void InputPlayer1(void)
 		if (GetKeyboardPress(DIK_SPACE))
 		{
 			SetChargeEffect(player[P1].pos, player[P1].rot, 0, P1);
-
+			PlaySound(player[P1].chargeSE, E_DS8_FLAG_NONE);
 			// 最大値になった場合
 			if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
 			{
@@ -346,6 +346,7 @@ void InputPlayer1(void)
 		// バレットの発射
         else if(GetKeyboardRelease(DIK_SPACE))
 		{
+			StopSound(player[P1].chargeSE);
           	SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
@@ -457,6 +458,8 @@ void InputKeyPlayer2(void)
 			// 10フレーム
 			else if (player[P2].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
+				StopSound(player[P2].chargeSE);
+				PlaySound(player[P2].chargeSE, E_DS8_FLAG_NONE);
 				bullet->speedIncrease += 0.5f;
 			}
 		}
@@ -554,8 +557,8 @@ void InputGamePadPlayer1(void)
 		// バレットのチャージ
 		if (IsButtonPressed(P1, BUTTON_B))
 		{
-			// バレットが使用中はチャージ不可
-			if (bullet->use[P1]) return;
+			SetChargeEffect(player[P1].pos, player[P1].rot, 0, P1);
+			PlaySound(player[P1].chargeSE, E_DS8_FLAG_NONE);
 
 			// 最大値になった場合
 			if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
@@ -571,7 +574,7 @@ void InputGamePadPlayer1(void)
 		// バレットの発射
 		else if (IsButtonRelease(P1, BUTTON_B))
 		{
-			
+			StopSound(player[P1].chargeSE);
 			SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
@@ -663,8 +666,8 @@ void InputGamePadPlayer2(void)
 		// バレットのチャージ
 		if (IsButtonPressed(P2, BUTTON_C))
 		{
-			// バレットが使用中はチャージ不可
-			if (bullet->use[P2]) return;
+			SetChargeEffect(player[P2].pos, player[P2].rot, 0, P2);
+			PlaySound(player[P2].chargeSE, E_DS8_FLAG_NONE);
 
 			// 最大値になった場合
 			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
@@ -680,12 +683,12 @@ void InputGamePadPlayer2(void)
 		// バレットの発射
 		else if (IsButtonRelease(P2, BUTTON_C))
 		{
-			
+			StopSound(player[P2].chargeSE);
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
 		}
 
-		if (IsButtonTriggered(P2, BUTTON_R))
+		if (IsButtonTriggered(P2, BUTTON_M))
 		{
 			SetPause(true);
 		}

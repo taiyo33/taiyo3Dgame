@@ -44,6 +44,7 @@ typedef struct {
 	int							cntFrame;
 	bool						npc;				// NPCの使用状態
 	LPDIRECTSOUNDBUFFER8		hitSE;				// 被弾時SE
+	LPDIRECTSOUNDBUFFER8		chargeSE;			// チャージ時SE
 
 }PLAYER;
 

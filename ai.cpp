@@ -645,8 +645,9 @@ void NonePlayerAttack(void)
 	ai->atcCntFrame++;
 
 	// バレット使用中チャージ不可
-	if (!bullet->use[P2])
+	if (!bullet->use[0])
 	{
+		PlaySound(player[P2].chargeSE, E_DS8_FLAG_NONE);
 		// 最大値になった場合
 		if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
 		{
@@ -680,12 +681,14 @@ void NonePlayerAttack(void)
 		// 攻撃開始判定
 		if (CheckHitRay(player[P1].pos, player[P2].pos, player[P2].frontVec, 25.0f))
 		{
+			StopSound(player[P2].chargeSE);
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			ai->atcCntFrame = 0;
 		}
 		// 反射を考慮した攻撃
 		else if (CheckHitRay(player[P1].pos, player[P2].pos, reflectVec, 15.0f))
 		{
+			StopSound(player[P2].chargeSE);
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			ai->atcCntFrame = 0;
 		}		
@@ -696,6 +699,7 @@ void NonePlayerAttack(void)
 			// 攻撃開始判定
 			if (CheckHitRay(child->pos[i], player[P2].pos, player[P2].frontVec, 15.0f))
 			{
+				StopSound(player[P2].chargeSE);
 				SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 				ai->atcCntFrame = 0;
 			}

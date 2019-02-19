@@ -21,6 +21,7 @@ const TCHAR* c_soundFilename[] = {
 	_T("data/SE/reflect_se.wav"),
 	_T("data/SE/child_damage_se.wav"),
 	_T("data/SE/hit.wav"),
+	_T("data/SE/charge.wav"),
 
 };
 

@@ -11,6 +11,9 @@
 #include "ai.h"
 #include "lifeGauge.h"
 #include "child.h"
+#include "gameCall.h"
+#include "time.h"
+#include "title.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -20,7 +23,7 @@
 #define	TEXTURE_RESTART		("data/TEXTURE/restart_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_REOPNE		("data/TEXTURE/reopne_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_RETITLE		("data/TEXTURE/retitle_logo.png")	// 読み込むテクスチャファイル名
-#define LOGO_MAX			(4)
+#define PAUSE_LOGO_MAX			(4)
 
 
 //*****************************************************************************
@@ -33,15 +36,16 @@ void SetVertexPause(int move);
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9				D3DTexturePause = NULL;			// テクスチャへのポインタ
-static LPDIRECT3DTEXTURE9				D3DTextureLogo[LOGO_MAX];	// テクスチャへのポインタ
+static LPDIRECT3DTEXTURE9				D3DTextureLogo[PAUSE_LOGO_MAX];	// テクスチャへのポインタ
 static LPDIRECT3DTEXTURE9				D3DTextureSelect;			// テクスチャへのポインタ
 
 VERTEX_2D						vertexWkPause[NUM_VERTEX];				// 頂点情報格納ワーク
-static VERTEX_2D						vertexWkLogo[LOGO_MAX][NUM_VERTEX];		// 頂点情報格納ワーク
+static VERTEX_2D						vertexWkLogo[PAUSE_LOGO_MAX][NUM_VERTEX];		// 頂点情報格納ワーク
 static VERTEX_2D						vertexWkSelect[NUM_VERTEX];				// 頂点情報格納ワーク
 static float					yMove;				// ロゴの位置調整
 static int						SelectNum;			// セレクトのされているロゴ番号
 bool							PauseUse;			// メニュー決定フラグ
+static int						CntFrame;
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -53,6 +57,7 @@ HRESULT InitPause(int type)
 	yMove = 0.0;
 	SelectNum = 0;
 	PauseUse = false;
+	CntFrame = 0;
 
 	if (type == 0)
 	{
@@ -96,7 +101,7 @@ void UninitPause(void)
 		D3DTexturePause = NULL;
 	}
 
-	for (int i = 0; i < LOGO_MAX; i++)
+	for (int i = 0; i < PAUSE_LOGO_MAX; i++)
 	{
 		if (D3DTextureLogo[i] != NULL)
 		{// テクスチャの開放
@@ -112,6 +117,11 @@ void UninitPause(void)
 void UpdatePause(void)
 {
 	PLAYER *player = GetPlayer(0);
+
+	if (GetPause())
+	{
+		CntFrame++;
+	}
 
 	// 下方向へセレクトを移動
 	if (GetKeyboardTrigger(DIK_DOWN)) 
@@ -152,23 +162,29 @@ void UpdatePause(void)
 		SetVertexPause(SelectNum);
 	}
 
-	if ((GetKeyboardTrigger(DIK_M)))
+	// 
+	if (CntFrame % 30 == 0)
 	{
-		SetPause(false);
-	}
-	else if ((GetKeyboardTrigger(DIK_V)))
-	{
-		SetPause(false);
-	}
-	else if (IsButtonPressed(P1, BUTTON_R))
-	{
-		SetPause(false);
-	}
-	else if (IsButtonPressed(P2, BUTTON_R))
-	{
-		SetPause(false);
+		if ((GetKeyboardTrigger(DIK_M)))
+		{
+			SetPause(false);
+		}
+		else if ((GetKeyboardTrigger(DIK_V)))
+		{
+			SetPause(false);
+		}
+		else if (IsButtonPressed(P1, BUTTON_R))
+		{
+			SetPause(false);
+		}
+		else if (IsButtonPressed(P2, BUTTON_M))
+		{
+			SetPause(false);
+		}
 	}
 
+	StopSound(player[P1].chargeSE);
+	StopSound(player[P2].chargeSE);
 
 	// 再開へ
 	if (SelectNum == SELECT_RESTART)
@@ -191,36 +207,69 @@ void UpdatePause(void)
 	{
 		if ((GetKeyboardTrigger(DIK_RETURN)))
 		{
-			SetStage(STARTCALL);
-			SetPause(false);
+			StopSound(GetGameBGM01());
+			StopSound(GetGameBGM02());
+			StopSound(GetGameBGM03());
+
 			if (player[P2].npc)
 			{
 				InitGame();
+				StopSound(*GetTitleSound());
 				player[P2].npc = true;
 				SetIconTextureType(NPCICON);
+				SetStage(STARTCALL);
+				SetPause(false);
+				return;
 			}
+
+			SetStage(STARTCALL);
+			SetPause(false);
+			InitGame();
+			StopSound(*GetTitleSound());
 		}
 		else if (IsButtonPressed(P1, BUTTON_A))
 		{
-			SetStage(STARTCALL);
-			SetPause(false);
+			StopSound(GetGameBGM01());
+			StopSound(GetGameBGM02());
+			StopSound(GetGameBGM03());
+
 			if (player[P2].npc)
 			{
 				InitGame();
+				StopSound(*GetTitleSound());
 				player[P2].npc = true;
 				SetIconTextureType(NPCICON);
+				SetStage(STARTCALL);
+				SetPause(false);
+				return;
 			}
+	
+			InitGame();
+			StopSound(*GetTitleSound());
+			SetStage(STARTCALL);
+			SetPause(false);
 		}
 		else if (IsButtonPressed(P2, BUTTON_B))
 		{
-			SetStage(STARTCALL);
-			SetPause(false);
+			StopSound(GetGameBGM01());
+			StopSound(GetGameBGM02());
+			StopSound(GetGameBGM03());
+
 			if (player[P2].npc)
-			{
+			{				
 				InitGame();
+				StopSound(*GetTitleSound());
 				player[P2].npc = true;
 				SetIconTextureType(NPCICON);
+				SetStage(STARTCALL);
+				SetPause(false);
+				return;
 			}
+
+			InitGame();
+			StopSound(*GetTitleSound());
+			SetStage(STARTCALL);
+			SetPause(false);
 		}
 	}
 	// タイトルへ
@@ -228,18 +277,27 @@ void UpdatePause(void)
 	{
 		if ((GetKeyboardTrigger(DIK_RETURN)))
 		{
+			StopSound(GetGameBGM01());
+			StopSound(GetGameBGM02());
+			StopSound(GetGameBGM03());			
 			SetPause(false);
 			SetStage(TITLE);
 			InitGame();
 		}
 		else if (IsButtonPressed(P1, BUTTON_A))
 		{
+			StopSound(GetGameBGM01());
+			StopSound(GetGameBGM02());
+			StopSound(GetGameBGM03());			
 			SetPause(false);
 			SetStage(TITLE);
 			InitGame();
 		}
 		else if (IsButtonPressed(P2, BUTTON_B))
 		{
+			StopSound(GetGameBGM01());
+			StopSound(GetGameBGM02());
+			StopSound(GetGameBGM03());			
 			SetPause(false);
 			SetStage(TITLE);
 			InitGame();
@@ -281,7 +339,7 @@ void DrawPause(void)
 	}
 
 	// セレクトロゴの描画
-	for (int i = 0; i < LOGO_MAX; i++)
+	for (int i = 0; i < PAUSE_LOGO_MAX; i++)
 	{
 		// テクスチャの設定
 		pDevice->SetTexture(0, D3DTextureLogo[i]);
@@ -329,7 +387,7 @@ HRESULT MakeVertexPause(void)
 	}
 
 	// セレクトロゴ
-	for (int j =  1; j < LOGO_MAX; j++, set += SET_LOGO)
+	for (int j =  1; j < PAUSE_LOGO_MAX; j++, set += SET_LOGO)
 	{
 		// 頂点座標の設定
 		vertexWkLogo[j][0].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X, PAUSE_LOGO_POS_Y + set, 0.0f);
