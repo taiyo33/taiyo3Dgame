@@ -272,12 +272,20 @@ CHILD *GetChild(int index)
 //========================================================================
 void ComprareChild(void)
 {
-	CHILD *child = &childWk[0];
+	CHILD *child = &childWk[0]; 
+	PLAYER *player = GetPlayer(0);
 	int max;
 
 	max = max(child[P1].cnt, child[P2].cnt);
 	
-	max == child[P1].cnt ? SetResult(P1) : SetResult(P2);
+	if (player[P2].npc)
+	{
+		max == child[P1].cnt ? SetResult(P1, P1) : SetResult(P2, NPC);
+	}
+	else
+	{
+		max == child[P1].cnt ? SetResult(P1, P1) : SetResult(P2, P2);
+	}
 }
 
 //========================================================================

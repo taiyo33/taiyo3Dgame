@@ -44,6 +44,7 @@ enum {
 LPDIRECT3DTEXTURE9		D3DTextureResult[TEXTURE_MAX];				// テクスチャへのポリゴン
 VERTEX_2D				vertexWk_RESULT[RESULT_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
 int						TextureNumResult;
+int						TextureNumIcon;
 
 //=============================================================================
 // 初期化処理
@@ -73,7 +74,8 @@ HRESULT InitResult(int type)
 		D3DXCreateTextureFromFile(pDevice,		// デバイスのポインタ
 			TEXTURE_ICON02,					// ファイルの名前
 			&D3DTextureResult[TEX_PLAYERICON02]);		// 読み込むメモリのポインタ
-				// テクスチャの読み込み
+			
+		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,		// デバイスのポインタ
 			TEXTURE_ICON03,					// ファイルの名前
 			&D3DTextureResult[TEX_NPCICON]);		// 読み込むメモリのポインタ
@@ -156,7 +158,7 @@ void DrawResult(void)
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, D3DTextureResult[TextureNumResult + 2]);
+	pDevice->SetTexture(0, D3DTextureResult[TextureNumIcon + 2]);
 
 	// ポリゴンの描画
 	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_RESULT, vertexWk_RESULT[ICON], sizeof(VERTEX_2D));
@@ -235,9 +237,10 @@ HRESULT MakeVertexResult(void)
 // 引　数：int pno(勝ったプレイヤー番号)
 // 戻り値：な　し
 //===============================================================================
-void SetResult(int pno)
+void SetResult(int pno0, int pno1)
 {
-	TextureNumResult = pno;
+	TextureNumResult = pno0;
+	TextureNumIcon = pno1;
 
 	SetStage(RESULT);
 }

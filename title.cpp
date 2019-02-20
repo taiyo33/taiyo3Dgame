@@ -48,6 +48,7 @@ VERTEX_2D						vertexWkSelect[NUM_VERTEX];				// 頂点情報格納ワーク
 static float					yMove;				// ロゴの位置調整
 static int						SelectNum;			// セレクトのされているロゴ番号
 static int						CntFrame;			// 点滅処理のフレームカウント
+static int						ButtonCntFrame;			// 点滅処理のフレームカウント
 LPDIRECTSOUNDBUFFER8			TitleBGM = NULL;	// タイトルのBGM
 LPDIRECTSOUNDBUFFER8			DecisionSE = NULL;	// タイトルのメニュー決定SE
 LPDIRECTSOUNDBUFFER8			SelectSE = NULL;	// 選択ロゴのSE
@@ -64,6 +65,7 @@ HRESULT InitTitle(int type)
 	CntFrame = 0;
 	SelectFlag = false;
 	SelectNum = 0;
+	ButtonCntFrame = 0;
 
 	if (type == 0)
 	{
@@ -150,6 +152,7 @@ void UpdateTitle(void)
 	}
 
 	CntFrame++;
+	ButtonCntFrame++;
 
 	if (CntFrame % OFF_COUNT == 0)
 	{
@@ -161,106 +164,115 @@ void UpdateTitle(void)
 		CntFrame = 0;
 	}
 
-	// 下方向へセレクトを移動
-	if (GetKeyboardTrigger(DIK_DOWN)) 
+	if (ButtonCntFrame > 30)
 	{
-		PlaySound(SelectSE, E_DS8_FLAG_NONE);
-		SelectNum = (SelectNum + 1) % 3;
-		SetVertexSelect(SelectNum);
-	}
-	else if (IsButtonTriggered(P1, BUTTON_DOWN))
-	{
-		PlaySound(SelectSE, E_DS8_FLAG_NONE);
-		SelectNum = (SelectNum + 1) % 3;
-		SetVertexSelect(SelectNum);
-	}
-	else if (IsButtonTriggered(P2, BUTTON_DOWN))
-	{
-		PlaySound(SelectSE, E_DS8_FLAG_NONE);
-		SelectNum = (SelectNum + 1) % 3;
-		SetVertexSelect(SelectNum);
-	}
+		// 下方向へセレクトを移動
+		if (GetKeyboardTrigger(DIK_DOWN))
+		{
+			PlaySound(SelectSE, E_DS8_FLAG_NONE);
+			SelectNum = (SelectNum + 1) % 3;
+			SetVertexSelect(SelectNum);
+		}
+		else if (IsButtonTriggered(P1, BUTTON_DOWN))
+		{
+			PlaySound(SelectSE, E_DS8_FLAG_NONE);
+			SelectNum = (SelectNum + 1) % 3;
+			SetVertexSelect(SelectNum);
+		}
+		else if (IsButtonTriggered(P2, BUTTON_DOWN))
+		{
+			PlaySound(SelectSE, E_DS8_FLAG_NONE);
+			SelectNum = (SelectNum + 1) % 3;
+			SetVertexSelect(SelectNum);
+		}
 
-	// 上方向のセレクトを移動
-	if (GetKeyboardTrigger(DIK_UP))
-	{
-		PlaySound(SelectSE, E_DS8_FLAG_NONE);
-		SelectNum = (SelectNum + 2) % 3;
-		SetVertexSelect(SelectNum);
-	}
-	else if (IsButtonTriggered(P1, BUTTON_UP))
-	{
-		PlaySound(SelectSE, E_DS8_FLAG_NONE);
-		SelectNum = (SelectNum + 2) % 3;
-		SetVertexSelect(SelectNum);
-	}
-	else if (IsButtonTriggered(P2, BUTTON_UP))
-	{
-		PlaySound(SelectSE, E_DS8_FLAG_NONE);
-		SelectNum = (SelectNum + 2) % 3;
-		SetVertexSelect(SelectNum);
-	}
-	// NPC戦へ遷移
-	if (SelectNum == SELECT_NPC)
-	{
-		if ((GetKeyboardTrigger(DIK_RETURN)))
+		// 上方向のセレクトを移動
+		if (GetKeyboardTrigger(DIK_UP))
 		{
-			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
-			player[P2].npc = true;
-			SetIconTextureType(NPCICON);
-			SelectFlag = true;
+			PlaySound(SelectSE, E_DS8_FLAG_NONE);
+			SelectNum = (SelectNum + 2) % 3;
+			SetVertexSelect(SelectNum);
 		}
-		else if (IsButtonPressed(P1, BUTTON_A))
+		else if (IsButtonTriggered(P1, BUTTON_UP))
 		{
-			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
-			player[P2].npc = true;
-			SetIconTextureType(NPCICON);
-			SelectFlag = true;
+			PlaySound(SelectSE, E_DS8_FLAG_NONE);
+			SelectNum = (SelectNum + 2) % 3;
+			SetVertexSelect(SelectNum);
 		}
-		else if (IsButtonPressed(P2, BUTTON_B))
+		else if (IsButtonTriggered(P2, BUTTON_UP))
 		{
-			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
-			player[P2].npc = true;
-			SetIconTextureType(NPCICON);
-			SelectFlag = true;
+			PlaySound(SelectSE, E_DS8_FLAG_NONE);
+			SelectNum = (SelectNum + 2) % 3;
+			SetVertexSelect(SelectNum);
 		}
-	}
-	// PVPへ遷移
-	else if (SelectNum == SELECT_PVP)
-	{
-		if ((GetKeyboardTrigger(DIK_RETURN)))
+		// NPC戦へ遷移
+		if (SelectNum == SELECT_NPC)
 		{
-			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
-			SetIconTextureType(PLAYERICON02);
-			SelectFlag = true;
+			if ((GetKeyboardTrigger(DIK_RETURN)))
+			{
+				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+				player[P2].npc = true;
+				SetIconTextureType(NPCICON);
+				SelectFlag = true;
+				ButtonCntFrame = 0;
+			}
+			else if (IsButtonPressed(P1, BUTTON_A))
+			{
+				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+				player[P2].npc = true;
+				SetIconTextureType(NPCICON);
+				SelectFlag = true;
+				ButtonCntFrame = 0;
+			}
+			else if (IsButtonPressed(P2, BUTTON_B))
+			{
+				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+				player[P2].npc = true;
+				SetIconTextureType(NPCICON);
+				SelectFlag = true;
+				ButtonCntFrame = 0;
+			}
 		}
-		else if (IsButtonPressed(P1, BUTTON_A))
+		// PVPへ遷移
+		else if (SelectNum == SELECT_PVP)
 		{
-			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
-			SetIconTextureType(PLAYERICON02);
-			SelectFlag = true;
+			if ((GetKeyboardTrigger(DIK_RETURN)))
+			{
+				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+				SetIconTextureType(PLAYERICON02);
+				SelectFlag = true;
+				ButtonCntFrame = 0;
+			}
+			else if (IsButtonPressed(P1, BUTTON_A))
+			{
+				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+				SetIconTextureType(PLAYERICON02);
+				SelectFlag = true;
+				ButtonCntFrame = 0;
+			}
+			else if (IsButtonPressed(P2, BUTTON_B))
+			{
+				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
+				SetIconTextureType(PLAYERICON02);
+				SelectFlag = true;
+				ButtonCntFrame = 0;
+			}
 		}
-		else if (IsButtonPressed(P2, BUTTON_B))
+		// 強制終了
+		else if (SelectNum == SELECT_EXIT)
 		{
-			PlaySound(DecisionSE, E_DS8_FLAG_NONE);
-			SetIconTextureType(PLAYERICON02);
-			SelectFlag = true;
-		}
-	}
-	// 強制終了
-	else if (SelectNum == SELECT_EXIT)
-	{
-		if ((GetKeyboardTrigger(DIK_RETURN)))
-		{
-			exit(NULL);
-		}
-		else if (IsButtonPressed(P1, BUTTON_A))
-		{
-			exit(NULL);
-		}
-		else if (IsButtonPressed(P2, BUTTON_B))
-		{
-			exit(NULL);
+			if ((GetKeyboardTrigger(DIK_RETURN)))
+			{
+				exit(NULL);
+			}
+			else if (IsButtonPressed(P1, BUTTON_A))
+			{
+				exit(NULL);
+			}
+			else if (IsButtonPressed(P2, BUTTON_B))
+			{
+				exit(NULL);
+			}
 		}
 	}
 }

@@ -35,7 +35,7 @@ HRESULT InitResult(int type);
 void UninitResult(void);
 void UpdateResult(void);
 void DrawResult(void);
-void SetResult(int pno);
+void SetResult(int pno0, int pno1);
 
 
 #endif

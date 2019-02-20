@@ -227,11 +227,11 @@ void FinishGameCall(int frame)
 		
 		if (player[P1].life <= 0)
 		{
-			player[P2].npc == false ? SetResult(P2) : SetResult(NPC);
+			player[P2].npc == false ? SetResult(P2,P2) : SetResult(P2,NPC);
 		}
 		else if (player[P2].life <= 0)
 		{
-			SetResult(P1);
+			SetResult(P1,P1);
 		}
 
 		ComprareChild();

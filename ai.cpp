@@ -679,7 +679,7 @@ void NonePlayerAttack(void)
 	if (ai->atcCntFrame > RELOAD_ATTCK_FRAME)
 	{
 		// UŒ‚ŠJŽn”»’è
-		if (CheckHitRay(player[P1].pos, player[P2].pos, player[P2].frontVec, 25.0f))
+		if (CheckHitRay(player[P1].pos, player[P2].pos, player[P2].frontVec, 15.0f))
 		{
 			StopSound(player[P2].chargeSE);
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
@@ -697,7 +697,7 @@ void NonePlayerAttack(void)
 		{
 			if (!child->use) continue;
 			// UŒ‚ŠJŽn”»’è
-			if (CheckHitRay(child->pos[i], player[P2].pos, player[P2].frontVec, 10.0f))
+			if (CheckHitRay(child->pos[i], player[P2].pos, player[P2].frontVec, 5.0f))
 			{
 				StopSound(player[P2].chargeSE);
 				SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
