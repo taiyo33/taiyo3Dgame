@@ -50,7 +50,7 @@ void CheckHit(void)
 		for (k = 0; k < CHILD_ONESET_MAX; k++)
 		{
 			if (!child->use[k]) continue;
-			if (CheckHitBC(block->pos, child->pos[k], 10.0f, 10.0f))
+			if (CheckHitBB(block->pos, child->pos[k], D3DXVECTOR3(15.0f,15.0f, 15.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
 			{
 				child->pos[k] = child->prevPos[k];
 			}
@@ -61,7 +61,7 @@ void CheckHit(void)
 		for (k = 0; k < CHILD_ONESET_MAX; k++)
 		{
 			if (!child->use[k]) continue;
-			if (CheckHitBC(block->pos, child->pos[k], 10.0f, 10.0f))
+			if (CheckHitBB(block->pos, child->pos[k], D3DXVECTOR3(15.0f, 15.0f, 15.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
 			{
 				child->pos[k] = child->prevPos[k];
 			}
