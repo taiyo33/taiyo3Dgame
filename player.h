@@ -13,7 +13,7 @@
 //É}ÉNÉçíËã`
 //=============================================================================
 
-#define PLAYER_MAX				(2)
+#define PLAYER_MAX				(4)
 #define PLAYER_LIFE_MAX			(100.0f)
 #define PLAYER_FALL_SPEED		(5.0f)
 
@@ -24,6 +24,16 @@
 #define PLAYER02_INITPOS_X		(300.0f)
 #define PLAYER02_INITPOS_Y		(10.0f)
 #define PLAYER02_INITPOS_Z		(-200.0f)
+
+
+#define PLAYER03_INITPOS_X		(-300.0f)
+#define PLAYER03_INITPOS_Y		(10.0f)
+#define PLAYER03_INITPOS_Z		(-200.0f)
+
+
+#define PLAYER04_INITPOS_X		(300.0f)
+#define PLAYER04_INITPOS_Y		(10.0f)
+#define PLAYER04_INITPOS_Z		(200.0f)
 
 
 typedef struct {
@@ -51,6 +61,8 @@ typedef struct {
 enum {
 	P1,
 	P2,
+	P3,
+	P4,
 	NPC
 };
 

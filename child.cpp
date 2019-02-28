@@ -71,10 +71,10 @@ HRESULT InitChild(void)
 		D3DMesh[i] = NULL;
 		D3DXBuffMat[i] = NULL;
 		NumMat[i] = 0;
-		child[i].cnt = 50;
+		child[i].cnt = 25;
 		child[i].damageSE = LoadSound(SE_CHILDDAMAGE);
 
-		for (int j = 0; j < CHILD_ONESET_MAX / 2; j++)
+		for (int j = 0; j < CHILD_ONESET_MAX; j++)
 		{
 			// 位置・回転・スケールの初期設定
 			child[i].pos[j].x = player[i].pos.x + rand() % 50;
@@ -83,7 +83,6 @@ HRESULT InitChild(void)
 			child[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			child[i].scl[j] = D3DXVECTOR3(0.4f, 0.4f, 0.4f);
 			child[i].use[j] = true;
-			child[i].use[j + 49] = false;
 			child[i].prevPos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			child[i].vec[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		}
@@ -200,7 +199,6 @@ void DrawChild(void)
 	D3DXMATERIAL *pD3DXMat;
 	D3DMATERIAL9 matDef;
 	CHILD *child = &childWk[0];
-	PLAYER *player = GetPlayer(0);
 
 	for (int i = 0; i < CHILD_SET_MAX; i++)
 	{
@@ -232,10 +230,10 @@ void DrawChild(void)
 				pDevice->GetMaterial(&matDef);
 
 				// マテリアル情報に対するポインタを取得
-				pD3DXMat = (D3DXMATERIAL*)D3DXBuffMat[i]->GetBufferPointer();
+				pD3DXMat = (D3DXMATERIAL*)D3DXBuffMat[0]->GetBufferPointer();
 
 				// マテリアルの数分の表示が必要なためFOR文を使用
-				for (int nCntMat = 0; nCntMat < (int)NumMat[i]; nCntMat++)
+				for (int nCntMat = 0; nCntMat < (int)NumMat[0]; nCntMat++)
 				{
 					// マテリアルの設定
 					pDevice->SetMaterial(&pD3DXMat[nCntMat].MatD3D);
@@ -244,7 +242,7 @@ void DrawChild(void)
 					pDevice->SetTexture(0, D3DTexture);
 
 					// 描画
-					D3DMesh[i]->DrawSubset(nCntMat);
+					D3DMesh[0]->DrawSubset(nCntMat);
 				}
 
 				// マテリアルをデフォルトに戻す
@@ -274,17 +272,25 @@ void ComprareChild(void)
 {
 	CHILD *child = &childWk[0]; 
 	PLAYER *player = GetPlayer(0);
-	int max;
+	int max = 0;
+	int index = 0;
 
-	max = max(child[P1].cnt, child[P2].cnt);
-	
-	if (player[P2].npc)
+	for (int i = 0; i < CHILD_SET_MAX; i++)
 	{
-		max == child[P1].cnt ? SetResult(P1, P1) : SetResult(P2, NPC);
+		max = max(child[i].cnt, max);
+		if (child[i].cnt == max)
+		{
+			index = i;
+		}
+	}
+
+	if (player[index].npc)
+	{
+		max == child[index].cnt ? SetResult(index, index) : SetResult(index, NPC);
 	}
 	else
 	{
-		max == child[P1].cnt ? SetResult(P1, P1) : SetResult(P2, P2);
+		max == child[index].cnt ? SetResult(index, index) : SetResult(index, index);
 	}
 }
 

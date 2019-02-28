@@ -44,7 +44,7 @@ HRESULT InitCamera(void)
 	camera.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// âÒì]Çèâä˙âª
 	camera.rotSpeedX = ROT_SPEED_X;
 	camera.rotSpeedY = ROT_SPEED_Y;
-
+	camera.tps = false;
 	float vx, vz;
 	vx = camera.pos.x - camera.at.x;
 	vz = camera.pos.z - camera.at.z;
@@ -58,6 +58,7 @@ HRESULT InitCamera(void)
 //=============================================================================
 void UninitCamera(void)
 {
+
 }
 
 //=============================================================================

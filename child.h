@@ -9,7 +9,7 @@
 
 #include "main.h"
 
-#define CHILD_SET_MAX		(2)
+#define CHILD_SET_MAX		(4)
 #define CHILD_ONESET_MAX	(100)
 
 typedef struct {

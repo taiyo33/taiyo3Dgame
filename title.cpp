@@ -212,6 +212,8 @@ void UpdateTitle(void)
 			{
 				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
 				player[P2].npc = true;
+				//player[P3].npc = true;
+				//player[P4].npc = true;
 				SetIconTextureType(NPCICON);
 				SelectFlag = true;
 				ButtonCntFrame = 0;
@@ -220,6 +222,8 @@ void UpdateTitle(void)
 			{
 				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
 				player[P2].npc = true;
+				//player[P3].npc = true;
+				//player[P4].npc = true;
 				SetIconTextureType(NPCICON);
 				SelectFlag = true;
 				ButtonCntFrame = 0;
@@ -228,6 +232,8 @@ void UpdateTitle(void)
 			{
 				PlaySound(DecisionSE, E_DS8_FLAG_NONE);
 				player[P2].npc = true;
+				//player[P3].npc = true;
+				//player[P4].npc = true;
 				SetIconTextureType(NPCICON);
 				SelectFlag = true;
 				ButtonCntFrame = 0;

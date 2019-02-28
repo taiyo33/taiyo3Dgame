@@ -23,6 +23,7 @@ typedef struct {
 	float			rotSpeedY;			// カメラのY軸の回転速度
 	float			fLengthInterval;	// カメラの視点と注視点の距離
 	bool			mouse;
+	bool			tps;				// 三人称視点
 
 }CAMERA;
 

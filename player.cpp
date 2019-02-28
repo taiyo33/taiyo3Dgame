@@ -21,13 +21,11 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	PLAYER_AIRPLANE		"data/MODEL/model_body.x"	// 読み込むモデル名
+#define	PLAYER_BODY		"data/MODEL/model_body.x"	// 読み込むモデル名
 #define	RATE_MOVE_PLAYER		(0.20f)					// 移動慣性係数
 #define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.02f)			// 回転速度
 #define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
 #define VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
-#define PLAYER_POS_Y_LIMIT	(-200.0f)					// Y軸の上限値
-#define AI_UPDATE_TIME		(10)						// ＡＩの情報更新時間
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -63,8 +61,13 @@ HRESULT InitPlayer(int type)
 	D3DXBuffMat = NULL;	// マテリアルの初期化
 	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
 	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
+	player[P3].pos = D3DXVECTOR3(PLAYER03_INITPOS_X, PLAYER03_INITPOS_Y, PLAYER03_INITPOS_Z);	//
+	player[P4].pos = D3DXVECTOR3(PLAYER04_INITPOS_X, PLAYER04_INITPOS_Y, PLAYER04_INITPOS_Z);	//
 	player[P1].rot = D3DXVECTOR3(0.0f, 90.0f, 0.0f);	// 回転の初期化
 	player[P2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
+	player[P3].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の初期化
+	player[P4].rot = D3DXVECTOR3(0.0f, 180.0f, 0.0f);		// 回転の初期化
+
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
@@ -80,7 +83,7 @@ HRESULT InitPlayer(int type)
 	}
 
 	// Xファイルの読み込み
-	if (FAILED(D3DXLoadMeshFromX(PLAYER_AIRPLANE,
+	if (FAILED(D3DXLoadMeshFromX(PLAYER_BODY,
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -128,6 +131,7 @@ void UninitPlayer(void)
 void UpdatePlayer(void)
 {
 	CAMERA *camera = GetCamera();
+
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		// 現在位置を保存
@@ -143,8 +147,12 @@ void UpdatePlayer(void)
 		// ゲーム開始時
 		else if (GetStage() == START)
 		{
-			InputPlayer1();
-			InputGamePadPlayer1();
+			if (i == P1)
+			{
+				InputPlayer1();
+				InputGamePadPlayer1();
+			}
+
 			if (player[i].npc)
 			{
 				NonePlayerMove();
@@ -794,7 +802,7 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 }
 
 //=============================================================================
-// プレイヤーのダメージ処理
+// プレイヤーの位置初期化処理
 // 引　数：なし
 // 戻り値：なし
 //=============================================================================
@@ -804,4 +812,6 @@ void SetInitPosPlayer(void)
 
 	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
 	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
+	player[P3].pos = D3DXVECTOR3(PLAYER03_INITPOS_X, PLAYER03_INITPOS_Y, PLAYER03_INITPOS_Z);	//
+	player[P4].pos = D3DXVECTOR3(PLAYER04_INITPOS_X, PLAYER04_INITPOS_Y, PLAYER04_INITPOS_Z);	//
 }

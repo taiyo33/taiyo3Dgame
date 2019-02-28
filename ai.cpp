@@ -138,10 +138,10 @@ enum {
 D3DXVECTOR3			RouteData[ROUTEDATA_MAX]{
 
 	D3DXVECTOR3(0.0f, 0.0f, 0.0f),										// 中央
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, FIELD_SIZE_Z - 80.0f),	// 左上
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, FIELD_SIZE_Z - 80.0f),	// 右上
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, -FIELD_SIZE_Z + 80.0f),	// 左下
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, -FIELD_SIZE_Z + 80.0f),	// 右下
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, FIELD_SIZE_Z - 50.0f),	// 左上
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, FIELD_SIZE_Z - 50.0f),	// 右上
+	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, -FIELD_SIZE_Z + 50.0f),	// 左下
+	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, -FIELD_SIZE_Z + 50.0f),	// 右下
 	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, 0.0f),	// 左中央
 	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, 0.0f),	// 右中央
 	D3DXVECTOR3(0.0f, 10.0f, FIELD_SIZE_Z - 80.0f),		// 上中央
@@ -164,6 +164,9 @@ HRESULT InitAi(void)
 	ai->cntMemory = 0;				// 結果記憶配列の添え字を初期化
 	ai[P1].patrolNum = ROUTE01;		// 巡回パターンの番号を初期化
 	ai[P2].patrolNum = ROUTE04;		//
+	ai[P3].patrolNum = ROUTE03;		//
+	ai[P4].patrolNum = ROUTE02;		//
+
 	ai->routineCntFrame = 0;		// 思考間隔
 	ai->atcCntFrame = 0;			// 攻撃の間隔
 	ai->routineStart = true;		// 巡回しているか
