@@ -1,48 +1,45 @@
 //=============================================================================
 //
-// エフェクト処理 [chargeEffect.cpp]
+// チャージエフェクト処理 [chargeEffect.cpp]
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "chargeEffect.h"
-#include "input.h"
-#include "camera.h"
-#include "shadow.h"
-#include "debugproc.h"
-#include "child.h"
+#include "ball.h"
 #include "player.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	TEXTURE_CHARGEEFFECT01		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
-#define	TEXTURE_CHARGEEFFECT02		"data/TEXTURE/bullet002.png"	// 読み込むテクスチャファイル名
-#define	CHARGEEFFECT_SIZE_X		(50.0f)		// ビルボードの幅
-#define	CHARGEEFFECT_SIZE_Y		(50.0f)		// ビルボードの高さ
-#define TEXTURE_MAX				(2)			// テクスチャーの最大数					
+#define	TEXTURE_01				"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
+#define	TEXTURE_02				"data/TEXTURE/bullet002.png"	// 読み込むテクスチャファイル名
+#define	CHARGEEFFECT_SIZE_X		(50.0f)							// ビルボードの幅
+#define	CHARGEEFFECT_SIZE_Y		(50.0f)							// ビルボードの高さ
+#define TEXTURE_MAX				(2)								// テクスチャーの最大数					
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT MakeVertexChargeEffect(LPDIRECT3DDEVICE9 pDevice);
-void SetVertexChargeEffect(int Index, float fSizeX, float fSizeY);
-void SetDiffuseChargeEffect(int Index, float val);
+void SetVertexChargeEffect(int index, float sizeX, float sizeY);
+void SetDiffuseChargeEffect(int index, float val);
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9		D3DTextureChargeEffect[TEXTURE_MAX];	// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 D3DTVtxBuffChargeEffect = NULL;	// 頂点バッファインターフェースへのポインタ
+LPDIRECT3DVERTEXBUFFER9 D3DTVtxBuffChargeEffect = NULL;			// 頂点バッファインターフェースへのポインタ
 
 
-CHARGEEFFECT			chargeEffectWk[CHARGEEFFECT_SET_MAX];
+CHARGEEFFECT			ChargeEffectWk[CHARGEEFFECT_SET_MAX];
 //=============================================================================
 // 初期化処理
 //=============================================================================
 HRESULT InitChargeEffect(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	CHARGEEFFECT *chargeEffect = &chargeEffectWk[0];
+	CHARGEEFFECT *chargeEffect = &ChargeEffectWk[0];
 
 	// 頂点情報の作成
 	MakeVertexChargeEffect(pDevice);
@@ -51,15 +48,15 @@ HRESULT InitChargeEffect(int type)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
-			TEXTURE_CHARGEEFFECT01,					// ファイルの名前
+			TEXTURE_01,					// ファイルの名前
 			&D3DTextureChargeEffect[TEX_NUM001]);			// 読み込むメモリー
 				// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
-			TEXTURE_CHARGEEFFECT02,					// ファイルの名前
+			TEXTURE_02,					// ファイルの名前
 			&D3DTextureChargeEffect[TEX_NUM002]);			// 読み込むメモリー
-
 	}
 
+	// 各変数の初期化処理
 	for (int i = 0; i < CHARGEEFFECT_SET_MAX ; i++)
 	{
 		for (int j = 0; j < CHARGEEFFECT_ONESET_MAX; j++)
@@ -67,7 +64,7 @@ HRESULT InitChargeEffect(int type)
 			chargeEffect[i].use[j] = false;
 			chargeEffect[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			chargeEffect[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-			chargeEffect[i].dif_mi[j] = INIT_ALPHA;
+			chargeEffect[i].dif[j] = INIT_ALPHA;
 		}
 	}
 
@@ -87,6 +84,7 @@ void UninitChargeEffect(void)
 			D3DTextureChargeEffect[i] = NULL;
 		}
 	}
+
 	if(D3DTVtxBuffChargeEffect != NULL)
 	{// 頂点バッファの開放
 		D3DTVtxBuffChargeEffect->Release();
@@ -99,7 +97,7 @@ void UninitChargeEffect(void)
 //=============================================================================
 void UpdateChargeEffect(void)
 {
-	CHARGEEFFECT *chargeEffect = &chargeEffectWk[0];
+	CHARGEEFFECT *chargeEffect = &ChargeEffectWk[0];
 	PLAYER *player = GetPlayer(0);
 
 	for (int i = 0; i < CHARGEEFFECT_SET_MAX; i++)
@@ -108,18 +106,24 @@ void UpdateChargeEffect(void)
 		{
 			if (chargeEffect[i].use[j])
 			{
-				chargeEffect[i].pos[j] = player[i].pos;
+				// 位置をプレイヤーへ
+				chargeEffect[i].pos[j] = player[i].pos;	
 
+				// 偶数の場合エフェクトを拡大
 				if (j % 2 == 0)
 				{
 					// 拡大して透過
 					chargeEffect[i].scl[j] += D3DXVECTOR3(0.01f, 0.01f, 0.01f);
 				}
-				chargeEffect[i].dif_mi[j] -= 0.01f;
-				if (chargeEffect[i].dif_mi[j] < 0.0f)
+
+				// 消滅処理
+				if (chargeEffect[i].dif[j] < 0.0f)
 				{
 					chargeEffect[i].use[j] = false;
 				}
+
+				// 透過値を減らす
+				chargeEffect[i].dif[j] -= 0.01f;
 			}
 		}
 	}
@@ -132,7 +136,7 @@ void DrawChargeEffect(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxView, mtxScale, mtxTranslate;
-	CHARGEEFFECT *chargeEffect = &chargeEffectWk[0];
+	CHARGEEFFECT *chargeEffect = &ChargeEffectWk[0];
 	
 	// Z比較なし
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
@@ -155,7 +159,7 @@ void DrawChargeEffect(void)
 		for (int j = 0; j < CHARGEEFFECT_ONESET_MAX; j++)
 		{
 			// 透過処理
-			SetDiffuseChargeEffect(i, chargeEffect[i].dif_mi[j]);
+			SetDiffuseChargeEffect(i, chargeEffect[i].dif[j]);
 
 			if (chargeEffect[i].use[j])
 			{
@@ -227,7 +231,7 @@ void DrawChargeEffect(void)
 HRESULT MakeVertexChargeEffect(LPDIRECT3DDEVICE9 pDevice)
 {
 	// オブジェクトの頂点バッファを生成
-    if(FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * CHARGEEFFECT_MAX,	// 頂点データ用に確保するバッファサイズ(バイト単位)
+    if(FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * MAX_CHARGEEFFECT,	// 頂点データ用に確保するバッファサイズ(バイト単位)
 												D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
 												FVF_VERTEX_3D,				// 使用する頂点フォーマット
 												D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
@@ -243,7 +247,7 @@ HRESULT MakeVertexChargeEffect(LPDIRECT3DDEVICE9 pDevice)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DTVtxBuffChargeEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-		for (int i = 0; i < CHARGEEFFECT_MAX; i++, pVtx += 4)
+		for (int i = 0; i < MAX_CHARGEEFFECT; i++, pVtx += 4)
 		{
 			// 頂点座標の設定
 			pVtx[0].vtx = D3DXVECTOR3(-CHARGEEFFECT_SIZE_X / 2, -CHARGEEFFECT_SIZE_Y / 2, 0.0f);
@@ -279,8 +283,10 @@ HRESULT MakeVertexChargeEffect(LPDIRECT3DDEVICE9 pDevice)
 
 //=============================================================================
 // 頂点座標の設定
+// 引　数：int index(アドレス番号), float sizeX(横幅), float sizeY(高さ)
+// 戻り値：な　し
 //=============================================================================
-void SetVertexChargeEffect(int Index, float fSizeX, float fSizeY)
+void SetVertexChargeEffect(int index, float sizeX, float sizeY)
 {
 	{//頂点バッファの中身を埋める
 		VERTEX_3D *pVtx;
@@ -288,13 +294,13 @@ void SetVertexChargeEffect(int Index, float fSizeX, float fSizeY)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DTVtxBuffChargeEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-		pVtx += (Index * 4);
+		pVtx += (index * 4);
 
 		// 頂点座標の設定
-		pVtx[0].vtx = D3DXVECTOR3(-fSizeX / 2, -fSizeY / 2, 0.0f);
-		pVtx[1].vtx = D3DXVECTOR3(-fSizeX / 2, fSizeY / 2, 0.0f);
-		pVtx[2].vtx = D3DXVECTOR3(fSizeX / 2, -fSizeY / 2, 0.0f);
-		pVtx[3].vtx = D3DXVECTOR3(fSizeX / 2, fSizeY / 2, 0.0f);
+		pVtx[0].vtx = D3DXVECTOR3(-sizeX / 2, -sizeY / 2, 0.0f);
+		pVtx[1].vtx = D3DXVECTOR3(-sizeX / 2, sizeY / 2, 0.0f);
+		pVtx[2].vtx = D3DXVECTOR3(sizeX / 2, -sizeY / 2, 0.0f);
+		pVtx[3].vtx = D3DXVECTOR3(sizeX / 2, sizeY / 2, 0.0f);
 
 		// 頂点データをアンロックする
 		D3DTVtxBuffChargeEffect->Unlock();
@@ -302,9 +308,11 @@ void SetVertexChargeEffect(int Index, float fSizeX, float fSizeY)
 }
 
 //============================================================================
-//
+// 頂点カラーの透過処理
+// 引　数：int index(アドレス番号), float val(透過の値)
+// 戻り値：な　し
 //============================================================================
-void SetDiffuseChargeEffect(int Index, float val)
+void SetDiffuseChargeEffect(int index, float val)
 {	
 	{//頂点バッファの中身を埋める
 		VERTEX_3D *pVtx;
@@ -312,7 +320,7 @@ void SetDiffuseChargeEffect(int Index, float val)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DTVtxBuffChargeEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-		pVtx += (Index * 4);
+		pVtx += (index * 4);
 		
 		// 反射光の設定
 		pVtx[0].diffuse = 
@@ -326,23 +334,24 @@ void SetDiffuseChargeEffect(int Index, float val)
 }
 
 //==========================================================================
-// 被弾エフェクトの設置処理 
-// 引　数：D3DXVECTOR3 pos(発生位置)、D3DXVECTOR3 rot(回転量)、
-//		   float Dest(距離)、int index(組アドレス番号)
+// 被弾チャージエフェクトの設置処理 
+// 引　数：D3DXVECTOR3 pos(発生位置), int index(組アドレス番号)
 // 戻り値；な　し
 //==========================================================================
-void SetChargeEffect(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest, int index)
+void SetChargeEffect(D3DXVECTOR3 pos, int index)
 {
-	CHARGEEFFECT *chargeEffect = &chargeEffectWk[index];
+	CHARGEEFFECT *chargeEffect = &ChargeEffectWk[index];
 
+	
 	for (int i = 0; i < CHARGEEFFECT_ONESET_MAX; i++)
 	{
 		if (!chargeEffect->use[i])
 		{
-			chargeEffect->use[i] = true;	// 使用中
+			// 各変数を初期化
+			chargeEffect->use[i] = true;
 			chargeEffect->pos[i] = pos;
 			chargeEffect->scl[i] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
-			chargeEffect->dif_mi[i] = INIT_ALPHA;
+			chargeEffect->dif[i] = INIT_ALPHA;
 			SetVertexChargeEffect(i, CHARGEEFFECT_SIZE_X, CHARGEEFFECT_SIZE_Y);
 
 			return;

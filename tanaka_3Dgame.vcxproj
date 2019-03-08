@@ -130,6 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ai.cpp" />
+    <ClCompile Include="ball.cpp" />
     <ClCompile Include="block.cpp" />
     <ClCompile Include="bullet.cpp" />
     <ClCompile Include="bulletGauge.cpp" />
@@ -137,7 +138,6 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="chargeEffect.cpp" />
     <ClCompile Include="checkhit.cpp" />
-    <ClCompile Include="child.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="hitEffect.cpp" />
     <ClCompile Include="field.cpp" />
@@ -165,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ai.h" />
+    <ClInclude Include="ball.h" />
     <ClInclude Include="block.h" />
     <ClInclude Include="bullet.h" />
     <ClInclude Include="bulletGauge.h" />
@@ -172,7 +173,6 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="chargeEffect.h" />
     <ClInclude Include="checkhit.h" />
-    <ClInclude Include="child.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="hitEffect.h" />
     <ClInclude Include="field.h" />

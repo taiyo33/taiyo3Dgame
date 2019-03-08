@@ -10,7 +10,7 @@
 #include "player.h"
 #include "ai.h"
 #include "lifeGauge.h"
-#include "child.h"
+#include "ball.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -146,7 +146,7 @@ void UpdateTitle(void)
 		if (CntFrame % MOVE_MENU_CNT_FREAM == 0)
 		{
 			SetInitPosPlayer();
-			SetInitPosChild();
+			SetInitPosBall();
 			SetStage(TUTORIAL);
 		}
 	}

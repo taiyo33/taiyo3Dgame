@@ -139,7 +139,7 @@ void UpdateBullet(void)
 				// Œ»İˆÊ’u‚ğ•Û‘¶
 				bullet[i].prevPos[j] = bullet[i].pos[j];
 
-				SetBulletEffect(bullet[i].pos[j], bullet[i].rot[j], bullet[i].scl[j], 0, bullet[i].size[j].x, bullet[i].size[j].y, i);
+				SetBulletEffect(bullet[i].pos[j], i);
 				
 				// ˆÚ“®ˆ—
 				MoveBullet(i, j);

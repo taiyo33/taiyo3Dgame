@@ -14,7 +14,7 @@
 #include "block.h" 
 #include "explosion.h"
 #include "field.h"
-#include "child.h" 
+#include "ball.h" 
 
 
 
@@ -46,24 +46,24 @@ void CheckHit(void)
 	for (i = 0; i < BLOCK_NUM_FEARSIDE; i++, block++)
 	{
 		// P1の子供モデルとの判定
-		CHILD *child = GetChild(P1);
-		for (k = 0; k < CHILD_ONESET_MAX; k++)
+		BALL *ball = GetBall(P1);
+		for (k = 0; k < BALL_ONESET_MAX; k++)
 		{
-			if (!child->use[k]) continue;
-			if (CheckHitBB(block->pos, child->pos[k], D3DXVECTOR3(15.0f,15.0f, 15.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
+			if (!ball->use[k]) continue;
+			if (CheckHitBB(block->pos, ball->pos[k], D3DXVECTOR3(15.0f,15.0f, 15.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
 			{
-				child->pos[k] = child->prevPos[k];
+				ball->pos[k] = ball->prevPos[k];
 			}
 		}
 
 		// P2の子供モデルとの判定
-		child = GetChild(P2);
-		for (k = 0; k < CHILD_ONESET_MAX; k++)
+		ball = GetBall(P2);
+		for (k = 0; k < BALL_ONESET_MAX; k++)
 		{
-			if (!child->use[k]) continue;
-			if (CheckHitBB(block->pos, child->pos[k], D3DXVECTOR3(15.0f, 15.0f, 15.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
+			if (!ball->use[k]) continue;
+			if (CheckHitBB(block->pos, ball->pos[k], D3DXVECTOR3(15.0f, 15.0f, 15.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
 			{
-				child->pos[k] = child->prevPos[k];
+				ball->pos[k] = ball->prevPos[k];
 			}
 		}
 	}
@@ -91,19 +91,19 @@ void CheckHit(void)
 		if (bullet[P1].use[i])
 		{
 			// P2の子供モデルとの判定
-			CHILD *child = GetChild(0);
-			for (j = 0; j < CHILD_ONESET_MAX; j++)
+			BALL *ball = GetBall(0);
+			for (j = 0; j < BALL_ONESET_MAX; j++)
 			{
-				if (!child[P2].use[j]) continue;
+				if (!ball[P2].use[j]) continue;
 
-				if (CheckHitBC(bullet[P1].pos[i], child[P2].pos[j], 15.0f, 15.0f))
+				if (CheckHitBC(bullet[P1].pos[i], ball[P2].pos[j], 15.0f, 15.0f))
 				{
-					PlaySound(child[P2].damageSE, E_DS8_FLAG_NONE);
-					child[P2].use[j] = false;
-					child[P2].cnt --;
-					child[P1].cnt ++;
-					SetChild(P1);
-					SetExplosion(child[P2].pos[j], child[P2].rot[j], 0);
+					PlaySound(ball[P2].damageSE, E_DS8_FLAG_NONE);
+					ball[P2].use[j] = false;
+					ball[P2].cnt --;
+					ball[P1].cnt ++;
+					SetBall(P1);
+					SetExplosion(ball[P2].pos[j], ball[P2].rot[j], 0);
 				}
 			}
 			
@@ -125,19 +125,19 @@ void CheckHit(void)
 		if (bullet[P2].use[i])
 		{
 			// P1の子供モデルとの判定
-			CHILD *child = GetChild(0);
-			for (j = 0; j < CHILD_ONESET_MAX; j++)
+			BALL *ball = GetBall(0);
+			for (j = 0; j < BALL_ONESET_MAX; j++)
 			{
-				if (!child[P1].use[j]) continue;
+				if (!ball[P1].use[j]) continue;
 
-				if (CheckHitBC(bullet[P2].pos[i], child[P1].pos[j], 15.0f, 15.0f))
+				if (CheckHitBC(bullet[P2].pos[i], ball[P1].pos[j], 15.0f, 15.0f))
 				{
-					PlaySound(child[P1].damageSE, E_DS8_FLAG_NONE);
-					child[P1].use[j] = false;
-					child[P1].cnt --;
-					child[P2].cnt ++;
-					SetChild(P2);
-					SetExplosion(child[P1].pos[j], child[P1].rot[j], 0);
+					PlaySound(ball[P1].damageSE, E_DS8_FLAG_NONE);
+					ball[P1].use[j] = false;
+					ball[P1].cnt --;
+					ball[P2].cnt ++;
+					SetBall(P2);
+					SetExplosion(ball[P1].pos[j], ball[P1].rot[j], 0);
 				}
 			}
 

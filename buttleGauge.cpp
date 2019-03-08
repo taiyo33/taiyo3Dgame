@@ -8,7 +8,7 @@
 #include "buttleGauge.h"
 #include "input.h"
 #include "player.h"
-#include "child.h"
+#include "ball.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -101,11 +101,11 @@ void UninitButtleGauge(void)
 void UpdateButtleGauge(void)
 {
 	float val;
-	CHILD *child = GetChild(0);
+	BALL *ball = GetBall(0);
 
-	for (int i = 0; i < BUTTLEGAUGE_MAX; i++, child++)
+	for (int i = 0; i < BUTTLEGAUGE_MAX; i++, ball++)
 	{
-		val = (float)child->cnt / CHILD_ONESET_MAX; 
+		val = (float)ball->cnt / BALL_ONESET_MAX; 
 		
 		if (i == 0)
 		{
@@ -114,8 +114,8 @@ void UpdateButtleGauge(void)
 		}
 		else if (i == 1)
 		{
-			float cnt = CHILD_ONESET_MAX - child->cnt;
-			val = cnt / CHILD_ONESET_MAX;
+			float cnt = BALL_ONESET_MAX - ball->cnt;
+			val = cnt / BALL_ONESET_MAX;
 
 			SetTextureButtleGauge02(val);
 			SetVertexButtleGauge02(val);

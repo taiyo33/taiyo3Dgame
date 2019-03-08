@@ -9,7 +9,7 @@
 #include "input.h"
 #include "player.h"
 #include "ai.h"
-#include "child.h"
+#include "ball.h"
 #include "time.h"
 #include "result.h"
 
@@ -234,7 +234,7 @@ void FinishGameCall(int frame)
 			SetResult(P1,P1);
 		}
 
-		ComprareChild();
+		ComprareBall();
 
 		frame = 0;
 	}

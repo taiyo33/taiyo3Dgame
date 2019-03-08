@@ -9,7 +9,7 @@
 #include "camera.h"
 #include "shadow.h"
 #include "debugproc.h"
-#include "child.h"
+#include "ball.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`

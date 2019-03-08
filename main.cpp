@@ -28,7 +28,7 @@
 #include "bulletGauge.h"
 #include "lifeGauge.h"
 #include "item.h"
-#include "child.h"
+#include "ball.h"
 #include "ai.h"
 #include "buttleGauge.h"
 #include "gaugeEffect.h"
@@ -393,7 +393,7 @@ void Uninit(void)
 	UninitItem();
 
 	// 子供モデルの終了処理
-	UninitChild();
+	UninitBall();
 
 	// バトルゲージの終了処理
 	UninitButtleGauge();
@@ -450,7 +450,7 @@ void Update(void)
 			UpdateHead();
 
 			// 子供の更新
-			UpdateChild();
+			UpdateBall();
 
 			break;
 		}
@@ -467,7 +467,7 @@ void Update(void)
 			UpdateGameCall();
 
 			// 子供の更新
-			UpdateChild();
+			UpdateBall();
 
 			break;
 		}
@@ -503,7 +503,7 @@ void Update(void)
 				//UpdateIcon();
 
 				// 子供の更新
-				UpdateChild();
+				UpdateBall();
 
 				// チャージエフェクトの更新
 				UpdateChargeEffect();
@@ -554,7 +554,7 @@ void Update(void)
 		case FINISHCALL:
 		{
 			// 子供の更新
-			UpdateChild();
+			UpdateBall();
 
 			// ゲージエフェクトの更新
 			UpdateGaugeEffect();
@@ -611,7 +611,7 @@ void Draw(void)
 				DrawRightArm();
 
 				// 子供モデルの描画
-				DrawChild();
+				DrawBall();
 
 				// タイトルの終了処理
 				DrawTitle();
@@ -649,7 +649,7 @@ void Draw(void)
 				DrawRightArm();
 
 				// 子供モデルの描画
-				DrawChild();
+				DrawBall();
 
 				// ゲーム遷移テロップの描画
 				DrawGameCall();
@@ -683,7 +683,7 @@ void Draw(void)
 				DrawBulletEffect();
 				
 				// 子供モデルの描画
-				DrawChild();
+				DrawBall();
 
 				// チャージエフェクトの描画
 				DrawChargeEffect();
@@ -762,7 +762,7 @@ void Draw(void)
 				DrawRightArm();
 
 				// 子供モデルの描画
-				DrawChild();
+				DrawBall();
 
 				// ライフゲージの描画
 				DrawLifeGauge();
@@ -806,7 +806,7 @@ void Draw(void)
 				DrawRightArm();
 
 				// 子供モデルの描画
-				DrawChild();
+				DrawBall();
 
 				// ライフゲージの描画
 				DrawLifeGauge();
@@ -962,7 +962,7 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	InitItem(0);
 
 	// 子供モデルの初期化
-	InitChild();
+	InitBall();
 
 	// AIの初期化
 	InitAi();
@@ -1055,7 +1055,7 @@ void InitGame(void)
 	InitItem(INIT_GAME);
 
 	// 子供モデルの初期化
-	InitChild();
+	InitBall();
 
 	// AIの初期化
 	InitAi();
@@ -1125,7 +1125,7 @@ void InitPauseGame(void)
 	InitLifeGauge(INIT_GAME);
 
 	// 子供モデルの初期化
-	InitChild();
+	InitBall();
 
 	// AIの初期化
 	InitAi();

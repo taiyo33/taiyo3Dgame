@@ -1,15 +1,11 @@
 //=============================================================================
 //
-// 弾痕エフェクト処理 [explosion.cpp]
+// ボール消滅エフェクト処理 [explosion.cpp]
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "explosion.h"
-#include "input.h"
-#include "camera.h"
-#include "shadow.h"
-#include "debugproc.h"
-#include "player.h"
 
 
 //*****************************************************************************
@@ -17,7 +13,7 @@
 //*****************************************************************************
 #define	TEXTURE_EXPLOSION		"data/TEXTURE/explosion000.png"	// 読み込むテクスチャファイル名
 #define	EXPLOSION_SIZE			(50.0f)							// ビルボードの幅
-#define EXPLOSION_MAX			(30)							// 最大数
+#define MAX_EXPLOSION			(60)							// 最大数
 #define DEL_TIME				(60)							// 消滅時間
 #define TEXTURE_PATTERN_X		(8)								// テクスチャー分割数X方向
 #define TEXTURE_PATTERN_Y		(2)								// テクスチャー分割数Y方向
@@ -33,7 +29,6 @@ void SetVertexExplosion(int index, float Size);
 void SetDiffuseExplosion(int index, float val);
 void SetTextureExplosion(int index, int cntPattern);
 void TextureAnim(int index);
-//void SetRotExplosion(D3DXVECTOR3 nor0, D3DXVECTOR3 nor1, D3DXVECTOR3 *rot);
 
 //*****************************************************************************
 // グローバル変数
@@ -41,14 +36,14 @@ void TextureAnim(int index);
 LPDIRECT3DTEXTURE9		D3DTextureExplosion = NULL;	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffExplosion = NULL;	// 頂点バッファインターフェースへのポインタ
 
-EXPLOSION				explosionWk[EXPLOSION_MAX];
+EXPLOSION				ExplosionWk[MAX_EXPLOSION]; 
 //=============================================================================
 // 初期化処理
 //=============================================================================
 HRESULT InitExplosion(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	EXPLOSION *explosion = &explosionWk[0];
+	EXPLOSION *explosion = &ExplosionWk[0];
 
 	// 頂点情報の作成
 	MakeVertexExplosion(pDevice);
@@ -61,7 +56,7 @@ HRESULT InitExplosion(int type)
 			&D3DTextureExplosion);			// 読み込むメモリー
 	}
 
-	for (int i = 0; i < EXPLOSION_MAX; i++)
+	for (int i = 0; i < MAX_EXPLOSION; i++)
 	{
 		explosion[i].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 位置の初期化
 		explosion[i].scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);	// 大きさの初期化
@@ -97,9 +92,9 @@ void UninitExplosion(void)
 //=============================================================================
 void UpdateExplosion(void)
 {
-	EXPLOSION *explosion = &explosionWk[0];
+	EXPLOSION *explosion = &ExplosionWk[0];
 
-	for (int i = 0; i < EXPLOSION_MAX; i++)
+	for (int i = 0; i < MAX_EXPLOSION; i++)
 	{
 		if (explosion[i].use)
 		{
@@ -115,7 +110,7 @@ void DrawExplosion(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxView, mtxScale, mtxRot, mtxTranslate;
-	EXPLOSION *explosion = &explosionWk[0];
+	EXPLOSION *explosion = &ExplosionWk[0];
 
 	// Z比較なし
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
@@ -125,7 +120,7 @@ void DrawExplosion(void)
 	pDevice->SetRenderState(D3DRS_ALPHAREF, 254);
 	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATEREQUAL);
 
-	for (int i = 0; i < EXPLOSION_MAX; i++)
+	for (int i = 0; i < MAX_EXPLOSION; i++)
 	{
 		// ラインティングを無効にする
 		pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -201,7 +196,7 @@ HRESULT MakeVertexExplosion(LPDIRECT3DDEVICE9 pDevice)
 {
 
 	// オブジェクトの頂点バッファを生成
-	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * EXPLOSION_MAX,	// 頂点データ用に確保するバッファサイズ(バイト単位)
+	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * MAX_EXPLOSION,	// 頂点データ用に確保するバッファサイズ(バイト単位)
 		D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
 		FVF_VERTEX_3D,				// 使用する頂点フォーマット
 		D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
@@ -211,13 +206,13 @@ HRESULT MakeVertexExplosion(LPDIRECT3DDEVICE9 pDevice)
 		return E_FAIL;
 	}
 
-	EXPLOSION *explosion = &explosionWk[0];
+	EXPLOSION *explosion = &ExplosionWk[0];
 	VERTEX_3D *pVtx;
 
 	// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 	D3DVtxBuffExplosion->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int i = 0; i < EXPLOSION_MAX; i++, pVtx += 4)
+	for (int i = 0; i < MAX_EXPLOSION; i++, pVtx += 4)
 	{
 		// 頂点座標の設定
 		pVtx[0].vtx = D3DXVECTOR3(-EXPLOSION_SIZE / 2, -EXPLOSION_SIZE / 2, 0.0f);
@@ -320,15 +315,15 @@ void SetDiffuseExplosion(int index, float val)
 }
 
 //==========================================================================
-// 弾痕からの煙の設置
+// ボール消滅エフェクトの設置
 // 引　数：D3DXVECTOR3 pos(位置), D3DXVECTOR3 rot(回転), flaot Dest(距離)
 // 戻り値：bool型　使用中ならfalse , 未使用ならtrue
 //==========================================================================
 void SetExplosion(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest)
 {
-	EXPLOSION *explosion = &explosionWk[0];		// アドレスを取得
+	EXPLOSION *explosion = &ExplosionWk[0];		// アドレスを取得
 
-	for (int i = 0; i < EXPLOSION_MAX; i++)
+	for (int i = 0; i < MAX_EXPLOSION; i++)
 	{
 		// 未使用なら
 		if (!explosion[i].use)
@@ -350,7 +345,7 @@ void SetExplosion(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest)
 //==================================================================================
 void TextureAnim(int index)
 {
-	EXPLOSION *explosion = &explosionWk[0];
+	EXPLOSION *explosion = &ExplosionWk[0];
 
 	explosion[index].cntAnim++;		// アニメーションカウントの更新 
 
@@ -372,9 +367,9 @@ void TextureAnim(int index)
 }
 
 ////==========================================================================
-//// 弾痕エフェクトの向き
-//// 引　数：D3DXVECTOR3 nor0(弾痕の法線), D3DXVECTOR3 nor1(ポリゴンの法線), 
-////		   D3DXVECTOR3 *rot(弾痕の回転量)
+//// ボール消滅エフェクトの向き
+//// 引　数：D3DXVECTOR3 nor0(ボール消滅の法線), D3DXVECTOR3 nor1(ポリゴンの法線), 
+////		   D3DXVECTOR3 *rot(ボール消滅の回転量)
 //// 戻り値：な　し
 ////==========================================================================
 //void SetRotExplosion(D3DXVECTOR3 nor0, D3DXVECTOR3 nor1, D3DXVECTOR3 *rot)
@@ -406,7 +401,7 @@ void TextureAnim(int index)
 ////===================================================================================
 //void DeleteExplosion(int eno)
 //{
-//	EXPLOSION *explosion = &explosionWk[0];
+//	EXPLOSION *explosion = &ExplosionWk[0];
 //
 //	dif_mi[eno] -= 0.01f;	// 透過の値
 //

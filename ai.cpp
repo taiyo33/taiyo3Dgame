@@ -13,7 +13,7 @@
 #include "camera.h"
 #include "chargeEffect.h"
 #include "debugproc.h"
-#include "child.h"
+#include "ball.h"
 
 
 //*****************************************************************************
@@ -54,23 +54,23 @@
 #define MOVE_PLAYERLIFE_ROUTINE_FUZZY_X3	(80.0f)
 #define MOVE_PLAYERLIFE_ROUTINE_FUZZY_X4	(100.0f)
 
-#define MOVE_NPCCHILD_ROUTINE_FUZZY_X1		(30.0f)
-#define MOVE_NPCCHILD_ROUTINE_FUZZY_X2		(50.0f)
-#define MOVE_NPCCHILD_ROUTINE_FUZZY_X3		(70.0f)
-#define MOVE_NPCCHILD_ROUTINE_FUZZY_X4		(100.0f)
-#define MOVE_NPCCHILD_CHASE_FUZZY_X1		(50.0f)
-#define MOVE_NPCCHILD_CHASE_FUZZY_X2		(75.0f)
-#define MOVE_NPCCHILD_ESCAPE_FUZZY_X1		(50.0f)
-#define MOVE_NPCCHILD_ESCAPE_FUZZY_X2		(80.0f)
+#define MOVE_NPCBALL_ROUTINE_FUZZY_X1		(30.0f)
+#define MOVE_NPCBALL_ROUTINE_FUZZY_X2		(50.0f)
+#define MOVE_NPCBALL_ROUTINE_FUZZY_X3		(70.0f)
+#define MOVE_NPCBALL_ROUTINE_FUZZY_X4		(100.0f)
+#define MOVE_NPCBALL_CHASE_FUZZY_X1		(50.0f)
+#define MOVE_NPCBALL_CHASE_FUZZY_X2		(75.0f)
+#define MOVE_NPCBALL_ESCAPE_FUZZY_X1		(50.0f)
+#define MOVE_NPCBALL_ESCAPE_FUZZY_X2		(80.0f)
 
-#define MOVE_PLAYERCHILD_ROUTINE_FUZZY_X1	(0.0f)
-#define MOVE_PLAYERCHILD_ROUTINE_FUZZY_X2	(10.0f)
-#define MOVE_PLAYERCHILD_ROUTINE_FUZZY_X3	(70.0f)
-#define MOVE_PLAYERCHILD_ROUTINE_FUZZY_X4	(100.0f)
-#define MOVE_PLAYERCHILD_CHASE_FUZZY_X1		(20.0f)
-#define MOVE_PLAYERCHILD_CHASE_FUZZY_X2		(75.0f)
-#define MOVE_PLAYERCHILD_ESCAPE_FUZZY_X1	(0.0f)
-#define MOVE_PLAYERCHILD_ESCAPE_FUZZY_X2	(100.0f)
+#define MOVE_PLAYERBALL_ROUTINE_FUZZY_X1	(0.0f)
+#define MOVE_PLAYERBALL_ROUTINE_FUZZY_X2	(10.0f)
+#define MOVE_PLAYERBALL_ROUTINE_FUZZY_X3	(70.0f)
+#define MOVE_PLAYERBALL_ROUTINE_FUZZY_X4	(100.0f)
+#define MOVE_PLAYERBALL_CHASE_FUZZY_X1		(20.0f)
+#define MOVE_PLAYERBALL_CHASE_FUZZY_X2		(75.0f)
+#define MOVE_PLAYERBALL_ESCAPE_FUZZY_X1	(0.0f)
+#define MOVE_PLAYERBALL_ESCAPE_FUZZY_X2	(100.0f)
 
 #define RELOAD_ATTCK_FRAME					(60)		// 攻撃の可能までの間隔
 
@@ -206,7 +206,7 @@ void NonePlayerMove(void)
 {
 	AI *ai = &aiWk[0];
 	PLAYER *player = GetPlayer(0);
-	CHILD *child = GetChild(0);
+	BALL *ball = GetBall(0);
 	ai->routineCntFrame++;
 	RouteLapTimeCnt();
 
@@ -215,15 +215,15 @@ void NonePlayerMove(void)
 		ai->cntMemory < DECISION_MEMORY_MAX ? ai->cntMemory++ : ai->cntMemory = 0;	// 配列の添え字を更新
 
 		// 自ボールよる判定
-		ai->chase[PATTERN1] = FuzzyRightDown((float)(float)child[P2].cnt, MOVE_NPCCHILD_CHASE_FUZZY_X1, MOVE_NPCCHILD_CHASE_FUZZY_X2);
-		ai->escape[PATTERN1] = FuzzyRightUp((float)child[P2].cnt, MOVE_NPCCHILD_ESCAPE_FUZZY_X1, MOVE_NPCCHILD_ESCAPE_FUZZY_X2);
-		ai->routine[PATTERN1] = FuzzyTrapezoid((float)child[P2].cnt, MOVE_NPCCHILD_ROUTINE_FUZZY_X1, MOVE_NPCCHILD_ROUTINE_FUZZY_X2,
-			MOVE_NPCCHILD_ROUTINE_FUZZY_X3, MOVE_NPCCHILD_ROUTINE_FUZZY_X4);
+		ai->chase[PATTERN1] = FuzzyRightDown((float)(float)ball[P2].cnt, MOVE_NPCBALL_CHASE_FUZZY_X1, MOVE_NPCBALL_CHASE_FUZZY_X2);
+		ai->escape[PATTERN1] = FuzzyRightUp((float)ball[P2].cnt, MOVE_NPCBALL_ESCAPE_FUZZY_X1, MOVE_NPCBALL_ESCAPE_FUZZY_X2);
+		ai->routine[PATTERN1] = FuzzyTrapezoid((float)ball[P2].cnt, MOVE_NPCBALL_ROUTINE_FUZZY_X1, MOVE_NPCBALL_ROUTINE_FUZZY_X2,
+			MOVE_NPCBALL_ROUTINE_FUZZY_X3, MOVE_NPCBALL_ROUTINE_FUZZY_X4);
 		// 相手ボールよる判定
-		ai->chase[PATTERN2] = FuzzyRightDown((float)child[P1].cnt, MOVE_PLAYERCHILD_CHASE_FUZZY_X1, MOVE_PLAYERCHILD_CHASE_FUZZY_X2);
-		ai->escape[PATTERN2] = FuzzyRightUp((float)child[P1].cnt, MOVE_PLAYERCHILD_ESCAPE_FUZZY_X1, MOVE_PLAYERCHILD_ESCAPE_FUZZY_X2);
-		ai->routine[PATTERN2] = FuzzyTrapezoid((float)child[P1].cnt, MOVE_PLAYERCHILD_ROUTINE_FUZZY_X1, MOVE_PLAYERCHILD_ROUTINE_FUZZY_X2,
-			MOVE_PLAYERCHILD_ROUTINE_FUZZY_X3, MOVE_PLAYERCHILD_ROUTINE_FUZZY_X4);
+		ai->chase[PATTERN2] = FuzzyRightDown((float)ball[P1].cnt, MOVE_PLAYERBALL_CHASE_FUZZY_X1, MOVE_PLAYERBALL_CHASE_FUZZY_X2);
+		ai->escape[PATTERN2] = FuzzyRightUp((float)ball[P1].cnt, MOVE_PLAYERBALL_ESCAPE_FUZZY_X1, MOVE_PLAYERBALL_ESCAPE_FUZZY_X2);
+		ai->routine[PATTERN2] = FuzzyTrapezoid((float)ball[P1].cnt, MOVE_PLAYERBALL_ROUTINE_FUZZY_X1, MOVE_PLAYERBALL_ROUTINE_FUZZY_X2,
+			MOVE_PLAYERBALL_ROUTINE_FUZZY_X3, MOVE_PLAYERBALL_ROUTINE_FUZZY_X4);
 
 		// 自ライフによる判定
 		if (player[P2].life < PLAYER_LIFE_MAX)
@@ -643,7 +643,7 @@ void NonePlayerAttack(void)
 	PLAYER *player = GetPlayer(0);
 	BULLET *bullet = GetBullet(P2);
 	BLOCK *block = GetBlock(0);
-	CHILD *child = GetChild(0);
+	BALL *ball = GetBall(0);
 
 	ai->atcCntFrame++;
 
@@ -654,13 +654,13 @@ void NonePlayerAttack(void)
 		// 最大値になった場合
 		if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
 		{
-			SetChargeEffect(player[P2].pos, player[P2].rot, 0, P2);
+			SetChargeEffect(player[P2].pos, P2);
 			bullet->speedIncrease = BULLET_CHARGE_MAX;
 		}
 		// 10フレーム
 		else if (player->cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 		{
-			SetChargeEffect(player[P2].pos, player[P2].rot, 0, P2);
+			SetChargeEffect(player[P2].pos, P2);
 			bullet->speedIncrease += 0.2f;
 		}
 	}
@@ -696,11 +696,11 @@ void NonePlayerAttack(void)
 			ai->atcCntFrame = 0;
 		}		
 		
-		for (int i = 0; i < CHILD_ONESET_MAX; i++)
+		for (int i = 0; i < BALL_ONESET_MAX; i++)
 		{
-			if (!child->use) continue;
+			if (!ball->use) continue;
 			// 攻撃開始判定
-			if (CheckHitRay(child->pos[i], player[P2].pos, player[P2].frontVec, 5.0f))
+			if (CheckHitRay(ball->pos[i], player[P2].pos, player[P2].frontVec, 5.0f))
 			{
 				StopSound(player[P2].chargeSE);
 				SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);

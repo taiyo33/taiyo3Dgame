@@ -8,7 +8,7 @@
 #include "lifeGauge.h"
 #include "input.h"
 #include "player.h"
-#include "child.h"
+#include "ball.h"
 
 //*****************************************************************************
 // ƒ}ƒNƒ’è‹`

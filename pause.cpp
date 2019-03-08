@@ -10,7 +10,7 @@
 #include "player.h"
 #include "ai.h"
 #include "lifeGauge.h"
-#include "child.h"
+#include "ball.h"
 #include "gameCall.h"
 #include "time.h"
 #include "title.h"

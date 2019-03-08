@@ -7,8 +7,6 @@
 #ifndef _EXPLOSION_H_
 #define _EXPLOSION_H_
 
-#include "main.h"
-
 typedef struct
 {
 	D3DXMATRIX	mtxWorld;	// ワールドマトリックス

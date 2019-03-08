@@ -1,55 +1,49 @@
 //=============================================================================
 //
-// エフェクト処理 [bulletEffect.cpp]
+// バレットエフェクト処理 [bulletEffect.cpp]
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "bulletEffect.h"
-#include "input.h"
-#include "camera.h"
-#include "shadow.h"
-#include "debugproc.h"
-#include "player.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	TEXTURE_BULLETEFFECT001		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
-#define	TEXTURE_BULLETEFFECT002		"data/TEXTURE/bullet002.png"	// 読み込むテクスチャファイル名
+#define	TEXTURE_01				"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
+#define	TEXTURE_02				"data/TEXTURE/bullet002.png"	// 読み込むテクスチャファイル名
+#define	BULLETEFFECT_SIZE_X		(5.0f)							// ビルボードの幅
+#define	BULLETEFFECT_SIZE_Y		(5.0f)							// ビルボードの高さ
+#define MAX_BULLETEFFECT		(BULLETEFFECT_SET_MAX * BULLETEFFECT_ONESET_MAX)	// バレットエフェクトの最大数
+#define DEL_TIME				(10)							// エフェクトの寿命
+#define TEXTURE_MAX				(2)								// テクスチャ枚数
 
-#define	BULLETEFFECT_SIZE_X		(5.0f)						// ビルボードの幅
-#define	BULLETEFFECT_SIZE_Y		(5.0f)						// ビルボードの高さ
-#define BULLETEFFECT_MAX			(60)						// 煙エフェクトの最大数
-#define DEL_TIME			(10)						// エフェクトの寿命
-#define TEXTURE_MAX			(2)
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT MakeVertexBulletEffect(LPDIRECT3DDEVICE9 pDevice);
-void SetVertexBulletEffect(int Index, float fSizeX, float fSizeY);
-void SetDiffuseBulletEffect(int Index, float val);
-//void MoveBulletEffect(int mno);
+void SetVertexBulletEffect(int index, float sizeX, float sizeY);
+void SetDiffuseBulletEffect(int index, float val);
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-
 LPDIRECT3DTEXTURE9		D3DTextureBulletEffect[TEXTURE_MAX];	// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBulletEffect = NULL;	// 頂点バッファインターフェースへのポインタ
+LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBulletEffect = NULL;			// 頂点バッファインターフェースへのポインタ
 
-float					s_curveAngle[BULLETEFFECT_MAX];	// Sinカーブの角度
-static int				cnt_frame;					// フレーム数
-static float			dif_mi[BULLETEFFECT_SET_MAX][BULLETEFFECT_ONESET_MAX];			// 透過値
-BULLETEFFECT					bulletEffectWk[BULLETEFFECT_SET_MAX];	// BULLETEFFECT構造体用変数
+static int				CntFrame;								// フレーム数
+BULLETEFFECT			BulletEffectWk[BULLETEFFECT_SET_MAX];	// BULLETEFFECT構造体用変数
 
 //=============================================================================
 // 初期化処理
+// 引　数：int type(再初期化の２数判定変数)
+// 戻り値：HRESULT型
 //=============================================================================
 HRESULT InitBulletEffect(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	BULLETEFFECT *bulletEffect = &bulletEffectWk[0];
+	BULLETEFFECT *bulletEffect = &BulletEffectWk[0];
 
 	// 頂点情報の作成
 	MakeVertexBulletEffect(pDevice);
@@ -58,12 +52,12 @@ HRESULT InitBulletEffect(int type)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
-			TEXTURE_BULLETEFFECT001,					// ファイルの名前
+			TEXTURE_01,					// ファイルの名前
 			&D3DTextureBulletEffect[TEX_NUM001]);			// 読み込むメモリー
 
 				// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
-			TEXTURE_BULLETEFFECT002,					// ファイルの名前
+			TEXTURE_02,					// ファイルの名前
 			&D3DTextureBulletEffect[TEX_NUM002]);			// 読み込むメモリー
 	}
 
@@ -74,8 +68,7 @@ HRESULT InitBulletEffect(int type)
 			bulletEffect[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			bulletEffect[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 			bulletEffect[i].time[j] = DEL_TIME;
-			bulletEffect[i].Alpha[j] = 0.0f;
-			dif_mi[i][j] = INIT_ALPHA;
+			bulletEffect[i].dif[j] = INIT_ALPHA;
 		}
 	}
 
@@ -108,7 +101,7 @@ void UninitBulletEffect(void)
 //=============================================================================
 void UpdateBulletEffect(void)
 {
-	BULLETEFFECT *bulletEffect = &bulletEffectWk[0];
+	BULLETEFFECT *bulletEffect = &BulletEffectWk[0];
 
 	for (int i = 0; i < BULLETEFFECT_SET_MAX; i++)
 	{
@@ -118,13 +111,13 @@ void UpdateBulletEffect(void)
 			{
 				bulletEffect[i].scl[j] -= D3DXVECTOR3(0.1f, 0.1f, 0.1f);
 
-				dif_mi[i][j] -= 0.01f;		// 透過の値
+				bulletEffect[i].dif[j] -= 0.01f;		// 透過の値
 				bulletEffect[i].time[j]--;		// 生存時間をデクリメント
 
 				// 消滅時間になったら消滅
 				if (bulletEffect[i].time[j] % DEL_TIME == 0)
 				{
-					dif_mi[i][j] = INIT_ALPHA;
+					bulletEffect[i].dif[j] = INIT_ALPHA;
 					bulletEffect[i].use[j] = false;
 					bulletEffect[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 				}
@@ -140,7 +133,7 @@ void DrawBulletEffect(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxView, mtxScale, mtxTranslate;
-	BULLETEFFECT *bulletEffect = &bulletEffectWk[0];
+	BULLETEFFECT *bulletEffect = &BulletEffectWk[0];
 
 	// Z比較なし
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
@@ -154,7 +147,7 @@ void DrawBulletEffect(void)
 	{
 		for (int j = 0; j < BULLETEFFECT_ONESET_MAX; j++)
 		{
-			SetDiffuseBulletEffect(i, dif_mi[i][j]);
+			SetDiffuseBulletEffect(i, bulletEffect[i].dif[j]);
 
 			// ラインティングを無効にする
 			pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -237,7 +230,7 @@ void DrawBulletEffect(void)
 HRESULT MakeVertexBulletEffect(LPDIRECT3DDEVICE9 pDevice)
 {
 	// オブジェクトの頂点バッファを生成
-	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * BULLETEFFECT_MAX,	// 頂点データ用に確保するバッファサイズ(バイト単位)
+	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * MAX_BULLETEFFECT,	// 頂点データ用に確保するバッファサイズ(バイト単位)
 		D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
 		FVF_VERTEX_3D,				// 使用する頂点フォーマット
 		D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
@@ -253,7 +246,7 @@ HRESULT MakeVertexBulletEffect(LPDIRECT3DDEVICE9 pDevice)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DVtxBuffBulletEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-		for (int i = 0; i < BULLETEFFECT_MAX; i++, pVtx += 4)
+		for (int i = 0; i < MAX_BULLETEFFECT; i++, pVtx += 4)
 		{
 			// 頂点座標の設定
 			SetVertexBulletEffect(i, BULLETEFFECT_SIZE_X, BULLETEFFECT_SIZE_Y);
@@ -286,8 +279,10 @@ HRESULT MakeVertexBulletEffect(LPDIRECT3DDEVICE9 pDevice)
 
 //=============================================================================
 // 頂点座標の設定
+// 引　数：int index(アドレス番号), folat sizeX(横幅), float sizeY(高さ)
+// 戻り値：な　し
 //=============================================================================
-void SetVertexBulletEffect(int Index, float fSizeX, float fSizeY)
+void SetVertexBulletEffect(int index, float sizeX, float sizeY)
 {
 	{//頂点バッファの中身を埋める
 		VERTEX_3D *pVtx;
@@ -295,13 +290,13 @@ void SetVertexBulletEffect(int Index, float fSizeX, float fSizeY)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DVtxBuffBulletEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-		pVtx += (Index * 4);
+		pVtx += (index * 4);
 
 		// 頂点座標の設定
-		pVtx[0].vtx = D3DXVECTOR3(-fSizeX / 2, -fSizeY / 2, 0.0f);
-		pVtx[1].vtx = D3DXVECTOR3(-fSizeX / 2, fSizeY / 2, 0.0f);
-		pVtx[2].vtx = D3DXVECTOR3(fSizeX / 2, -fSizeY / 2, 0.0f);
-		pVtx[3].vtx = D3DXVECTOR3(fSizeX / 2, fSizeY / 2, 0.0f);
+		pVtx[0].vtx = D3DXVECTOR3(-sizeX / 2, -sizeY / 2, 0.0f);
+		pVtx[1].vtx = D3DXVECTOR3(-sizeX / 2, sizeY / 2, 0.0f);
+		pVtx[2].vtx = D3DXVECTOR3(sizeX / 2, -sizeY / 2, 0.0f);
+		pVtx[3].vtx = D3DXVECTOR3(sizeX / 2, sizeY / 2, 0.0f);
 
 		// 頂点データをアンロックする
 		D3DVtxBuffBulletEffect->Unlock();
@@ -309,9 +304,11 @@ void SetVertexBulletEffect(int Index, float fSizeX, float fSizeY)
 }
 
 //============================================================================
-// 煙エフェクトの透過処理
+// バレットエフェクトの透過処理
+// 引　数：int index(アドレス番号), float val(透過率の値)
+// 戻り値：な し
 //============================================================================
-void SetDiffuseBulletEffect(int Index, float val)
+void SetDiffuseBulletEffect(int index, float val)
 {
 	{//頂点バッファの中身を埋める
 		VERTEX_3D *pVtx;
@@ -319,7 +316,7 @@ void SetDiffuseBulletEffect(int Index, float val)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DVtxBuffBulletEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-		pVtx += (Index * 4);
+		pVtx += (index * 4);
 
 		// 反射光の設定
 		pVtx[0].diffuse =
@@ -333,49 +330,25 @@ void SetDiffuseBulletEffect(int Index, float val)
 }
 
 //==========================================================================
-// 煙エフェクトの設置
-// 引　数：D3DXVECTOR3 pos[j](位置), D3DXVECTOR3 rot(回転), float Dest(距離)
-// 戻り値：bool型　使用中なら false, 未使用ならtrue　
+// バレットエフェクトの設置
+// 引　数：D3DXVECTOR3 pos(位置), int index(組バレットのアドレス番号)
+// 戻り値：な　し
 //==========================================================================
-bool SetBulletEffect(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 scl, float Dest, float sizeX, float sizeY, int index)
+void SetBulletEffect(D3DXVECTOR3 pos, int index)
 {
-	BULLETEFFECT *bulletEffect = &bulletEffectWk[index];
+	BULLETEFFECT *bulletEffect = &BulletEffectWk[index];
 
 	for (int i = 0; i < BULLETEFFECT_ONESET_MAX; i++)
 	{
 		if (!bulletEffect->use[i])
 		{
 			bulletEffect->use[i] = true;	// 使用中
-			bulletEffect->pos[i].x = pos.x + sinf(rot.y) * Dest;
-			bulletEffect->pos[i].z = pos.z + cosf(rot.y) * Dest;
-			bulletEffect->pos[i].y = pos.y;
-			bulletEffect->scl[i] = scl;
+			bulletEffect->pos[i] = pos;		// 位置を設定
 
-			SetVertexBulletEffect(i, sizeX, sizeY);
+			// 頂点を設定
+			SetVertexBulletEffect(i, BULLETEFFECT_SIZE_X, BULLETEFFECT_SIZE_Y);
 
-			return true;
+			return;
 		}
 	}
-
-	return false;
 }
-
-////==========================================================================
-//// 煙エフェクトのゆらめきの制御
-//// 引　数： int mno(煙エフェクトのアドレス番号)
-//// 戻り値： なし
-////==========================================================================
-//void MoveBulletEffect(int mno)
-//{
-//	BULLETEFFECT *bulletEffect = &bulletEffectWk[mno];	// アドレスの取得
-//
-//	// ゆらぎの値をランダムで指定
-//	s_curveAngle[mno] = (float)(rand() % 101);
-//
-//	// ゆらぎの反映
-//	bulletEffect[mno].pos[j].x += sinf(s_curveAngle[mno]);
-//	bulletEffect[mno].pos[j].y += 0.2f;
-//	bulletEffect[mno].pos[j].z += cosf(s_curveAngle[mno]);
-//
-//}
-

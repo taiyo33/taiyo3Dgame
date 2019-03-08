@@ -6,7 +6,7 @@
 #include "main.h"
 #include "time.h"
 #include "input.h"
-#include "child.h"
+#include "ball.h"
 #include "gameCall.h"
 
 //*****************************************************************************

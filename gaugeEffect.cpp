@@ -10,7 +10,7 @@
 #include "shadow.h"
 #include "debugproc.h"
 #include "player.h"
-#include "child.h"
+#include "ball.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -94,9 +94,9 @@ void UninitGaugeEffect(void)
 void UpdateGaugeEffect(void)
 {
 	float val = 0.0f;
-	CHILD *child = GetChild(0);
+	BALL *ball = GetBall(0);
 
-	for (int i = 0; i < GAUGEEFFECT_MAX; i++, child++)
+	for (int i = 0; i < GAUGEEFFECT_MAX; i++, ball++)
 	{
 		CntAnim[i]++;		// アニメーションカウントの更新 
 
@@ -110,15 +110,15 @@ void UpdateGaugeEffect(void)
 
 		if (i == 0)
 		{
-			val = (float)child->cnt / CHILD_ONESET_MAX;
+			val = (float)ball->cnt / BALL_ONESET_MAX;
 
 			SetTextureGaugeEffect(i, PatternAnim[i]);	// テクスチャー座標の計算
 			SetVertexGaugeEffect01(val);
 		}
 		else if(i == 1)
 		{
-			float cnt = CHILD_ONESET_MAX - child->cnt;
-			val = cnt / CHILD_ONESET_MAX;
+			float cnt = BALL_ONESET_MAX - ball->cnt;
+			val = cnt / BALL_ONESET_MAX;
 
 			SetTextureGaugeEffect(i, PatternAnim[i]);	// テクスチャー座標の計算
 			SetVertexGaugeEffect02(val);

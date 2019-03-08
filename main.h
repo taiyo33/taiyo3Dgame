@@ -17,7 +17,11 @@
 
 #define DIRECTINPUT_VERSION (0x0800)	// 警告対策
 #include "dinput.h"
+
 #include "sound.h"
+#include "input.h"
+#include "debugproc.h"
+#include "camera.h"
 
 //*****************************************************************************
 // ライブラリのリンク
@@ -67,7 +71,7 @@ typedef struct
 	D3DXVECTOR2 tex;		// テクスチャ座標
 } VERTEX_3D;
 
-enum {
+enum GAME{
 	TITLE,
 	TUTORIAL,
 	STARTCALL,
@@ -75,7 +79,7 @@ enum {
 	FINISHCALL,
 	RESULT
 };
-enum {
+enum TEXTURE{
 	TEX_NUM001,
 	TEX_NUM002,
 	TEX_NUM003,
