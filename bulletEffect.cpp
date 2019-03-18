@@ -48,6 +48,7 @@ HRESULT InitBulletEffect(int type)
 	// 頂点情報の作成
 	MakeVertexBulletEffect(pDevice);
 
+	// 再初期化時は読み込まない
 	if (type == 0)
 	{
 		// テクスチャの読み込み

@@ -4,11 +4,8 @@
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "gaugeEffect.h"
-#include "input.h"
-#include "camera.h"
-#include "shadow.h"
-#include "debugproc.h"
 #include "player.h"
 #include "ball.h"
 
@@ -36,23 +33,26 @@ void SetVertexGaugeEffect02(float val);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-enum {
+enum GAUGEEFFECT{
 	GAUGE_EFFECT01,
 	GAUGE_EFFECT02
 };
 
 LPDIRECT3DTEXTURE9			D3DTextureGaugeEffect[TEXTURE_MAX];			// テクスチャへのポインタ
-static VERTEX_2D			vertexWk[TEXTURE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
-static int			PatternAnim[GAUGEEFFECT_MAX];
-static int			CntAnim[GAUGEEFFECT_MAX];
-static bool			UseAnim[GAUGEEFFECT_MAX];
+static VERTEX_2D			VertexWk[TEXTURE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
+static int					PatternAnim[GAUGEEFFECT_MAX];
+static int					CntAnim[GAUGEEFFECT_MAX];
+static bool					UseAnim[GAUGEEFFECT_MAX];
 //=============================================================================
 // 初期化処理
+// 引　数：int type(再初期化時の2数判定変数)
+// 戻り値：
 //=============================================================================
 HRESULT InitGaugeEffect(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	// 再初期化時は読み込まない
 	if (type == 0)
 	{
 		// テクスチャの読み込み
@@ -145,7 +145,7 @@ void DrawGaugeEffect(void)
 		// テクスチャの設定
 		pDevice->SetTexture(0, D3DTextureGaugeEffect[GAUGE_EFFECT01 + i]);
 		// ポリゴンの描画
-		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[GAUGE_EFFECT01 + i], sizeof(VERTEX_2D));
+		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, VertexWk[GAUGE_EFFECT01 + i], sizeof(VERTEX_2D));
 	}
 
 	// αテストを無効
@@ -158,74 +158,80 @@ void DrawGaugeEffect(void)
 HRESULT MakeVertexGaugeEffect(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	
+	// P1ゲージ用エフェクト
+	{
+		// 頂点座標の設定
+		VertexWk[GAUGE_EFFECT01][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01, GAUGEEFFECT_POS_Y_01, 0.0f);
+		VertexWk[GAUGE_EFFECT01][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X, GAUGEEFFECT_POS_Y_01, 0.0f);
+		VertexWk[GAUGE_EFFECT01][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01, GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+		VertexWk[GAUGE_EFFECT01][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X, GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
 
-	// 頂点座標の設定
-	vertexWk[GAUGE_EFFECT01][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01, GAUGEEFFECT_POS_Y_01, 0.0f);
-	vertexWk[GAUGE_EFFECT01][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X, GAUGEEFFECT_POS_Y_01, 0.0f);
-	vertexWk[GAUGE_EFFECT01][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01, GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
-	vertexWk[GAUGE_EFFECT01][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X, GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+		// テクスチャのパースペクティブコレクト用
+		VertexWk[GAUGE_EFFECT01][0].rhw =
+			VertexWk[GAUGE_EFFECT01][1].rhw =
+			VertexWk[GAUGE_EFFECT01][2].rhw =
+			VertexWk[GAUGE_EFFECT01][3].rhw = 1.0f;
 
-	// テクスチャのパースペクティブコレクト用
-	vertexWk[GAUGE_EFFECT01][0].rhw =
-		vertexWk[GAUGE_EFFECT01][1].rhw =
-		vertexWk[GAUGE_EFFECT01][2].rhw =
-		vertexWk[GAUGE_EFFECT01][3].rhw = 1.0f;
+		// 反射光の設定
+		VertexWk[GAUGE_EFFECT01][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[GAUGE_EFFECT01][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[GAUGE_EFFECT01][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[GAUGE_EFFECT01][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		// テクスチャ座標の設定
+		VertexWk[GAUGE_EFFECT01][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWk[GAUGE_EFFECT01][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWk[GAUGE_EFFECT01][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWk[GAUGE_EFFECT01][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
 
-	// 反射光の設定
-	vertexWk[GAUGE_EFFECT01][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[GAUGE_EFFECT01][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[GAUGE_EFFECT01][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[GAUGE_EFFECT01][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+	// P2ゲージ用エフェクト
+	{
+		// 頂点座標の設定
+		VertexWk[GAUGE_EFFECT02][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02, GAUGEEFFECT_POS_Y_02, 0.0f);
+		VertexWk[GAUGE_EFFECT02][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + TEXTURE_GAUGEEFFECT_SIZE_X, GAUGEEFFECT_POS_Y_02, 0.0f);
+		VertexWk[GAUGE_EFFECT02][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02, GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+		VertexWk[GAUGE_EFFECT02][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + TEXTURE_GAUGEEFFECT_SIZE_X, GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
 
-	// テクスチャ座標の設定
-	vertexWk[GAUGE_EFFECT01][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	vertexWk[GAUGE_EFFECT01][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	vertexWk[GAUGE_EFFECT01][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	vertexWk[GAUGE_EFFECT01][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		// テクスチャのパースペクティブコレクト用
+		VertexWk[GAUGE_EFFECT02][0].rhw =
+			VertexWk[GAUGE_EFFECT02][1].rhw =
+			VertexWk[GAUGE_EFFECT02][2].rhw =
+			VertexWk[GAUGE_EFFECT02][3].rhw = 1.0f;
 
-	// 頂点座標の設定
-	vertexWk[GAUGE_EFFECT02][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02, GAUGEEFFECT_POS_Y_02, 0.0f);
-	vertexWk[GAUGE_EFFECT02][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + TEXTURE_GAUGEEFFECT_SIZE_X, GAUGEEFFECT_POS_Y_02, 0.0f);
-	vertexWk[GAUGE_EFFECT02][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02, GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
-	vertexWk[GAUGE_EFFECT02][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + TEXTURE_GAUGEEFFECT_SIZE_X, GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+		// 反射光の設定
+		VertexWk[GAUGE_EFFECT02][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[GAUGE_EFFECT02][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[GAUGE_EFFECT02][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[GAUGE_EFFECT02][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
-	// テクスチャのパースペクティブコレクト用
-	vertexWk[GAUGE_EFFECT02][0].rhw =
-		vertexWk[GAUGE_EFFECT02][1].rhw =
-		vertexWk[GAUGE_EFFECT02][2].rhw =
-		vertexWk[GAUGE_EFFECT02][3].rhw = 1.0f;
-
-	// 反射光の設定
-	vertexWk[GAUGE_EFFECT02][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[GAUGE_EFFECT02][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[GAUGE_EFFECT02][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-	vertexWk[GAUGE_EFFECT02][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-
-	// テクスチャ座標の設定
-	vertexWk[GAUGE_EFFECT02][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	vertexWk[GAUGE_EFFECT02][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	vertexWk[GAUGE_EFFECT02][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	vertexWk[GAUGE_EFFECT02][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		// テクスチャ座標の設定
+		VertexWk[GAUGE_EFFECT02][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWk[GAUGE_EFFECT02][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWk[GAUGE_EFFECT02][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWk[GAUGE_EFFECT02][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	}
 
 	return S_OK;
 }
 
 //=============================================================================
 // テクスチャ座標の設定
-// 引数：アニメーションのパターンカウント
+// 引　数：int index(頂点情報のアドレス), int cntPattern(アニメーションのパターンカウント)
+// 戻り値：な　し
 //=============================================================================
 void SetTextureGaugeEffect(int index, int cntPattern)
 {
-	// アニメーションするテクスチャ座標の設定
+	// アニメーションのテクスチャ座標の設定
 	int x = cntPattern % TEXTURE_PATTERN_X;
 	int y = cntPattern / TEXTURE_PATTERN_X;
 	float sizeX = 1.0f / TEXTURE_PATTERN_X;
 	float sizeY = 1.0f / TEXTURE_PATTERN_Y;
 
-	vertexWk[index][0].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY);
-	vertexWk[index][1].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY);
-	vertexWk[index][2].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY + sizeY);
-	vertexWk[index][3].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY + sizeY);
+	VertexWk[index][0].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY);
+	VertexWk[index][1].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY);
+	VertexWk[index][2].tex = D3DXVECTOR2((float)(x)* sizeX, (float)(y)* sizeY + sizeY);
+	VertexWk[index][3].tex = D3DXVECTOR2((float)(x)* sizeX + sizeX, (float)(y)* sizeY + sizeY);
 }
 
 //=============================================================================
@@ -236,10 +242,10 @@ void SetTextureGaugeEffect(int index, int cntPattern)
 void SetVertexGaugeEffect01(float val)
 {
 	// 頂点座標の設定
-	vertexWk[GAUGE_EFFECT01][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + (680.0f * val), GAUGEEFFECT_POS_Y_01, 0.0f);
-	vertexWk[GAUGE_EFFECT01][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X + (680.0f * val), GAUGEEFFECT_POS_Y_01, 0.0f);
-	vertexWk[GAUGE_EFFECT01][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + (680.0f * val), GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
-	vertexWk[GAUGE_EFFECT01][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X + (680.0f * val), GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+	VertexWk[GAUGE_EFFECT01][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + (680.0f * val), GAUGEEFFECT_POS_Y_01, 0.0f);
+	VertexWk[GAUGE_EFFECT01][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X + (680.0f * val), GAUGEEFFECT_POS_Y_01, 0.0f);
+	VertexWk[GAUGE_EFFECT01][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + (680.0f * val), GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+	VertexWk[GAUGE_EFFECT01][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_01 + TEXTURE_GAUGEEFFECT_SIZE_X + (680.0f * val), GAUGEEFFECT_POS_Y_01 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
 }
 
 //=============================================================================
@@ -250,8 +256,8 @@ void SetVertexGaugeEffect01(float val)
 void SetVertexGaugeEffect02(float val)
 {
 	// 頂点座標の設定
-	vertexWk[GAUGE_EFFECT02][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 - TEXTURE_GAUGEEFFECT_SIZE_X + (680.0f * val), GAUGEEFFECT_POS_Y_02, 0.0f);
-	vertexWk[GAUGE_EFFECT02][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + (680.0f * val), GAUGEEFFECT_POS_Y_02, 0.0f);
-	vertexWk[GAUGE_EFFECT02][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 - TEXTURE_GAUGEEFFECT_SIZE_X + (680.0f * val), GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
-	vertexWk[GAUGE_EFFECT02][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + (680.0f * val), GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+	VertexWk[GAUGE_EFFECT02][0].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 - TEXTURE_GAUGEEFFECT_SIZE_X + (680.0f * val), GAUGEEFFECT_POS_Y_02, 0.0f);
+	VertexWk[GAUGE_EFFECT02][1].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + (680.0f * val), GAUGEEFFECT_POS_Y_02, 0.0f);
+	VertexWk[GAUGE_EFFECT02][2].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 - TEXTURE_GAUGEEFFECT_SIZE_X + (680.0f * val), GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
+	VertexWk[GAUGE_EFFECT02][3].vtx = D3DXVECTOR3(GAUGEEFFECT_POS_X_02 + (680.0f * val), GAUGEEFFECT_POS_Y_02 + TEXTURE_GAUGEEFFECT_SIZE_Y, 0.0f);
 }

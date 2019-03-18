@@ -39,6 +39,8 @@ LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffExplosion = NULL;	// ’¸“_ƒoƒbƒtƒ@ƒCƒ“ƒ^[ƒtƒF
 EXPLOSION				ExplosionWk[MAX_EXPLOSION]; 
 //=============================================================================
 // ‰Šú‰»ˆ—
+// ˆø@”Fint type(Ä‰Šú‰»Žž‚Ì2””»’è•Ï”)
+// –ß‚è’lF
 //=============================================================================
 HRESULT InitExplosion(int type)
 {
@@ -48,6 +50,7 @@ HRESULT InitExplosion(int type)
 	// ’¸“_î•ñ‚Ìì¬
 	MakeVertexExplosion(pDevice);
 
+	// Ä‰Šú‰»Žž‚Í“Ç‚Ýž‚Ü‚È‚¢
 	if (type == 0)
 	{
 		// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚Ýž‚Ý

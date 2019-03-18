@@ -9,7 +9,7 @@
 
 #include "main.h"
 
-#define BALL_SET_MAX		(4)
+#define BALL_SET_MAX	(2)
 #define BALL_ONESET_MAX	(100)
 
 typedef struct {

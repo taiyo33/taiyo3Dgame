@@ -4,11 +4,8 @@
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "hitEffect.h"
-#include "input.h"
-#include "camera.h"
-#include "shadow.h"
-#include "debugproc.h"
 #include "ball.h"
 
 //*****************************************************************************
@@ -17,7 +14,7 @@
 #define	TEXTURE_HITEFFECT01		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
 #define	HITEFFECT_SIZE_X		(25.0f)							// ビルボードの幅
 #define	HITEFFECT_SIZE_Y		(50.0f)							// ビルボードの高さ
-#define INIT_SPEED				(2.0f)
+#define INIT_SPEED				(2.0f)							// 
 #define TEXTURE_MAX				(2)								// テクスチャーの最大数					
 
 //*****************************************************************************

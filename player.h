@@ -11,7 +11,7 @@
 //É}ÉNÉçíËã`
 //=============================================================================
 
-#define PLAYER_MAX				(4)
+#define PLAYER_MAX				(2)
 #define PLAYER_LIFE_MAX			(100.0f)
 #define PLAYER_FALL_SPEED		(5.0f)
 

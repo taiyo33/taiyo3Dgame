@@ -18,8 +18,8 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	PLAYER_BODY		"data/MODEL/model_body.x"	// 読み込むモデル名
-#define	RATE_MOVE_PLAYER		(0.20f)					// 移動慣性係数
+#define	PLAYER_BODY			"data/MODEL/model_body.x"	// 読み込むモデル名
+#define	RATE_MOVE_PLAYER	(0.20f)						// 移動慣性係数
 #define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.02f)			// 回転速度
 #define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
 #define VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
@@ -58,12 +58,12 @@ HRESULT InitPlayer(int type)
 	D3DXBuffMat = NULL;	// マテリアルの初期化
 	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
 	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
-	player[P3].pos = D3DXVECTOR3(PLAYER03_INITPOS_X, PLAYER03_INITPOS_Y, PLAYER03_INITPOS_Z);	//
-	player[P4].pos = D3DXVECTOR3(PLAYER04_INITPOS_X, PLAYER04_INITPOS_Y, PLAYER04_INITPOS_Z);	//
+	//player[P3].pos = D3DXVECTOR3(PLAYER03_INITPOS_X, PLAYER03_INITPOS_Y, PLAYER03_INITPOS_Z);	//
+	//player[P4].pos = D3DXVECTOR3(PLAYER04_INITPOS_X, PLAYER04_INITPOS_Y, PLAYER04_INITPOS_Z);	//
 	player[P1].rot = D3DXVECTOR3(0.0f, 90.0f, 0.0f);	// 回転の初期化
 	player[P2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
-	player[P3].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
-	player[P4].rot = D3DXVECTOR3(0.0f, 180.0f, 0.0f);	// 回転の初期化
+	//player[P3].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
+	//player[P4].rot = D3DXVECTOR3(0.0f, 180.0f, 0.0f);	// 回転の初期化
 
 
 	for (int i = 0; i < PLAYER_MAX; i++)

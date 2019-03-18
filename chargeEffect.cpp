@@ -35,6 +35,8 @@ LPDIRECT3DVERTEXBUFFER9 D3DTVtxBuffChargeEffect = NULL;			// ’¸“_ƒoƒbƒtƒ@ƒCƒ“ƒ^
 CHARGEEFFECT			ChargeEffectWk[CHARGEEFFECT_SET_MAX];
 //=============================================================================
 // ‰Šú‰»ˆ—
+// ˆø@”Fint type(Ä‰Šú‰»‚Ì2””»’è•Ï”)
+// –ß‚è’lF
 //=============================================================================
 HRESULT InitChargeEffect(int type)
 {
@@ -44,6 +46,7 @@ HRESULT InitChargeEffect(int type)
 	// ’¸“_î•ñ‚Ìì¬
 	MakeVertexChargeEffect(pDevice);
 
+	// Ä‰Šú‰»‚Í“Ç‚İ‚Ü‚È‚¢
 	if (type == 0)
 	{
 		// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ

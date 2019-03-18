@@ -23,7 +23,7 @@
 #define CENTER_PULL_BALL	(25.0f)
 
 
-enum {
+enum BALLMODEL{
 	MODEL_TYPE001,
 	MODEL_TYPE002
 };
@@ -50,8 +50,6 @@ static LPD3DXBUFFER			D3DXBuffMat[BALL_SET_MAX];	// マテリアル情報へのポインタ
 static DWORD				NumMat[BALL_SET_MAX];			// マテリアル情報の数
 
 
-static int					g_shadownum;
-static D3DXCOLOR			g_shadowcolor;			
 static D3DXMATRIX			MtxWorld;				// ワールドマトリックス
 BALL						ballWk[BALL_SET_MAX];
 //=============================================================================
@@ -68,12 +66,11 @@ HRESULT InitBall(void)
 		D3DMesh[i] = NULL;
 		D3DXBuffMat[i] = NULL;
 		NumMat[i] = 0;
-		ball[i].cnt = 25;
+		ball[i].cnt = 50;
 		ball[i].damageSE = LoadSound(SE_BALLDAMAGE);
 
 		for (int j = 0; j < BALL_ONESET_MAX; j++)
 		{
-			// 位置・回転・スケールの初期設定
 			ball[i].pos[j].x = player[i].pos.x + rand() % 50;
 			ball[i].pos[j].y = player[i].pos.y;
 			ball[i].pos[j].z = player[i].pos.z + rand() % 50;
@@ -227,10 +224,10 @@ void DrawBall(void)
 				pDevice->GetMaterial(&matDef);
 
 				// マテリアル情報に対するポインタを取得
-				pD3DXMat = (D3DXMATERIAL*)D3DXBuffMat[0]->GetBufferPointer();
+				pD3DXMat = (D3DXMATERIAL*)D3DXBuffMat[i]->GetBufferPointer();
 
 				// マテリアルの数分の表示が必要なためFOR文を使用
-				for (int nCntMat = 0; nCntMat < (int)NumMat[0]; nCntMat++)
+				for (int nCntMat = 0; nCntMat < (int)NumMat[i]; nCntMat++)
 				{
 					// マテリアルの設定
 					pDevice->SetMaterial(&pD3DXMat[nCntMat].MatD3D);
@@ -239,7 +236,7 @@ void DrawBall(void)
 					pDevice->SetTexture(0, D3DTexture);
 
 					// 描画
-					D3DMesh[0]->DrawSubset(nCntMat);
+					D3DMesh[i]->DrawSubset(nCntMat);
 				}
 
 				// マテリアルをデフォルトに戻す
