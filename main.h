@@ -77,14 +77,17 @@ enum GAME{
 	STARTCALL,
 	START,
 	FINISHCALL,
-	RESULT
+	RESULT,
+	NUM_MAX
 };
+
 enum TEXTURE{
 	TEX_NUM001,
 	TEX_NUM002,
 	TEX_NUM003,
 	TEX_NUM004,
-	TEX_NUM005
+	TEX_NUM005,
+	TEX_NUM_MAX
 };
 //*****************************************************************************
 // プロトタイプ宣言

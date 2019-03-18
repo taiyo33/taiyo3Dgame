@@ -7,26 +7,23 @@
 #ifndef _RESULT_H_
 #define _RESULT_H_
 
-
+//*****************************************************************************
 // マクロ定義
-#define TEXTURE_WINNER_SIZE_X	(300) // テクスチャサイズ
-#define TEXTURE_WINNER_SIZE_Y	(150) // 同上
+//*****************************************************************************
+#define TEXTURE_WINNER_SIZE_X	(300)	// テクスチャサイズ
+#define TEXTURE_WINNER_SIZE_Y	(150)	// 同上
 
-#define TEXTURE_ICON_SIZE_X		(200) // テクスチャサイズ
-#define TEXTURE_ICON_SIZE_Y		(200) // 同上
+#define TEXTURE_ICON_SIZE_X		(200)	// テクスチャサイズ
+#define TEXTURE_ICON_SIZE_Y		(200)	// 同上
 
-#define TEXTURE_WINNER_POS_X	(690)
-#define TEXTURE_WINNER_POS_Y	(450)
-#define TEXTURE_ICON_POS_X		(970)
-#define TEXTURE_ICON_POS_Y		(425)
+#define TEXTURE_WINNER_POS_X	(690)	// テクスチャの表示位置
+#define TEXTURE_WINNER_POS_Y	(450)	// 同上
+#define TEXTURE_ICON_POS_X		(970)	// 同上 
+#define TEXTURE_ICON_POS_Y		(425)	// 同上 
 
 #define	NUM_RESULT						(2)		// ポリゴン数
-#define RESULT_MAX						(2)		// リザルトの種類
+#define RESULT_MAX						(2)		// リザルトの描画数
 
-enum {
-	CLEAR,
-	GAMEOVER
-};
 
 //*****************************************************************************
 // プロトタイプ宣言

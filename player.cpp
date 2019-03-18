@@ -4,8 +4,11 @@
 // Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
-#include "main.h"
 #include "player.h"
+#include "camera.h"
+#include "input.h"
+#include "shadow.h"
+#include "debugproc.h"
 #include "bullet.h"
 #include "field.h"
 #include "block.h"
@@ -18,11 +21,13 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	PLAYER_BODY			"data/MODEL/model_body.x"	// 読み込むモデル名
-#define	RATE_MOVE_PLAYER	(0.20f)						// 移動慣性係数
+#define	PLAYER_AIRPLANE		"data/MODEL/model_body.x"	// 読み込むモデル名
+#define	RATE_MOVE_PLAYER		(0.20f)					// 移動慣性係数
 #define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.02f)			// 回転速度
 #define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
 #define VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
+#define PLAYER_POS_Y_LIMIT	(-200.0f)					// Y軸の上限値
+#define AI_UPDATE_TIME		(10)						// ＡＩの情報更新時間
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -58,13 +63,8 @@ HRESULT InitPlayer(int type)
 	D3DXBuffMat = NULL;	// マテリアルの初期化
 	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
 	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
-	//player[P3].pos = D3DXVECTOR3(PLAYER03_INITPOS_X, PLAYER03_INITPOS_Y, PLAYER03_INITPOS_Z);	//
-	//player[P4].pos = D3DXVECTOR3(PLAYER04_INITPOS_X, PLAYER04_INITPOS_Y, PLAYER04_INITPOS_Z);	//
 	player[P1].rot = D3DXVECTOR3(0.0f, 90.0f, 0.0f);	// 回転の初期化
 	player[P2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
-	//player[P3].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
-	//player[P4].rot = D3DXVECTOR3(0.0f, 180.0f, 0.0f);	// 回転の初期化
-
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
@@ -80,7 +80,7 @@ HRESULT InitPlayer(int type)
 	}
 
 	// Xファイルの読み込み
-	if (FAILED(D3DXLoadMeshFromX(PLAYER_BODY,
+	if (FAILED(D3DXLoadMeshFromX(PLAYER_AIRPLANE,
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -128,7 +128,6 @@ void UninitPlayer(void)
 void UpdatePlayer(void)
 {
 	CAMERA *camera = GetCamera();
-
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		// 現在位置を保存
@@ -144,12 +143,8 @@ void UpdatePlayer(void)
 		// ゲーム開始時
 		else if (GetStage() == START)
 		{
-			if (i == P1)
-			{
-				InputPlayer1();
-				InputGamePadPlayer1();
-			}
-
+			InputPlayer1();
+			InputGamePadPlayer1();
 			if (player[i].npc)
 			{
 				NonePlayerMove();
@@ -335,7 +330,7 @@ void InputPlayer1(void)
 		// バレットのチャージ
 		if (GetKeyboardPress(DIK_SPACE))
 		{
-			SetChargeEffect(player[P1].pos, P1);
+			 SetChargeEffect(player[P1].pos, P1);
 			PlaySound(player[P1].chargeSE, E_DS8_FLAG_NONE);
 			// 最大値になった場合
 			if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
@@ -463,14 +458,13 @@ void InputKeyPlayer2(void)
 			// 10フレーム
 			else if (player[P2].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
-				StopSound(player[P2].chargeSE);
 				PlaySound(player[P2].chargeSE, E_DS8_FLAG_NONE);
 				bullet->speedIncrease += 0.5f;
 			}
 		}
 		else if (GetKeyboardRelease(DIK_Z))
-		{
-			
+		{			
+			StopSound(player[P2].chargeSE);
 			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
 		}
@@ -562,7 +556,7 @@ void InputGamePadPlayer1(void)
 		// バレットのチャージ
 		if (IsButtonPressed(P1, BUTTON_B))
 		{
-			SetChargeEffect(player[P1].pos, P1);
+			 SetChargeEffect(player[P1].pos, P1);
 			PlaySound(player[P1].chargeSE, E_DS8_FLAG_NONE);
 
 			// 最大値になった場合
@@ -799,7 +793,7 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 }
 
 //=============================================================================
-// プレイヤーの位置初期化処理
+// プレイヤーのダメージ処理
 // 引　数：なし
 // 戻り値：なし
 //=============================================================================
@@ -809,6 +803,4 @@ void SetInitPosPlayer(void)
 
 	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
 	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
-	player[P3].pos = D3DXVECTOR3(PLAYER03_INITPOS_X, PLAYER03_INITPOS_Y, PLAYER03_INITPOS_Z);	//
-	player[P4].pos = D3DXVECTOR3(PLAYER04_INITPOS_X, PLAYER04_INITPOS_Y, PLAYER04_INITPOS_Z);	//
 }

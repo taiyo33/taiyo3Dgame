@@ -35,7 +35,8 @@ void SetVertexGaugeEffect02(float val);
 //*****************************************************************************
 enum GAUGEEFFECT{
 	GAUGE_EFFECT01,
-	GAUGE_EFFECT02
+	GAUGE_EFFECT02,
+	GAUGE_EFFECT_MAX
 };
 
 LPDIRECT3DTEXTURE9			D3DTextureGaugeEffect[TEXTURE_MAX];			// テクスチャへのポインタ
@@ -46,7 +47,7 @@ static bool					UseAnim[GAUGEEFFECT_MAX];
 //=============================================================================
 // 初期化処理
 // 引　数：int type(再初期化時の2数判定変数)
-// 戻り値：
+// 戻り値：HRESULT型
 //=============================================================================
 HRESULT InitGaugeEffect(int type)
 {

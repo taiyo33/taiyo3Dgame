@@ -9,19 +9,16 @@
 
 #include "main.h"
 
-#define HITEFFECT_MAX				(255)
-#define HITEFFECT_SET_MAX			(20)
-#define HITEFFECT_ONESET_MAX		(24)
+#define HITEFFECT_SET_MAX			(20)			// 組の最大数
+#define HITEFFECT_ONESET_MAX		(24)			// 1組の最大数
+#define HITEFFECT_MAX				(HITEFFECT_SET_MAX * HITEFFECT_ONESET_MAX)	// 総数
 
 typedef struct
 {
 	D3DXMATRIX		mtxWorld;						// ワールドマトリックス
 	D3DXVECTOR3		pos[HITEFFECT_ONESET_MAX];		// 位置
-	D3DXVECTOR3		move[HITEFFECT_ONESET_MAX];		// 移動量
-	float			dif_mi[HITEFFECT_ONESET_MAX];	// 透過度
+	float			dif[HITEFFECT_ONESET_MAX];		// 透過度
 	bool			use;							// 使用しているかどうか
-	float			angle[HITEFFECT_ONESET_MAX];	// 移動角度
-	float			speed[HITEFFECT_ONESET_MAX];	// 移動速度
 
 } HITEFFECT;
 

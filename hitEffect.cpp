@@ -14,32 +14,31 @@
 #define	TEXTURE_HITEFFECT01		"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
 #define	HITEFFECT_SIZE_X		(25.0f)							// ビルボードの幅
 #define	HITEFFECT_SIZE_Y		(50.0f)							// ビルボードの高さ
-#define INIT_SPEED				(2.0f)							// 
 #define TEXTURE_MAX				(2)								// テクスチャーの最大数					
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT MakeVertexHitEffect(LPDIRECT3DDEVICE9 pDevice);
-void SetVertexHitEffect(int Index, float fSizeX, float fSizeY);
-void SetDiffuseHitEffect(int Index, float val);
-void MoveHitEffect(int index, int hno);
-void TyouseiHitEffect(int index, int hno);
+void SetVertexHitEffect(int index, float sizeX, float sizeY);
+void SetDiffuseHitEffect(int index, float val);
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		D3DTextureHitEffect[TEXTURE_MAX];	// テクスチャへのポインタ
+LPDIRECT3DTEXTURE9		D3DTextureHitEffect = NULL;	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 D3DTVtxBuffHitEffect = NULL;		// 頂点バッファインターフェースへのポインタ
 
-HITEFFECT				hitEffectWk[HITEFFECT_SET_MAX];
+HITEFFECT				HitEffectWk[HITEFFECT_SET_MAX];
 //=============================================================================
 // 初期化処理
+// 引　数：int type(再初期化時の2数判定変数)
+// 戻り値：HRESULT型
 //=============================================================================
 HRESULT InitHitEffect(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	HITEFFECT *hitEffect = &hitEffectWk[0];
+	HITEFFECT *hitEffect = &HitEffectWk[0];
 
 	// 頂点情報の作成
 	MakeVertexHitEffect(pDevice);
@@ -49,7 +48,7 @@ HRESULT InitHitEffect(int type)
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(pDevice,	// デバイスへのポインタ
 			TEXTURE_HITEFFECT01,					// ファイルの名前
-			&D3DTextureHitEffect[TEX_NUM001]);			// 読み込むメモリー
+			&D3DTextureHitEffect);			// 読み込むメモリー
 
 	}
 
@@ -60,10 +59,7 @@ HRESULT InitHitEffect(int type)
 		for (int j = 0; j < HITEFFECT_ONESET_MAX; j++)
 		{
 			hitEffect[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-			hitEffect[i].move[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-			hitEffect[i].speed[j] = INIT_SPEED;
-			hitEffect[i].dif_mi[j] = INIT_ALPHA;
-			hitEffect[i].angle[j] = 0.0f;
+			hitEffect[i].dif[j] = INIT_ALPHA;
 		}
 	}
 
@@ -75,14 +71,12 @@ HRESULT InitHitEffect(int type)
 //=============================================================================
 void UninitHitEffect(void)
 {
-	for (int i = 0; i < TEXTURE_MAX; i++)
-	{
-		if (D3DTextureHitEffect[i] != NULL)
-		{// テクスチャの開放
-			D3DTextureHitEffect[i]->Release();
-			D3DTextureHitEffect[i] = NULL;
-		}
+	if (D3DTextureHitEffect != NULL)
+	{// テクスチャの開放
+		D3DTextureHitEffect->Release();
+		D3DTextureHitEffect = NULL;
 	}
+
 	if(D3DTVtxBuffHitEffect != NULL)
 	{// 頂点バッファの開放
 		D3DTVtxBuffHitEffect->Release();
@@ -95,7 +89,7 @@ void UninitHitEffect(void)
 //=============================================================================
 void UpdateHitEffect(void)
 {
-	HITEFFECT *hitEffect = &hitEffectWk[0];
+	HITEFFECT *hitEffect = &HitEffectWk[0];
 
 	for (int i = 0; i < HITEFFECT_SET_MAX; i++)
 	{
@@ -103,15 +97,10 @@ void UpdateHitEffect(void)
 		{
 			for (int j = 0; j < HITEFFECT_ONESET_MAX; j++)
 			{
-				hitEffect[i].move[j].x = cosf(hitEffect[i].angle[j]) * hitEffect[i].speed[j];
-				hitEffect[i].move[j].y = sinf(hitEffect[i].angle[j]) * hitEffect[i].speed[j];
-
-				MoveHitEffect(i, j);
-				
-				TyouseiHitEffect(i, j);
+				hitEffect[i].dif[j]--;
 
 				// 消滅時間になったら消滅
-				if (hitEffect[i].speed[j] < 0.0f)
+				if (hitEffect[i].dif[j] < 0.0f)
 				{
 					hitEffect[i].use = false;
 				}
@@ -127,7 +116,7 @@ void DrawHitEffect(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxView, mtxScale, mtxTranslate;
-	HITEFFECT *hitEffect = &hitEffectWk[0];
+	HITEFFECT *hitEffect = &HitEffectWk[0];
 	
 	// Z比較なし
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
@@ -150,7 +139,7 @@ void DrawHitEffect(void)
 		for (int j = 0; j < HITEFFECT_ONESET_MAX; j++)
 		{
 			// 透過処理
-			SetDiffuseHitEffect(i, hitEffect[i].dif_mi[j]);
+			SetDiffuseHitEffect(i, hitEffect[i].dif[j]);
 
 			if (hitEffect[i].use)
 			{
@@ -188,7 +177,7 @@ void DrawHitEffect(void)
 				pDevice->SetFVF(FVF_VERTEX_3D);
 
 				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTextureHitEffect[TEX_NUM001]);
+				pDevice->SetTexture(0, D3DTextureHitEffect);
 
 				// ポリゴンの描画
 				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
@@ -270,8 +259,10 @@ HRESULT MakeVertexHitEffect(LPDIRECT3DDEVICE9 pDevice)
 
 //=============================================================================
 // 頂点座標の設定
+// 引　数：int index(アドレス番号), float sizeX(横幅), float sizeY(高さ)
+// 戻り値：な　し
 //=============================================================================
-void SetVertexHitEffect(int Index, float fSizeX, float fSizeY)
+void SetVertexHitEffect(int index, float sizeX, float sizeY)
 {
 	{//頂点バッファの中身を埋める
 		VERTEX_3D *pVtx;
@@ -279,13 +270,13 @@ void SetVertexHitEffect(int Index, float fSizeX, float fSizeY)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DTVtxBuffHitEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-		pVtx += (Index * 4);
+		pVtx += (index * 4);
 
 		// 頂点座標の設定
-		pVtx[0].vtx = D3DXVECTOR3(-fSizeX / 2, -fSizeY / 2, 0.0f);
-		pVtx[1].vtx = D3DXVECTOR3(-fSizeX / 2, fSizeY / 2, 0.0f);
-		pVtx[2].vtx = D3DXVECTOR3(fSizeX / 2, -fSizeY / 2, 0.0f);
-		pVtx[3].vtx = D3DXVECTOR3(fSizeX / 2, fSizeY / 2, 0.0f);
+		pVtx[0].vtx = D3DXVECTOR3(-sizeX / 2, -sizeY / 2, 0.0f);
+		pVtx[1].vtx = D3DXVECTOR3(-sizeX / 2, sizeY / 2, 0.0f);
+		pVtx[2].vtx = D3DXVECTOR3(sizeX / 2, -sizeY / 2, 0.0f);
+		pVtx[3].vtx = D3DXVECTOR3(sizeX / 2, sizeY / 2, 0.0f);
 
 		// 頂点データをアンロックする
 		D3DTVtxBuffHitEffect->Unlock();
@@ -293,9 +284,11 @@ void SetVertexHitEffect(int Index, float fSizeX, float fSizeY)
 }
 
 //============================================================================
-//
+// 頂点カラーの透過処理
+// 引　数：int index(アドレス番号), float val(透過の値)
+// 戻り値：な　し
 //============================================================================
-void SetDiffuseHitEffect(int Index, float val)
+void SetDiffuseHitEffect(int index, float val)
 {	
 	{//頂点バッファの中身を埋める
 		VERTEX_3D *pVtx;
@@ -303,7 +296,7 @@ void SetDiffuseHitEffect(int Index, float val)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DTVtxBuffHitEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-		pVtx += (Index * 4);
+		pVtx += (index * 4);
 		
 		// 反射光の設定
 		pVtx[0].diffuse = 
@@ -324,7 +317,7 @@ void SetDiffuseHitEffect(int Index, float val)
 //==========================================================================
 void SetHitEffect(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest)
 {
-	HITEFFECT *hitEffect = &hitEffectWk[0];
+	HITEFFECT *hitEffect = &HitEffectWk[0];
 
 	for (int i = 0; i < HITEFFECT_SET_MAX; i++)
 	{
@@ -334,40 +327,11 @@ void SetHitEffect(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float Dest)
 			{
 				hitEffect[i].use = true;	// 使用中
 				hitEffect[i].pos[j] = pos;
-				hitEffect[i].dif_mi[j] = INIT_ALPHA;
-				hitEffect[i].speed[j] = INIT_SPEED;
+				hitEffect[i].dif[j] = INIT_ALPHA;
 				SetVertexHitEffect(i, HITEFFECT_SIZE_X, HITEFFECT_SIZE_Y);
-				hitEffect[i].angle[j] = atan2f(pos.y, pos.x);			// 角度計算
-				hitEffect[i].angle[j] = hitEffect[i].angle[j] + (2.0f * D3DX_PI) * ((float)j / HITEFFECT_ONESET_MAX);	// 12分割 30度間隔
 			}
 		}
 
 		return;
 	}
-}
-
-//==========================================================================
-// 被弾エフェクトの移動処理 
-// 引　数：int index(被弾エフェクトのアドレス番号)、int index(組のアドレス番号)
-// 戻り値；な　し
-//==========================================================================
-void MoveHitEffect(int index, int hno)
-{
-	HITEFFECT *hitEffect = &hitEffectWk[index];
-	// 位置移動
-	hitEffect->pos[hno].x += hitEffect->move[hno].x;
-	hitEffect->pos[hno].y += hitEffect->move[hno].y;
-	hitEffect->pos[hno].z += hitEffect->move[hno].z;
-}
-
-//==========================================================================
-// 被弾エフェクトの移動処理 
-// 引　数：int index(被弾エフェクトのアドレス番号)、int index(組のアドレス番号)
-// 戻り値；な　し
-//==========================================================================
-void TyouseiHitEffect(int index, int hno)
-{
-	HITEFFECT *hitEffect = &hitEffectWk[index];
-	hitEffect->dif_mi[hno] -= 0.01f;	// 透過の値
-	hitEffect->speed[hno] -= 0.1f;		// 移動速度の減速
 }

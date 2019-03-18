@@ -12,12 +12,11 @@
 //*****************************************************************************
 #define	TEXTURE_01				"data/TEXTURE/bullet001.png"	// 読み込むテクスチャファイル名
 #define	TEXTURE_02				"data/TEXTURE/bullet002.png"	// 読み込むテクスチャファイル名
-#define	BULLETEFFECT_SIZE_X		(5.0f)							// ビルボードの幅
-#define	BULLETEFFECT_SIZE_Y		(5.0f)							// ビルボードの高さ
+#define	BULLETEFFECT_SIZE_X		(25.0f)							// ビルボードの幅
+#define	BULLETEFFECT_SIZE_Y		(25.0f)							// ビルボードの高さ
 #define MAX_BULLETEFFECT		(BULLETEFFECT_SET_MAX * BULLETEFFECT_ONESET_MAX)	// バレットエフェクトの最大数
 #define DEL_TIME				(10)							// エフェクトの寿命
 #define TEXTURE_MAX				(2)								// テクスチャ枚数
-
 
 //*****************************************************************************
 // プロトタイプ宣言

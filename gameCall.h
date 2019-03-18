@@ -1,27 +1,22 @@
 //=============================================================================
 //
-// ゲームの開始修了処理 [gameCall.h]
+// ゲームの開始終了処理 [gameCall.h]
 // Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
 #ifndef _GAMECALL_H_
 #define _GAMECALL_H_
 
-
-
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
+#define	GAMECALL_POS_X		(690)			// 表示X位置
+#define	GAMECALL_POS_Y		(350)			// 表示Y位置
+#define	GAMECALL_SIZE_X		(500)			// 幅
+#define	GAMECALL_SIZE_Y		(350)			// 高さ
+#define NUM_GAMECALL		(2)				// ポリゴン数
 
-
-#define	GAMECALL_POS_X		(690)			// タイトルの表示位置
-#define	GAMECALL_POS_Y		(350)			// タイトルの表示位置
-#define	GAMECALL_SIZE_X		(500)			// タイトルの幅
-#define	GAMECALL_SIZE_Y		(350)			// タイトルの高さ
-
-#define NUM_GAMECALL		(2)
-
-enum {
+enum GAMECALL{
 
 	READY,
 	GO,

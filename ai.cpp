@@ -164,8 +164,6 @@ HRESULT InitAi(void)
 	ai->cntMemory = 0;				// 結果記憶配列の添え字を初期化
 	ai[P1].patrolNum = ROUTE01;		// 巡回パターンの番号を初期化
 	ai[P2].patrolNum = ROUTE04;		//
-	ai[P3].patrolNum = ROUTE03;		//
-	ai[P4].patrolNum = ROUTE02;		//
 
 	ai->routineCntFrame = 0;		// 思考間隔
 	ai->atcCntFrame = 0;			// 攻撃の間隔
@@ -207,9 +205,12 @@ void NonePlayerMove(void)
 	AI *ai = &aiWk[0];
 	PLAYER *player = GetPlayer(0);
 	BALL *ball = GetBall(0);
+
+	// 思考時間と経路経過時間を加算
 	ai->routineCntFrame++;
 	RouteLapTimeCnt();
 
+	// 60フレームで思考
 	if (ai->routineCntFrame % ROUTE_CNT_TIME == 0)
 	{
 		ai->cntMemory < DECISION_MEMORY_MAX ? ai->cntMemory++ : ai->cntMemory = 0;	// 配列の添え字を更新
@@ -299,6 +300,7 @@ void NonePlayerMove(void)
 			SwitchRoutePlayer(ai[P2].routeIndex, RouteData[ai[P1].routeIndex]);
 			ai->deciMemory[ai->cntMemory] = ESCAPE;
 		}
+		// 巡回
 		else if (ai->decision == ai->cmpPattern[ROUTINE])
 		{
 			ai->routineStart = true;
@@ -307,6 +309,7 @@ void NonePlayerMove(void)
 		}
 	}
 
+	// 移動処理
 	MoveVectorNonePlayer(RouteData[ai->routeIndex], 1.0f);
 
 }
@@ -386,8 +389,8 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 	AI *ai = &aiWk[0];
 	PLAYER *player = GetPlayer(P2);
 	D3DXVECTOR3 vec01 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ルートまでのベクトル
-	float vestRoute01 = 0.0f;								// 最も好ましいルート
-	float vestRoute02 = 1000.0f;								// 最も好ましいルート
+	float vestRoute01 = 0.0f;							// 最も好ましいルート
+	float vestRoute02 = 1000.0f;						// 最も好ましいルート
 	int arrey = 0;										// 配列添え字
 
 	for (int i = 0; i < cntMax; i++)
@@ -412,6 +415,7 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 
 			i == 0 ? arrey = cnt : arrey = raiseCnt;
 		}
+		// 結果が追跡だった場合
 		else if (ai->decision == ai->cmpPattern[CHASE])
 		{
 			vestRoute02 = min(ai->lenVec[arrey], vestRoute02);
@@ -423,6 +427,7 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 
 			i == 0 ? arrey = cnt : arrey = raiseCnt;
 		}
+		// 結果が逃走だった場合
 		else if (ai->decision == ai->cmpPattern[ESCAPE])
 		{
 			vestRoute02 = max(ai->lenVec[arrey], vestRoute02);
