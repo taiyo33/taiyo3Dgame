@@ -175,7 +175,7 @@ void UpdatePlayer(void)
 void DrawPlayer(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxRot, mtxTranslate, mtxView;
+	D3DXMATRIX mtxRot, mtxTranslate, *mtxView;
 	D3DXMATERIAL *pD3DXMat;
 	D3DMATERIAL9 matDef;
 

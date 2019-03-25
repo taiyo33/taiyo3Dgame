@@ -138,7 +138,7 @@ void UpdateChargeEffect(void)
 void DrawChargeEffect(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxView, mtxScale, mtxTranslate;
+	D3DXMATRIX *mtxView, mtxScale, mtxTranslate;
 	CHARGEEFFECT *chargeEffect = &ChargeEffectWk[0];
 	
 	// Z比較なし
@@ -173,15 +173,15 @@ void DrawChargeEffect(void)
 				D3DXMatrixIdentity(&chargeEffect[i].mtxWorld);
 
 				// ポリゴンを正面に向ける
-				chargeEffect[i].mtxWorld._11 = mtxView._11;
-				chargeEffect[i].mtxWorld._12 = mtxView._21;
-				chargeEffect[i].mtxWorld._13 = mtxView._31;
-				chargeEffect[i].mtxWorld._21 = mtxView._12;
-				chargeEffect[i].mtxWorld._22 = mtxView._22;
-				chargeEffect[i].mtxWorld._23 = mtxView._32;
-				chargeEffect[i].mtxWorld._31 = mtxView._13;
-				chargeEffect[i].mtxWorld._32 = mtxView._23;
-				chargeEffect[i].mtxWorld._33 = mtxView._33;
+				chargeEffect[i].mtxWorld._11 = mtxView->_11;
+				chargeEffect[i].mtxWorld._12 = mtxView->_21;
+				chargeEffect[i].mtxWorld._13 = mtxView->_31;
+				chargeEffect[i].mtxWorld._21 = mtxView->_12;
+				chargeEffect[i].mtxWorld._22 = mtxView->_22;
+				chargeEffect[i].mtxWorld._23 = mtxView->_32;
+				chargeEffect[i].mtxWorld._31 = mtxView->_13;
+				chargeEffect[i].mtxWorld._32 = mtxView->_23;
+				chargeEffect[i].mtxWorld._33 = mtxView->_33;
 
 				// スケールを反映
 				D3DXMatrixScaling(&mtxScale, chargeEffect[i].scl[j].x, chargeEffect[i].scl[j].y, chargeEffect[i].scl[j].z);

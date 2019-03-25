@@ -93,7 +93,7 @@ void UpdateIcon(void)
 void DrawIcon(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxTranslate, mtxView;
+	D3DXMATRIX mtxTranslate, *mtxView;
 	ICON *icon = &iconWk[0];
 	PLAYER *player = GetPlayer(0);
 
@@ -124,15 +124,15 @@ void DrawIcon(void)
 			D3DXMatrixMultiply(&icon[i].mtxWorld, &icon[i].mtxWorld, &player->mtxWorld);
 
 			// ポリゴンを正面に向ける
-			icon[i].mtxWorld._11 = mtxView._11;
-			icon[i].mtxWorld._12 = mtxView._21;
-			icon[i].mtxWorld._13 = mtxView._31;
-			icon[i].mtxWorld._21 = mtxView._12;
-			icon[i].mtxWorld._22 = mtxView._22;
-			icon[i].mtxWorld._23 = mtxView._32;
-			icon[i].mtxWorld._31 = mtxView._13;
-			icon[i].mtxWorld._32 = mtxView._23;
-			icon[i].mtxWorld._33 = mtxView._33;
+			icon[i].mtxWorld._11 = mtxView->_11;
+			icon[i].mtxWorld._12 = mtxView->_21;
+			icon[i].mtxWorld._13 = mtxView->_31;
+			icon[i].mtxWorld._21 = mtxView->_12;
+			icon[i].mtxWorld._22 = mtxView->_22;
+			icon[i].mtxWorld._23 = mtxView->_32;
+			icon[i].mtxWorld._31 = mtxView->_13;
+			icon[i].mtxWorld._32 = mtxView->_23;
+			icon[i].mtxWorld._33 = mtxView->_33;
 
 			// ワールドマトリックスの設定
 			pDevice->SetTransform(D3DTS_WORLD, &icon[i].mtxWorld);

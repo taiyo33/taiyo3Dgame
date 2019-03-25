@@ -7,8 +7,6 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
-#include "main.h"
-
 typedef struct {
 
 	D3DXVECTOR3		pos;				// カメラの視点
@@ -19,11 +17,6 @@ typedef struct {
 	D3DXVECTOR3		fw;					// カメラの前方
 	D3DXMATRIX		mtxView;			// ビューマトリックス
 	D3DXMATRIX		mtxProjec;			// プロジェクションマトリックス
-	float			rotSpeedX;			// カメラのX軸の回転速度
-	float			rotSpeedY;			// カメラのY軸の回転速度
-	float			fLengthInterval;	// カメラの視点と注視点の距離
-	bool			mouse;
-	bool			tps;				// 三人称視点
 
 }CAMERA;
 
@@ -33,10 +26,8 @@ typedef struct {
 HRESULT InitCamera(void);
 void UninitCamera(void);
 void UpdateCamera(void);
-
 void SetCamera(void);
-
 CAMERA *GetCamera(void);
-D3DXMATRIX GetMtxView(void);
+D3DXMATRIX *GetMtxView(void);
 
 #endif

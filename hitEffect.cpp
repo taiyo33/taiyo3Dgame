@@ -115,7 +115,7 @@ void UpdateHitEffect(void)
 void DrawHitEffect(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxView, mtxScale, mtxTranslate;
+	D3DXMATRIX *mtxView, mtxScale, mtxTranslate;
 	HITEFFECT *hitEffect = &HitEffectWk[0];
 	
 	// Z”äŠr‚È‚µ
@@ -150,15 +150,15 @@ void DrawHitEffect(void)
 				D3DXMatrixIdentity(&hitEffect[i].mtxWorld);
 
 				// ƒ|ƒŠƒSƒ“‚ð³–Ê‚ÉŒü‚¯‚é
-				hitEffect[i].mtxWorld._11 = mtxView._11;
-				hitEffect[i].mtxWorld._12 = mtxView._21;
-				hitEffect[i].mtxWorld._13 = mtxView._31;
-				hitEffect[i].mtxWorld._21 = mtxView._12;
-				hitEffect[i].mtxWorld._22 = mtxView._22;
-				hitEffect[i].mtxWorld._23 = mtxView._32;
-				hitEffect[i].mtxWorld._31 = mtxView._13;
-				hitEffect[i].mtxWorld._32 = mtxView._23;
-				hitEffect[i].mtxWorld._33 = mtxView._33;
+				hitEffect[i].mtxWorld._11 = mtxView->_11;
+				hitEffect[i].mtxWorld._12 = mtxView->_21;
+				hitEffect[i].mtxWorld._13 = mtxView->_31;
+				hitEffect[i].mtxWorld._21 = mtxView->_12;
+				hitEffect[i].mtxWorld._22 = mtxView->_22;
+				hitEffect[i].mtxWorld._23 = mtxView->_32;
+				hitEffect[i].mtxWorld._31 = mtxView->_13;
+				hitEffect[i].mtxWorld._32 = mtxView->_23;
+				hitEffect[i].mtxWorld._33 = mtxView->_33;
 
 				// ˆÚ“®‚ð”½‰f
 				D3DXMatrixTranslation(&mtxTranslate, hitEffect[i].pos[j].x,

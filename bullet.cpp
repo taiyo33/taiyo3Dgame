@@ -168,7 +168,7 @@ void UpdateBullet(void)
 void DrawBullet(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxView, mtxScale, mtxTranslate;
+	D3DXMATRIX *mtxView, mtxScale, mtxTranslate;
 	BULLET *bullet = &bulletWk[0];
 
 	// Z比較なし
@@ -200,15 +200,15 @@ void DrawBullet(void)
 				D3DXMatrixIdentity(&bullet[i].mtxWorld);
 
 				// ポリゴンを正面に向ける
-				bullet[i].mtxWorld._11 = mtxView._11;
-				bullet[i].mtxWorld._12 = mtxView._21;
-				bullet[i].mtxWorld._13 = mtxView._31;
-				bullet[i].mtxWorld._21 = mtxView._12;
-				bullet[i].mtxWorld._22 = mtxView._22;
-				bullet[i].mtxWorld._23 = mtxView._32;
-				bullet[i].mtxWorld._31 = mtxView._13;
-				bullet[i].mtxWorld._32 = mtxView._23;
-				bullet[i].mtxWorld._33 = mtxView._33;
+				bullet[i].mtxWorld._11 = mtxView->_11;
+				bullet[i].mtxWorld._12 = mtxView->_21;
+				bullet[i].mtxWorld._13 = mtxView->_31;
+				bullet[i].mtxWorld._21 = mtxView->_12;
+				bullet[i].mtxWorld._22 = mtxView->_22;
+				bullet[i].mtxWorld._23 = mtxView->_32;
+				bullet[i].mtxWorld._31 = mtxView->_13;
+				bullet[i].mtxWorld._32 = mtxView->_23;
+				bullet[i].mtxWorld._33 = mtxView->_33;
 
 				// スケールを反映
 				D3DXMatrixScaling(&mtxScale, bullet[i].scl[j].x, bullet[i].scl[j].y, bullet[i].scl[j].z);

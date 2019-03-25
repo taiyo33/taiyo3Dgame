@@ -115,7 +115,7 @@ void UpdateItem(void)
 void DrawItem(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxTranslate, mtxView;
+	D3DXMATRIX mtxTranslate, *mtxView;
 	ITEM *item = &itemWk[0];
 
 	// Z”äŠr‚È‚µ
@@ -135,15 +135,15 @@ void DrawItem(void)
 			D3DXMatrixIdentity(&item[i].mtxWorld);
 		
 			// ƒ|ƒŠƒSƒ“‚ð³–Ê‚ÉŒü‚¯‚é
-			item[i].mtxWorld._11 = mtxView._11;
-			item[i].mtxWorld._12 = mtxView._21;
-			item[i].mtxWorld._13 = mtxView._31;
-			item[i].mtxWorld._21 = mtxView._12;
-			item[i].mtxWorld._22 = mtxView._22;
-			item[i].mtxWorld._23 = mtxView._32;
-			item[i].mtxWorld._31 = mtxView._13;
-			item[i].mtxWorld._32 = mtxView._23;
-			item[i].mtxWorld._33 = mtxView._33;
+			item[i].mtxWorld._11 = mtxView->_11;
+			item[i].mtxWorld._12 = mtxView->_21;
+			item[i].mtxWorld._13 = mtxView->_31;
+			item[i].mtxWorld._21 = mtxView->_12;
+			item[i].mtxWorld._22 = mtxView->_22;
+			item[i].mtxWorld._23 = mtxView->_32;
+			item[i].mtxWorld._31 = mtxView->_13;
+			item[i].mtxWorld._32 = mtxView->_23;
+			item[i].mtxWorld._33 = mtxView->_33;
 
 			// ˆÚ“®‚ð”½‰f
 			D3DXMatrixTranslation(&mtxTranslate, item[i].pos.x, item[i].pos.y, item[i].pos.z);

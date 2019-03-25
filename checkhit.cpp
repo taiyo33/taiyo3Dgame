@@ -346,23 +346,3 @@ D3DXVECTOR3 GetNormal(void)
 	return nor;
 }
 
-//========================================================================
-// オブジェクトの衝突後位置計算処理
-//
-//
-//========================================================================
-//void Reperlling(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, float weight0, float weight1, float speed0, float speed1)
-//{
-//	float totalWeight = weight0 + weight1;	// 総質量
-//	float refRate = 1.10f;					// 反発率
-//	D3DXVECTOR3 c = pos1 - pos0;			// 衝突軸ベクトル
-//	float speed = speed0 - speed1;			// 衝突時の速度		
-//	float dot;
-//	D3DXVECTOR3 vec;
-//	D3DXVec3Normalize(&c, &c);
-//	dot = D3DXVec3Dot(&speed, &c);
-//
-//	vec = ((refRate * dot) / totalWeight) * c;
-//	
-//}
-

@@ -112,7 +112,7 @@ void UpdateExplosion(void)
 void DrawExplosion(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxView, mtxScale, mtxRot, mtxTranslate;
+	D3DXMATRIX *mtxView, mtxScale, mtxRot, mtxTranslate;
 	EXPLOSION *explosion = &ExplosionWk[0];
 
 	// Z比較なし
@@ -137,15 +137,15 @@ void DrawExplosion(void)
 			D3DXMatrixIdentity(&explosion[i].mtxWorld);
 
 			// ポリゴンを正面に向ける
-			explosion[i].mtxWorld._11 = mtxView._11;
-			explosion[i].mtxWorld._12 = mtxView._21;
-			explosion[i].mtxWorld._13 = mtxView._31;
-			explosion[i].mtxWorld._21 = mtxView._12;
-			explosion[i].mtxWorld._22 = mtxView._22;
-			explosion[i].mtxWorld._23 = mtxView._32;
-			explosion[i].mtxWorld._31 = mtxView._13;
-			explosion[i].mtxWorld._32 = mtxView._23;
-			explosion[i].mtxWorld._33 = mtxView._33;
+			explosion[i].mtxWorld._11 = mtxView->_11;
+			explosion[i].mtxWorld._12 = mtxView->_21;
+			explosion[i].mtxWorld._13 = mtxView->_31;
+			explosion[i].mtxWorld._21 = mtxView->_12;
+			explosion[i].mtxWorld._22 = mtxView->_22;
+			explosion[i].mtxWorld._23 = mtxView->_32;
+			explosion[i].mtxWorld._31 = mtxView->_13;
+			explosion[i].mtxWorld._32 = mtxView->_23;
+			explosion[i].mtxWorld._33 = mtxView->_33;
 
 			// スケールを反映
 			D3DXMatrixScaling(&mtxScale, explosion[i].scl.x, explosion[i].scl.y, explosion[i].scl.z);
