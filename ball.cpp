@@ -76,9 +76,13 @@ HRESULT InitBall(void)
 			ball[i].pos[j].z = player[i].pos.z + rand() % 50;
 			ball[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			ball[i].scl[j] = D3DXVECTOR3(0.4f, 0.4f, 0.4f);
-			ball[i].use[j] = true;
 			ball[i].prevPos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			ball[i].vec[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		}
+
+		for (int k = 0; k < BALL_ONESET_MAX / 2; k++)
+		{
+			ball[i].use[k] = true;
 		}
 	}
 
