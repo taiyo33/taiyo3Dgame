@@ -8,10 +8,15 @@
 #define _BALL_H_
 
 #include "main.h"
-
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
 #define BALL_SET_MAX	(2)
 #define BALL_ONESET_MAX	(100)
 
+//*****************************************************************************
+// 構造体宣言
+//*****************************************************************************
 typedef struct {
 
 	D3DXVECTOR3				pos[BALL_ONESET_MAX];		// 位置
@@ -39,5 +44,6 @@ BALL *GetBall(int index);
 void ComprareBall(void);
 void SetBall(int index);
 void SetInitPosBall(void);
+void DamageBall(int index00, int index01, int bno);
 
 #endif

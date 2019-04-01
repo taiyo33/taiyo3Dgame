@@ -16,8 +16,6 @@
 #include "field.h"
 #include "ball.h" 
 
-
-
 D3DXVECTOR3				p3;
 D3DXVECTOR3				nor;
 //=============================================================================
@@ -35,13 +33,13 @@ void CheckHit(void)
 	{
 		// ブロックとバレットの判定
 		if (!block->use) continue;
+
 		for (j = 0; j < BULLET_SET_MAX; j++)
 		{
 			CheckBlockHitBullet(i, j, block->pos);
 		}
 	}
 
-	/* 対ブロックの当たり判定 */
 	block = GetBlock(0);		// ブロックのアドレスを取得
 	for (i = 0; i < BLOCK_NUM_FEARSIDE; i++, block++)
 	{
@@ -50,9 +48,11 @@ void CheckHit(void)
 		for (k = 0; k < BALL_ONESET_MAX; k++)
 		{
 			if (!ball->use[k]) continue;
-			if (CheckHitBB(block->pos, ball->pos[k], D3DXVECTOR3(15.0f,15.0f, 15.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
+
+			if (CheckHitBB(block->pos, ball->pos[k], D3DXVECTOR3(15.0f,15.0f, 15.0f), 
+													 D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
 			{
-				ball->pos[k] = ball->prevPos[k];
+				ball->pos[k] = ball->prevPos[k];	// ボールの位置を前の位置へ
 			}
 		}
 
@@ -61,9 +61,11 @@ void CheckHit(void)
 		for (k = 0; k < BALL_ONESET_MAX; k++)
 		{
 			if (!ball->use[k]) continue;
-			if (CheckHitBB(block->pos, ball->pos[k], D3DXVECTOR3(15.0f, 15.0f, 15.0f), D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
+
+			if (CheckHitBB(block->pos, ball->pos[k], D3DXVECTOR3(15.0f, 15.0f, 15.0f),
+													 D3DXVECTOR3(15.0f, 15.0f, 15.0f)))
 			{
-				ball->pos[k] = ball->prevPos[k];
+				ball->pos[k] = ball->prevPos[k];	// ボールの位置を前の位置へ
 			}
 		}
 	}
@@ -78,7 +80,7 @@ void CheckHit(void)
 		// フィールドの４つ角との判定
 		if (HitCheckCornerBlock(player->pos))
 		{
-			player->pos = player->prevPos;
+			player->pos = player->prevPos;	// プレイヤーの位置を前の位置へ
 		}
 	}
 	
@@ -90,71 +92,19 @@ void CheckHit(void)
 		// P1のバレット
 		if (bullet[P1].use[i])
 		{
-			// P2の子供モデルとの判定
-			BALL *ball = GetBall(0);
-			for (j = 0; j < BALL_ONESET_MAX; j++)
-			{
-				if (!ball[P2].use[j]) continue;
+			DamageBall(P2, P1, i);
 
-				if (CheckHitBC(bullet[P1].pos[i], ball[P2].pos[j], 15.0f, 15.0f))
-				{
-					PlaySound(ball[P2].damageSE, E_DS8_FLAG_NONE);
-					ball[P2].use[j] = false;
-					ball[P2].cnt --;
-					ball[P1].cnt ++;
-					SetBall(P1);
-					SetExplosion(ball[P2].pos[j], ball[P2].rot[j], 0);
-				}
-			}
-			
-			// P2との判定
-			if (CheckHitBC(bullet[P1].pos[i], player[P2].pos, 
-								bullet[P1].size[i].x, 10.0f))
-			{
-				PlaySound(player[P2].hitSE, E_DS8_FLAG_NONE);
-				SetHitEffect(bullet[P1].pos[i], D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0);
-				player[P2].life -= BULLET_DAMAGE;
-				bullet[P1].use[i] = false;
-				bullet[P1].reflect[i] = false;
-				bullet[P1].cntReflect[i] = INIT_REFLECT_CNT;
-				bullet[P1].speed[i] = INIT_BULLET_SPEED;
-			}
+			PlayerDamageManager(P2, P1, i);
 		}
 		
 		// P2のバレット
 		if (bullet[P2].use[i])
 		{
-			// P1の子供モデルとの判定
-			BALL *ball = GetBall(0);
-			for (j = 0; j < BALL_ONESET_MAX; j++)
-			{
-				if (!ball[P1].use[j]) continue;
+			DamageBall(P1, P2, i);
 
-				if (CheckHitBC(bullet[P2].pos[i], ball[P1].pos[j], 15.0f, 15.0f))
-				{
-					PlaySound(ball[P1].damageSE, E_DS8_FLAG_NONE);
-					ball[P1].use[j] = false;
-					ball[P1].cnt --;
-					ball[P2].cnt ++;
-					SetBall(P2);
-					SetExplosion(ball[P1].pos[j], ball[P1].rot[j], 0);
-				}
-			}
-
-			// P1との判定
-			if (CheckHitBC(bullet[P2].pos[i], player[P1].pos,
-								  bullet[P2].size[i].x, 10.0f))
-			{
-				PlaySound(player[P1].hitSE, E_DS8_FLAG_NONE);
-				SetHitEffect(bullet[P2].pos[i], D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0);
-				player[P1].life -= BULLET_DAMAGE;
-				bullet[P2].use[i] = false;
-				bullet[P2].reflect[i] = false;
-				bullet[P2].cntReflect[i] = INIT_REFLECT_CNT;
-			}
+			PlayerDamageManager(P1, P2, i);
 		}
 	}
-
 }
 
 //=============================================================================
@@ -195,14 +145,17 @@ bool CheckHitBC(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, float size1, float size2)
 
 //=============================================================================
 // レイと球の当たり判定処理
-// 引　数：
-// 戻り値：当たってたらtrue
+// 引　数：D3DXVECTOR3 pos1(相手の位置), D3DXVECTOR3 pos2(自分の位置), 
+//		   D3DXVECTOR3 vec(自分の向いてる方向ベクトル), float size(相手の半径)
+// 戻り値：bool型
 //=============================================================================
 bool CheckHitRay(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2, D3DXVECTOR3 vec, float size)
 {
+	// レイの作成
 	pos2 -= pos1;
 	D3DXVECTOR3 vec1;
 
+	// 正規化と内積の算出
 	D3DXVec3Normalize(&vec1, &vec);
 	float dot1 = D3DXVec3Dot(&pos2, &vec1);
 	float dot2 = D3DXVec3Dot(&pos2, &pos2);

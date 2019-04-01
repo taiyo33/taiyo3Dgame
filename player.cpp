@@ -5,10 +5,6 @@
 //
 //=============================================================================
 #include "player.h"
-#include "camera.h"
-#include "input.h"
-#include "shadow.h"
-#include "debugproc.h"
 #include "bullet.h"
 #include "field.h"
 #include "block.h"
@@ -17,6 +13,7 @@
 #include "result.h"
 #include "chargeEffect.h"
 #include "pause.h"
+#include "hitEffect.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -161,8 +158,6 @@ void UpdatePlayer(void)
 		WallShearPlayer(i);
 		// プレイヤーの操作
 		MovePlayer(i);
-
-		PlayerDamageManager();
 
 		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rot.y);
 		PrintDebugProc("プレイヤーの位置: [X:(%f),z:(%f)]\n", player[i].pos.x, player[i].pos.z);
@@ -738,17 +733,30 @@ void WallShearPlayer(int index)
 
 //=============================================================================
 // プレイヤーのダメージ処理
-// 引　数：なし
+// 引　数：int pno00(ダメージを受けたプレイヤーアドレス番号), 
+//		   int pno01(ダメージを与えたプレイヤーアドレス番号), int bno(組バレットアドレス番号)
 // 戻り値：なし
 //=============================================================================
-void PlayerDamageManager(void)
+void PlayerDamageManager(int pno00, int pno01, int bno)
 {
-	// プレイヤーのライフがなくなったとき
-	if (player[P1].life < 0)
+	BULLET *bullet = GetBullet(0);
+	if (CheckHitBC(bullet[pno01].pos[bno], player[pno00].pos,
+		bullet[pno01].size[bno].x, 10.0f))
 	{
-		SetStage(FINISHCALL);
+		// プレイヤーに対する処理
+		PlaySound(player[pno00].hitSE, E_DS8_FLAG_NONE);
+		SetHitEffect(bullet[pno01].pos[bno], D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0);
+		player[pno00].life -= BULLET_DAMAGE;
+		
+		// バレットに対する処理
+		bullet[pno01].use[bno] = false;
+		bullet[pno01].reflect[bno] = false;
+		bullet[pno01].cntReflect[bno] = INIT_REFLECT_CNT;
+		bullet[pno01].speed[bno] = INIT_BULLET_SPEED;
 	}
-	else if (player[P2].life < 0)
+
+	// ダメージを受けたプレイヤーのライフがなくなったとき
+	if (player[pno00].life < 0)
 	{
 		SetStage(FINISHCALL);
 	}
@@ -793,7 +801,7 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 }
 
 //=============================================================================
-// プレイヤーのダメージ処理
+// プレイヤーの位置初期化処理
 // 引　数：なし
 // 戻り値：なし
 //=============================================================================

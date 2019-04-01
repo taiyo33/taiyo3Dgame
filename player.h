@@ -63,7 +63,7 @@ void UpdatePlayer(void);
 void DrawPlayer(void);
 
 PLAYER *GetPlayer(int index);
-void PlayerDamageManager(void);
+void PlayerDamageManager(int pno00, int pno01, int bno);
 bool CheckBlockInPlayer(int index);
 void CheckNorPlayer(D3DXVECTOR3 nor0, int index);
 void SetInitPosPlayer(void);

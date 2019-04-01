@@ -4,22 +4,22 @@
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "ai.h"
 #include "bullet.h"
 #include "player.h"
 #include "block.h"
 #include "checkhit.h"
 #include "field.h"
-#include "camera.h"
 #include "chargeEffect.h"
-#include "debugproc.h"
 #include "ball.h"
 
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-// NPCの移動マクロ
+
+// 距離についてのマクロ
 #define MOVE_DISTANCE_CHASE_FUZZY_X1		(50.0f)
 #define MOVE_DISTANCE_CHASE_FUZZY_X2		(200.0f)
 #define MOVE_DISTANCE_CHASE_FUZZY_X3		(250.0f)
@@ -35,7 +35,7 @@
 #define MOVE_DISTANCE_WAIT_FUZZY_X3			(150.0f)
 #define MOVE_DISTANCE_WAIT_FUZZY_X4			(500.0f)
 
-
+// NPCのライフについてのマクロ
 #define MOVE_NPCLIFE_CHASE_FUZZY_X1			(20.0f)
 #define MOVE_NPCLIFE_CHASE_FUZZY_X2			(80.0f)
 #define MOVE_NPCLIFE_ESCAPE_FUZZY_X1		(20.0f)
@@ -45,6 +45,7 @@
 #define MOVE_NPCLIFE_ROUTINE_FUZZY_X3		(70.0f)
 #define MOVE_NPCLIFE_ROUTINE_FUZZY_X4		(90.0f)
 
+// プレイヤーのライフについてのマクロ
 #define MOVE_PLAYERLIFE_CHASE_FUZZY_X1		(10.0f)
 #define MOVE_PLAYERLIFE_CHASE_FUZZY_X2		(70.0f)
 #define MOVE_PLAYERLIFE_ESCAPE_FUZZY_X1		(20.0f)
@@ -54,25 +55,25 @@
 #define MOVE_PLAYERLIFE_ROUTINE_FUZZY_X3	(80.0f)
 #define MOVE_PLAYERLIFE_ROUTINE_FUZZY_X4	(100.0f)
 
+// NPCのボール所持数についてのマクロ
 #define MOVE_NPCBALL_ROUTINE_FUZZY_X1		(30.0f)
 #define MOVE_NPCBALL_ROUTINE_FUZZY_X2		(50.0f)
 #define MOVE_NPCBALL_ROUTINE_FUZZY_X3		(70.0f)
 #define MOVE_NPCBALL_ROUTINE_FUZZY_X4		(100.0f)
-#define MOVE_NPCBALL_CHASE_FUZZY_X1		(50.0f)
-#define MOVE_NPCBALL_CHASE_FUZZY_X2		(75.0f)
+#define MOVE_NPCBALL_CHASE_FUZZY_X1			(50.0f)
+#define MOVE_NPCBALL_CHASE_FUZZY_X2			(75.0f)
 #define MOVE_NPCBALL_ESCAPE_FUZZY_X1		(50.0f)
 #define MOVE_NPCBALL_ESCAPE_FUZZY_X2		(80.0f)
 
+// プレイヤーのボール所持数についてのマクロ
 #define MOVE_PLAYERBALL_ROUTINE_FUZZY_X1	(0.0f)
 #define MOVE_PLAYERBALL_ROUTINE_FUZZY_X2	(10.0f)
 #define MOVE_PLAYERBALL_ROUTINE_FUZZY_X3	(70.0f)
 #define MOVE_PLAYERBALL_ROUTINE_FUZZY_X4	(100.0f)
 #define MOVE_PLAYERBALL_CHASE_FUZZY_X1		(20.0f)
 #define MOVE_PLAYERBALL_CHASE_FUZZY_X2		(75.0f)
-#define MOVE_PLAYERBALL_ESCAPE_FUZZY_X1	(0.0f)
-#define MOVE_PLAYERBALL_ESCAPE_FUZZY_X2	(100.0f)
-
-#define RELOAD_ATTCK_FRAME					(60)		// 攻撃の可能までの間隔
+#define MOVE_PLAYERBALL_ESCAPE_FUZZY_X1		(0.0f)
+#define MOVE_PLAYERBALL_ESCAPE_FUZZY_X2		(100.0f)
 
 // ルート巡回マクロ
 #define STOP_ROUTINE_CNT					(2)
@@ -82,17 +83,18 @@
 #define ROUTE_TIME_FUZZY_X2					(30.0f)
 #define ROUTE_CNT_TIME						(70)
 
+#define RELOAD_ATTCK_FRAME					(60.0f)		// 攻撃の可能までの間隔
+
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-int SwitchPatrolPattern(int pattern);
 void NonePlayerDest(D3DXVECTOR3 vecDest, int index);
-bool StopRoutineNonePlayer(void);
+void NonePlayerFuzzy(void);
 void DistanceRoutePlayer01(D3DXVECTOR3 vec, int cnt, int cntMax, int raiseCnt);
 void DistanceRoutePlayer02(D3DXVECTOR3 vec, int cnt, int cntMax, int raiseCnt);
 void SwitchRoutePlayer(int pattern, D3DXVECTOR3 vec);
-void DistanceNearVector(int index, D3DXVECTOR3 vec, int cnt, int cntMax, int raiseCnt);
-
+int SwitchPatrolPattern(int pattern);
+void DistanceNearVector(int index, D3DXVECTOR3 pos, int cnt, int cntMax);
 void MoveVectorNonePlayer(D3DXVECTOR3 vec, float fuzzy);
 void RouteLapTimeCnt(void);
 
@@ -101,22 +103,23 @@ void RouteLapTimeCnt(void);
 // グローバル変数
 //*****************************************************************************
 
-// ファジーの１要素数
-enum {
+// ファジーの要素数
+enum FUZZY_PATTERN{
 	PATTERN1,
 	PATTERN2,
 	PATTERN3,
 	PATTERN4
 };
+
 // 比較合計の種類
-enum {
+enum MOVE_PATTERN{
 	CHASE,
 	ESCAPE,
 	ROUTINE,
 };
 
-// 巡回の種類
-enum {
+// 巡回のルート番号
+enum ROUTENUM{
 	ROUTE00,
 	ROUTE01,
 	ROUTE02,
@@ -128,14 +131,15 @@ enum {
 	ROUTE08,
 };
 
-enum {
+// 巡回参照値の種類
+enum ROUTE_PATTERN{
 	ROUTE_DECISION,
 	ROUTE_LENGTH,
 	ROUTE_TIME
 };
 
 // 巡回のパターン
-D3DXVECTOR3			RouteData[ROUTEDATA_MAX]{
+D3DXVECTOR3		RouteData[ROUTEDATA_MAX]{
 
 	D3DXVECTOR3(0.0f, 0.0f, 0.0f),										// 中央
 	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, FIELD_SIZE_Z - 50.0f),	// 左上
@@ -148,20 +152,19 @@ D3DXVECTOR3			RouteData[ROUTEDATA_MAX]{
 	D3DXVECTOR3(0.0f, 10.0f, -FIELD_SIZE_Z + 80.0f),	// 下中央
 };
 
-AI			aiWk[PLAYER_MAX];
+AI			AiWk[PLAYER_MAX];
 //=============================================================================
 // 初期化処理
 //=============================================================================
 HRESULT InitAi(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	AI *ai = &aiWk[0];
+	AI *ai = &AiWk[0];
 
 	ai->cmpPattern[CHASE] = 0.0f;	// 比較の合計値を初期化
 	ai->cmpPattern[ESCAPE] = 0.0f;	//
 	ai->cmpPattern[ROUTINE] = 0.0f;	// 
 	ai->decision = 0.0f;			// 比較結果を初期化
-	ai->cntMemory = 0;				// 結果記憶配列の添え字を初期化
 	ai[P1].patrolNum = ROUTE01;		// 巡回パターンの番号を初期化
 	ai[P2].patrolNum = ROUTE04;		//
 
@@ -173,12 +176,7 @@ HRESULT InitAi(void)
 	{
 		ai->chase[i] = 0.0f;	// 追跡の値を初期化
 		ai->escape[i] = 0.0f;	// 逃走の値を初期化
-		ai->routine[i] = 0.0f;		// 待機の値を初期化
-	}
-
-	for (int j = 0; j < DECISION_MEMORY_MAX; j++)
-	{
-		ai->deciMemory[j] = j;	// 結果記憶を初期化
+		ai->routine[i] = 0.0f;	// 待機の値を初期化
 	}
 
 	for (int k = 0; k < ROUTEDATA_MAX; k++)
@@ -190,7 +188,7 @@ HRESULT InitAi(void)
 		ai->lapingTime[k] = 0;					// 経過時間の初期化
 	}
 
-	ai->routeIndex = ROUTE08;
+	ai->routeIndex = ROUTE08;	// ルートアドレス番号の初期化
 
 	return S_OK;
 }
@@ -202,90 +200,26 @@ HRESULT InitAi(void)
 //==========================================================================
 void NonePlayerMove(void)
 {
-	AI *ai = &aiWk[0];
+	AI *ai = &AiWk[0];
 	PLAYER *player = GetPlayer(0);
-	BALL *ball = GetBall(0);
 
 	// 思考時間と経路経過時間を加算
 	ai->routineCntFrame++;
 	RouteLapTimeCnt();
 
-	// 60フレームで思考
+	// 60フレームで再考
 	if (ai->routineCntFrame % ROUTE_CNT_TIME == 0)
 	{
-		ai->cntMemory < DECISION_MEMORY_MAX ? ai->cntMemory++ : ai->cntMemory = 0;	// 配列の添え字を更新
-
-		// 自ボールよる判定
-		ai->chase[PATTERN1] = FuzzyRightDown((float)(float)ball[P2].cnt, MOVE_NPCBALL_CHASE_FUZZY_X1, MOVE_NPCBALL_CHASE_FUZZY_X2);
-		ai->escape[PATTERN1] = FuzzyRightUp((float)ball[P2].cnt, MOVE_NPCBALL_ESCAPE_FUZZY_X1, MOVE_NPCBALL_ESCAPE_FUZZY_X2);
-		ai->routine[PATTERN1] = FuzzyTrapezoid((float)ball[P2].cnt, MOVE_NPCBALL_ROUTINE_FUZZY_X1, MOVE_NPCBALL_ROUTINE_FUZZY_X2,
-			MOVE_NPCBALL_ROUTINE_FUZZY_X3, MOVE_NPCBALL_ROUTINE_FUZZY_X4);
-		// 相手ボールよる判定
-		ai->chase[PATTERN2] = FuzzyRightDown((float)ball[P1].cnt, MOVE_PLAYERBALL_CHASE_FUZZY_X1, MOVE_PLAYERBALL_CHASE_FUZZY_X2);
-		ai->escape[PATTERN2] = FuzzyRightUp((float)ball[P1].cnt, MOVE_PLAYERBALL_ESCAPE_FUZZY_X1, MOVE_PLAYERBALL_ESCAPE_FUZZY_X2);
-		ai->routine[PATTERN2] = FuzzyTrapezoid((float)ball[P1].cnt, MOVE_PLAYERBALL_ROUTINE_FUZZY_X1, MOVE_PLAYERBALL_ROUTINE_FUZZY_X2,
-			MOVE_PLAYERBALL_ROUTINE_FUZZY_X3, MOVE_PLAYERBALL_ROUTINE_FUZZY_X4);
-
-		// 自ライフによる判定
-		if (player[P2].life < PLAYER_LIFE_MAX)
-		{
-			ai->chase[PATTERN3] = FuzzyRightDown(player[P2].life, MOVE_NPCLIFE_CHASE_FUZZY_X1, MOVE_NPCLIFE_CHASE_FUZZY_X2);
-			ai->escape[PATTERN3] = FuzzyRightUp(player[P2].life, MOVE_NPCLIFE_ESCAPE_FUZZY_X1, MOVE_NPCLIFE_ESCAPE_FUZZY_X2);
-			ai->routine[PATTERN3] = FuzzyTrapezoid(player[P2].life, MOVE_NPCLIFE_ROUTINE_FUZZY_X1, MOVE_NPCLIFE_ROUTINE_FUZZY_X2,
-				MOVE_NPCLIFE_ROUTINE_FUZZY_X3, MOVE_NPCLIFE_ROUTINE_FUZZY_X4);
-			// 結果反映
-			ai->cmpPattern[CHASE] *= ai->chase[PATTERN3];
-			ai->cmpPattern[ESCAPE] *= ai->escape[PATTERN3];
-			ai->cmpPattern[ROUTINE] *= ai->routine[PATTERN3];
-
-		}
-		// 相手ライフが最高値の時は考慮しない
-		else if (player[P2].life == 0.0f)
-		{
-			// 結果反映
-			ai->cmpPattern[CHASE] = ai->chase[PATTERN1] * ai->chase[PATTERN2];
-			ai->cmpPattern[ESCAPE] = ai->escape[PATTERN1] * ai->escape[PATTERN2];
-			ai->cmpPattern[ROUTINE] = ai->routine[PATTERN1] * ai->routine[PATTERN2];
-		}
-
-		// 相手ライフによる判定
-		if (player[P1].life < PLAYER_LIFE_MAX)
-		{
-			ai->chase[PATTERN4] = FuzzyRightDown(player[P1].life, MOVE_PLAYERLIFE_CHASE_FUZZY_X1, MOVE_PLAYERLIFE_CHASE_FUZZY_X2);
-			ai->escape[PATTERN4] = FuzzyRightUp(player[P1].life, MOVE_PLAYERLIFE_ESCAPE_FUZZY_X1, MOVE_PLAYERLIFE_ESCAPE_FUZZY_X2);
-			ai->routine[PATTERN4] = FuzzyTrapezoid(player[P1].life, MOVE_PLAYERLIFE_ROUTINE_FUZZY_X1, MOVE_PLAYERLIFE_ROUTINE_FUZZY_X2,
-				MOVE_PLAYERLIFE_ROUTINE_FUZZY_X3, MOVE_PLAYERLIFE_ROUTINE_FUZZY_X4);
-
-			// 結果反映
-			ai->cmpPattern[CHASE] *= ai->chase[PATTERN4];
-			ai->cmpPattern[ESCAPE] *= ai->escape[PATTERN4];
-			ai->cmpPattern[ROUTINE] *= ai->routine[PATTERN4];
-		}
-
-		// 比較
-		ai->decision = Or(ai->cmpPattern[CHASE], ai->cmpPattern[ESCAPE]);
-		ai->decision = Or(ai->cmpPattern[ROUTINE], ai->decision);
-
-		// 同じ処理を繰り返している場合
-		if (!StopRoutineNonePlayer())
-		{
-			for (int i = 0; i < DECISION_MEMORY_MAX; i++)
-			{
-				ai->deciMemory[i] = 0;	//初期化
-			}
-
-			// 移動へ遷移
-			ai->decision = ai->cmpPattern[ROUTINE];
-			ai->routineCntFrame = 0;
-		}
+		// 移動処理の結果算出
+		NonePlayerFuzzy();
 
 		// 追跡
 		if (ai->decision == ai->cmpPattern[CHASE])
 		{
 			ai->routineStart = false;
 			// ルートデータとプレイヤーの距離を計算
-			DistanceNearVector(P1, player[P1].pos, 0, ROUTEDATA_MAX, NULL);
-			DistanceNearVector(P2, player[P2].pos, 0, ROUTEDATA_MAX, NULL);
+			DistanceNearVector(P1, player[P1].pos, 0, ROUTEDATA_MAX);
+			DistanceNearVector(P2, player[P2].pos, 0, ROUTEDATA_MAX);
 			// P2に隣接してるルートデータでP1に近いルートデータを計算
 			SwitchRoutePlayer(ai[P2].routeIndex, RouteData[ai[P1].routeIndex]);
 			ai->routineCntFrame = 0;
@@ -294,18 +228,18 @@ void NonePlayerMove(void)
 		else if (ai->decision == ai->cmpPattern[ESCAPE])
 		{
 			// ルートデータとプレイヤーの距離を計算
-			DistanceNearVector(P1, player[P1].pos, 0, ROUTEDATA_MAX, NULL);
-			DistanceNearVector(P2, player[P2].pos, 0, ROUTEDATA_MAX, NULL);
-			// P2に隣接してるルートデータでP1に近いルートデータを計算
+			DistanceNearVector(P1, player[P1].pos, 0, ROUTEDATA_MAX);
+			DistanceNearVector(P2, player[P2].pos, 0, ROUTEDATA_MAX);
+			// P2に隣接してるルートデータでP1に遠いルートデータを計算
 			SwitchRoutePlayer(ai[P2].routeIndex, RouteData[ai[P1].routeIndex]);
-			ai->deciMemory[ai->cntMemory] = ESCAPE;
+			ai->routineCntFrame = 0;
 		}
 		// 巡回
 		else if (ai->decision == ai->cmpPattern[ROUTINE])
 		{
-			ai->routineStart = true;
-			SwitchRoutePlayer(ai->routeIndex, player[P2].pos);
-			ai->routineCntFrame = 0;
+			ai->routineStart = true;	// 巡回の開始
+			SwitchRoutePlayer(ai->routeIndex, player[P2].pos);	// ルートの切替
+			ai->routineCntFrame = 0;	// ルート再考時間
 		}
 	}
 
@@ -314,18 +248,191 @@ void NonePlayerMove(void)
 
 }
 
+//==============================================================================
+// 各ルートの経過時間
+// 引　数：な　し
+// 戻り値：な　し
+//==============================================================================
+void RouteLapTimeCnt(void)
+{
+	AI *ai = &AiWk[0];
+
+	if (ai->routineCntFrame % 60 == 0)
+	{
+		for (int i = 0; i < ROUTEDATA_MAX; i++)
+		{
+			ai->lapingTime[i]++;
+		}
+	}
+}
+
+//===========================================================================
+// ファジー値による行動結果の算出処理
+// 引　数：な　し
+// 戻り値：な　し
+//==========================================================================
+void NonePlayerFuzzy(void)
+{
+	AI *ai = &AiWk[0];
+	PLAYER *player = GetPlayer(0);
+	BALL *ball = GetBall(0);
+
+	// 自ボールよる判定
+	ai->chase[PATTERN1] = FuzzyRightDown((float)(float)ball[P2].cnt, MOVE_NPCBALL_CHASE_FUZZY_X1, MOVE_NPCBALL_CHASE_FUZZY_X2);
+	ai->escape[PATTERN1] = FuzzyRightUp((float)ball[P2].cnt, MOVE_NPCBALL_ESCAPE_FUZZY_X1, MOVE_NPCBALL_ESCAPE_FUZZY_X2);
+	ai->routine[PATTERN1] = FuzzyTrapezoid((float)ball[P2].cnt, MOVE_NPCBALL_ROUTINE_FUZZY_X1, MOVE_NPCBALL_ROUTINE_FUZZY_X2,
+																 MOVE_NPCBALL_ROUTINE_FUZZY_X3, MOVE_NPCBALL_ROUTINE_FUZZY_X4);
+	
+	// 相手ボールよる判定
+	ai->chase[PATTERN2] = FuzzyRightDown((float)ball[P1].cnt, MOVE_PLAYERBALL_CHASE_FUZZY_X1, MOVE_PLAYERBALL_CHASE_FUZZY_X2);
+	ai->escape[PATTERN2] = FuzzyRightUp((float)ball[P1].cnt, MOVE_PLAYERBALL_ESCAPE_FUZZY_X1, MOVE_PLAYERBALL_ESCAPE_FUZZY_X2);
+	ai->routine[PATTERN2] = FuzzyTrapezoid((float)ball[P1].cnt, MOVE_PLAYERBALL_ROUTINE_FUZZY_X1, MOVE_PLAYERBALL_ROUTINE_FUZZY_X2,
+																MOVE_PLAYERBALL_ROUTINE_FUZZY_X3, MOVE_PLAYERBALL_ROUTINE_FUZZY_X4);
+	
+	// 自ライフによる判定
+	if (player[P2].life < PLAYER_LIFE_MAX)
+	{
+		ai->chase[PATTERN3] = FuzzyRightDown(player[P2].life, MOVE_NPCLIFE_CHASE_FUZZY_X1, MOVE_NPCLIFE_CHASE_FUZZY_X2);
+		ai->escape[PATTERN3] = FuzzyRightUp(player[P2].life, MOVE_NPCLIFE_ESCAPE_FUZZY_X1, MOVE_NPCLIFE_ESCAPE_FUZZY_X2);
+		ai->routine[PATTERN3] = FuzzyTrapezoid(player[P2].life, MOVE_NPCLIFE_ROUTINE_FUZZY_X1, MOVE_NPCLIFE_ROUTINE_FUZZY_X2,
+			MOVE_NPCLIFE_ROUTINE_FUZZY_X3, MOVE_NPCLIFE_ROUTINE_FUZZY_X4);
+		// 結果反映
+		ai->cmpPattern[CHASE] *= ai->chase[PATTERN3];
+		ai->cmpPattern[ESCAPE] *= ai->escape[PATTERN3];
+		ai->cmpPattern[ROUTINE] *= ai->routine[PATTERN3];
+
+	}
+	// 相手ライフが最高値の時は考慮しない
+	else if (player[P2].life == 0.0f)
+	{
+		// 結果反映
+		ai->cmpPattern[CHASE] = ai->chase[PATTERN1] * ai->chase[PATTERN2];
+		ai->cmpPattern[ESCAPE] = ai->escape[PATTERN1] * ai->escape[PATTERN2];
+		ai->cmpPattern[ROUTINE] = ai->routine[PATTERN1] * ai->routine[PATTERN2];
+	}
+
+	// 相手ライフによる判定
+	if (player[P1].life < PLAYER_LIFE_MAX)
+	{
+		ai->chase[PATTERN4] = FuzzyRightDown(player[P1].life, MOVE_PLAYERLIFE_CHASE_FUZZY_X1, MOVE_PLAYERLIFE_CHASE_FUZZY_X2);
+		ai->escape[PATTERN4] = FuzzyRightUp(player[P1].life, MOVE_PLAYERLIFE_ESCAPE_FUZZY_X1, MOVE_PLAYERLIFE_ESCAPE_FUZZY_X2);
+		ai->routine[PATTERN4] = FuzzyTrapezoid(player[P1].life, MOVE_PLAYERLIFE_ROUTINE_FUZZY_X1, MOVE_PLAYERLIFE_ROUTINE_FUZZY_X2,
+			MOVE_PLAYERLIFE_ROUTINE_FUZZY_X3, MOVE_PLAYERLIFE_ROUTINE_FUZZY_X4);
+
+		// 結果反映
+		ai->cmpPattern[CHASE] *= ai->chase[PATTERN4];
+		ai->cmpPattern[ESCAPE] *= ai->escape[PATTERN4];
+		ai->cmpPattern[ROUTINE] *= ai->routine[PATTERN4];
+	}
+
+	// 各行動のファジー値を比較
+	ai->decision = Or(ai->cmpPattern[CHASE], ai->cmpPattern[ESCAPE]);
+	ai->decision = Or(ai->cmpPattern[ROUTINE], ai->decision);
+}
+
+//===========================================================================
+// プレイヤーと最も近い経路データの計算処理
+// 引　数：int index(プレイヤーのアドレス番号), D3DXVECTOR3 pos(プレイヤーの位置)
+//		   int cnt(ループカウンター), int cntMax(カウンターの最大値)
+// 戻り値：な　し
+//==========================================================================
+void DistanceNearVector(int index, D3DXVECTOR3 pos, int cnt, int cntMax)
+{
+	AI *ai = &AiWk[index];
+	D3DXVECTOR3 vec01 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ルートまでのベクトル
+	float nearVec = 1000.0f;							// 最も近いルート
+
+	for (cnt; cnt < cntMax; cnt++)
+	{
+		// ベクトルの大きさを計算
+		vec01 = pos - RouteData[cnt];
+		ai->lenVec[cnt] = D3DXVec3Length(&vec01);
+		
+		// ベクトルの大きさを比較
+		nearVec = min(ai->lenVec[cnt], nearVec);
+
+		// 比較結果を保存
+		if (nearVec == ai->lenVec[cnt])
+		{
+			ai->routeIndex = cnt;
+		}
+	}
+}
+
+//==========================================================================
+// NPCの巡回行動遷移処理
+// 引　数：int pattern(巡回パターン番号), D3DXVECTOR3 vec(進行方向ベクトル)
+// 戻り値：な　し
+//==========================================================================
+void SwitchRoutePlayer(int pattern, D3DXVECTOR3 vec)
+{
+	AI *ai = &AiWk[0];
+	switch (pattern)
+	{
+		case ROUTE00:
+			// 5,6,7,8のルートデータを比較
+			DistanceRoutePlayer01(vec, ROUTE05, ROUTEDATA_MAX, NULL);
+			break;
+
+		case ROUTE01:
+			// 5,6のルートデータを比較
+			DistanceRoutePlayer01(vec, ROUTE05, ROUTE08, 1);
+			break;
+
+		case ROUTE02:
+			// 6,7のルートデータを比較
+			DistanceRoutePlayer01(vec, ROUTE06, ROUTE08, NULL);
+			break;
+
+		case ROUTE03:
+			// 5,8のルートデータを比較
+			DistanceRoutePlayer01(vec, ROUTE05, ROUTEDATA_MAX, 2);
+			break;
+
+		case ROUTE04:
+			// 6,8のルートデータを比較
+			DistanceRoutePlayer01(vec, ROUTE06, ROUTEDATA_MAX, 1);
+			break;
+
+		case ROUTE05:
+			// 0,1,3のルートデータを比較
+			DistanceRoutePlayer02(vec, ROUTE01, ROUTE04, ROUTE03);
+			break;
+
+		case ROUTE06:
+			// 0,2,4のルートデータを比較
+			DistanceRoutePlayer02(vec, ROUTE02, ROUTE05, ROUTE04);
+			break;
+
+		case ROUTE07:
+			// 0,1,2のルートデータを比較
+			DistanceRoutePlayer02(vec, ROUTE01, ROUTE03, ROUTE02);
+			break;
+
+		case ROUTE08:
+			// 0,3,4のルートデータを比較
+			DistanceRoutePlayer02(vec, ROUTE03, ROUTE05, ROUTE04);
+			break;
+
+		default:
+			assert("AIのルート切替でエラー");
+			break;
+	}
+}
+
 //===========================================================================
 // 隣接してる経路データへの移動選択処理(データROUTE00～ROUTE04)
-// 引　数：int index(プレイヤーのアドレス番号)
-// 戻り値：D3DXVECTOR3型　最も近い経路のベクトルを返す
+// 引　数：D3DXVECTOR3 vec(相手のルートデータ), int cnt(ループカウンター), 
+//		   int cntMax(カウンターの最大値), int raiseCnt(ループカウントの調整値)
+// 戻り値：D3DXVECTOR3型
 //==========================================================================
 void DistanceRoutePlayer01(D3DXVECTOR3 vec, int cnt, int cntMax, int raiseCnt)
 {
-	AI *ai = &aiWk[0];
+	AI *ai = &AiWk[0];
 	PLAYER *player = GetPlayer(P2);
 	D3DXVECTOR3 vec01 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ルートまでのベクトル
-	float vestRoute01 = 0.0;								// 最も好ましいルート
-	float vestRoute02 = 1000.0;								// 最も好ましいルート
+	float vestRoute01 = 0.0;							// 最も好ましいルート
+	float vestRoute02 = 1000.0;							// 最も好ましいルート
 
 	for (cnt; cnt < cntMax; cnt++)
 	{
@@ -333,60 +440,73 @@ void DistanceRoutePlayer01(D3DXVECTOR3 vec, int cnt, int cntMax, int raiseCnt)
 		vec01 = vec - RouteData[cnt];
 		ai->lenVec[cnt] = D3DXVec3Length(&vec01);
 
+		// 巡回の場合
 		if (ai->decision == ai->cmpPattern[ROUTINE])
 		{
-			// メンバーシップの作成
+			// 距離と通過経過時間
 			ai->routeRot[cnt][ROUTE_LENGTH] = FuzzyRightDown(ai->lenVec[cnt], ROUTE_DISTANCE_FUZZY_X1, ROUTE_DISTANCE_FUZZY_X2);
-
 			ai->routeRot[cnt][ROUTE_TIME] = FuzzyRightUp((float)ai->lapingTime[cnt], ROUTE_TIME_FUZZY_X1, ROUTE_TIME_FUZZY_X2);
+			// 結果
 			ai->routeRot[cnt][ROUTE_DECISION] = ai->routeRot[cnt][ROUTE_LENGTH] * ai->routeRot[cnt][ROUTE_TIME];
 
+			// 好ましい隣接したルートを算出
 			vestRoute01 = max(ai->routeRot[cnt][ROUTE_DECISION], vestRoute01);
-
+			
+			// ルートを決定
 			if (vestRoute01 == ai->routeRot[cnt][ROUTE_DECISION])
 			{
 				ai->routeIndex = cnt;
 			}
 
+			// ループカウントの調整
 			cnt = cnt + raiseCnt;
 		}
+		// 追跡の場合
 		else if (ai->decision == ai->cmpPattern[CHASE])
-		{
+		{	
+			// 好ましい隣接したルートを算出
 			vestRoute02 = min(ai->lenVec[cnt], vestRoute02);
 
+			// ルートを決定
 			if (vestRoute02 == ai->lenVec[cnt])
 			{
 				ai->routeIndex = cnt;
 			}
 
+			// ループカウントの調整
 			cnt = cnt + raiseCnt;
 		}
+		// 逃走の場合
 		else if (ai->decision == ai->cmpPattern[ESCAPE])
 		{
-			vestRoute02 = max(ai->lenVec[cnt], vestRoute02);
+			// 好ましい隣接したルートを算出
+			vestRoute01 = max(ai->lenVec[cnt], vestRoute01);
 
-			if (vestRoute02 == ai->lenVec[cnt])
+			// ルートを決定
+			if (vestRoute01 == ai->lenVec[cnt])
 			{
 				ai->routeIndex = cnt;
 			}
 
+			// ループカウントの調整
 			cnt = cnt + raiseCnt;
 		}
 
 	}
 
-	// ファジー値の最も高いルートへ
+	// 決定したルートの通過経過時間を初期化
 	ai->lapingTime[ai->routeIndex] = 0;
 }
 
 //===========================================================================
-// プレイヤーと経路データとの距離計算処理(データROUTE05～ROUTE08)
-// 引　数：int index(プレイヤーのアドレス番号)
-// 戻り値：D3DXVECTOR3型　最も近い経路のベクトルを返す
+// 隣接してる経路データへの移動選択処理(データROUTE05～ROUTE08)
+// 引　数：D3DXVECTOR3 vec(相手のルートデータ), int cnt(ループカウンター), 
+//		   int cntMax(カウンターの最大値), int raiseCnt(ループカウントの調整値)
+// 戻り値：D3DXVECTOR3型
 //==========================================================================
 void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 {
-	AI *ai = &aiWk[0];
+	AI *ai = &AiWk[0];
 	PLAYER *player = GetPlayer(P2);
 	D3DXVECTOR3 vec01 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ルートまでのベクトル
 	float vestRoute01 = 0.0f;							// 最も好ましいルート
@@ -398,11 +518,11 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 		// ベクトルの大きさを計算
 		vec01 = vec - RouteData[arrey];
 		ai->lenVec[arrey] = D3DXVec3Length(&vec01);
+
 		if (ai->decision == ai->cmpPattern[ROUTINE])
 		{
 			// メンバーシップの作成
 			ai->routeRot[arrey][ROUTE_LENGTH] = FuzzyRightDown(ai->lenVec[arrey], ROUTE_DISTANCE_FUZZY_X1, ROUTE_DISTANCE_FUZZY_X2);
-
 			ai->routeRot[arrey][ROUTE_TIME] = FuzzyRightUp((float)ai->lapingTime[arrey], ROUTE_TIME_FUZZY_X1, ROUTE_TIME_FUZZY_X2);
 			ai->routeRot[arrey][ROUTE_DECISION] = ai->routeRot[arrey][ROUTE_LENGTH] * ai->routeRot[arrey][ROUTE_TIME];
 
@@ -413,6 +533,7 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 				ai->routeIndex = arrey;
 			}
 
+			// 配列の調整
 			i == 0 ? arrey = cnt : arrey = raiseCnt;
 		}
 		// 結果が追跡だった場合
@@ -425,6 +546,7 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 				ai->routeIndex = arrey;
 			}
 
+			// 配列の調整
 			i == 0 ? arrey = cnt : arrey = raiseCnt;
 		}
 		// 結果が逃走だった場合
@@ -437,162 +559,14 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 				ai->routeIndex = arrey;
 			}
 
+			// 配列の調整
 			i == 0 ? arrey = cnt : arrey = raiseCnt;
 		}
 
 	}
 
 	// ファジー値の最も高いルートへ
-	ai->lapingTime[ai->routeIndex] = 0;
-}
-
-
-//===========================================================================
-// プレイヤーと最も近い経路データの計算処理
-// 引　数：int index(プレイヤーのアドレス番号)
-// 戻り値：な　し
-//==========================================================================
-void DistanceNearVector(int index, D3DXVECTOR3 vec, int cnt, int cntMax, int raiseCnt)
-{
-	AI *ai = &aiWk[index];
-	D3DXVECTOR3 vec01 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ルートまでのベクトル
-	float nearVec = 1000.0f;								// 最も好ましいルート
-
-	for (cnt; cnt < cntMax; cnt++)
-	{
-		// ベクトルの大きさを計算
-		vec01 = vec - RouteData[cnt];
-		ai->lenVec[cnt] = D3DXVec3Length(&vec01);
-
-		nearVec = min(ai->lenVec[cnt], nearVec);
-
-		if (nearVec == ai->lenVec[cnt])
-		{
-			ai->routeIndex = cnt;
-		}
-	}
-}
-
-//===========================================================================
-// プレイヤーの居る経路と隣接する経路データの計算処理
-// 引　数：int index(プレイヤーのアドレス番号)
-// 戻り値：な　し
-//==========================================================================
-void RouteNearVector(int index, D3DXVECTOR3 vec)
-{
-	AI *ai = &aiWk[index];
-	D3DXVECTOR3 vec01 = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ルートまでのベクトル
-	float nearVec = 0.0;								// 最も好ましいルート
-
-	for (int i = 0; i < ROUTEDATA_MAX; i++)
-	{
-		// ベクトルの大きさを計算
-		vec01 = vec - RouteData[i];
-		ai->lenVec[i] = D3DXVec3Length(&vec01);
-
-		nearVec = min(ai->lenVec[i], nearVec);
-
-		if (nearVec == ai->lenVec[i])
-		{
-			ai->routeIndex = i;
-		}
-	}
-}
-
-//==========================================================================
-// NPCの巡回行動遷移処理
-// 引　数：int pattern(巡回パターン番号)
-// 戻り値：な　し
-//==========================================================================
-void SwitchRoutePlayer(int pattern, D3DXVECTOR3 vec)
-{
-	AI *ai = &aiWk[0];
-	switch (pattern)
-	{
-		case ROUTE00:
-			DistanceRoutePlayer01(vec, ROUTE05, ROUTEDATA_MAX, NULL);
-			break;
-
-		case ROUTE01: 
-			DistanceRoutePlayer01(vec, ROUTE05, ROUTE06, NULL);
-			break;
-
-		case ROUTE02: 
-			DistanceRoutePlayer01(vec, ROUTE06, ROUTE07, NULL);
-			break;
-
-		case ROUTE03:		
-			DistanceRoutePlayer01(vec, ROUTE05, ROUTEDATA_MAX, 2);
-			break;
-
-		case ROUTE04: 		
-			DistanceRoutePlayer01(vec, ROUTE06, ROUTEDATA_MAX, 1);
-			break;
-
-		case ROUTE05: 			
-			DistanceRoutePlayer02(vec, ROUTE01, ROUTE04, ROUTE03);
-			break;
-
-		case ROUTE06:
-			DistanceRoutePlayer02(vec, ROUTE01, ROUTE03, ROUTE02);
-			break;
-
-		case ROUTE07:
-			DistanceRoutePlayer02(vec, ROUTE02, ROUTE05, ROUTE04);
-			break;
-
-		case ROUTE08:
-			DistanceRoutePlayer02(vec, ROUTE03, ROUTE05, ROUTE04);
-			break;
-
-		default:	
-			assert("AIのルート切替でエラー");
-			break;
-		}
-}
-
-//==============================================================================
-// 各ルートの経過時間
-// 引　数：な　し
-// 戻り値：な　し
-//==============================================================================
-void RouteLapTimeCnt(void)
-{
-	AI *ai = &aiWk[0];
-
-	if (ai->routineCntFrame % 60 == 0)
-	{
-		for (int i = 0; i < ROUTEDATA_MAX; i++)
-		{
-			ai->lapingTime[i]++;
-		}
-	}
-}
-
-//==============================================================================
-// NPCの思考切替
-// 引　数：な　し
-// 戻り値：な　し
-//==============================================================================
-bool StopRoutineNonePlayer(void)
-{
-	AI *ai = &aiWk[0];
-	int cnt = 0;
-
-	// 過去4回の結果と比較
-	for (int i = 0; i < DECISION_MEMORY_MAX; i++)
-	{
-		// 異なる処理ならカウントインクリメント
-		if (ai->deciMemory[i] != ai->deciMemory[i + 1])
-		{
-			cnt++;
-		}
-	}
-
-	// 異なる結果を２回繰り返しているなら思考しない
-	if (cnt > STOP_ROUTINE_CNT) return false;
-
-	return true;
+	ai->lapingTime[ai->routeIndex] = 0;	// 経過時間を初期化
 }
 
 //==============================================================================
@@ -644,7 +618,7 @@ void MoveVectorNonePlayer(D3DXVECTOR3 vec, float fuzzy)
 //==========================================================================
 void NonePlayerAttack(void)
 {
-	AI *ai = &aiWk[0];
+	AI *ai = &AiWk[0];
 	PLAYER *player = GetPlayer(0);
 	BULLET *bullet = GetBullet(P2);
 	BLOCK *block = GetBlock(0);
@@ -725,12 +699,11 @@ void NonePlayerPatrol(int index)
 {
 	PLAYER *player = GetPlayer(index);
 	BLOCK *block = GetBlock(0);
-	AI *ai = &aiWk[index];
+	AI *ai = &AiWk[index];
 	D3DXVECTOR3 rayPos = player->frontVec + player->pos;	// 前方ベクトルの終点
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// 前方ベクトルのとブロックの判定
-	//if (!HitCheckBlock(rayPos, player->pos, BLOCK_NUM_WALL))
 	if (CheckHitBC(player->pos, RouteData[ai->patrolNum], 15.0f, 15.0f))
 	{
 		ai->patrolNum = SwitchPatrolPattern(ai->patrolNum);

@@ -7,14 +7,18 @@
 #ifndef _AI_H_
 #define _AI_H_
 
-#include "main.h"
-
+//=============================================================================
+// マクロ定義
+//=============================================================================
 #define MOVE_PATTERN_MAX			(4)
 #define CMP_PATTERN_MAX				(4)
 #define DECISION_MEMORY_MAX			(5)
 #define ROUTEDATA_MAX				(9) 
 #define ROUTEDATA_ARRAY_MAX			(3)
 
+//=============================================================================
+// 構造体宣言
+//=============================================================================
 typedef struct {
 
 	int		patrolNum;							// 巡回のパターン番号
@@ -27,12 +31,12 @@ typedef struct {
 	int		cntMemory;
 	
 	// 巡回データ関係変数
-	float	lenVec[ROUTEDATA_MAX];						// ベクトルの大きさ
-	int		lapingTime[ROUTEDATA_MAX];					// 経路通過の経過時間
+	float	lenVec[ROUTEDATA_MAX];				// ベクトルの大きさ
+	int		lapingTime[ROUTEDATA_MAX];			// 経路通過の経過時間
 	float	routeRot[ROUTEDATA_MAX][ROUTEDATA_ARRAY_MAX];	// 
-	int		routeIndex;
-	int		routineCntFrame;
-	int		atcCntFrame;
+	int		routeIndex;							// ルートのアドレス番号
+	int		routineCntFrame;					// ルート通過後の経過時間
+	int		atcCntFrame;						// 攻撃後の経過時間
 	bool	routineStart;
 
 }AI;
@@ -44,13 +48,10 @@ HRESULT InitAi(void);
 void NonePlayerMove(void);
 void NonePlayerAttack(void);
 void NonePlayerPatrol(int index);
-
-
 float FuzzyRightUp(float val, float x0, float x1);
 float FuzzyRightDown(float val, float x0, float x1);
 float FuzzyTriangle(float val, float x0, float x1, float x2);
 float FuzzyTrapezoid(float val, float x0, float x1, float x2, float x3);
-
 float And(float a, float b);
 float Or(float a, float b);
 float Not(float a, float b);
