@@ -1,24 +1,17 @@
 //=============================================================================
 //
-// モデル処理 [rightArm.cpp]
+// モデル処理 [RightArm.cpp]
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "rightArm.h"
-#include "camera.h"
-#include "input.h"
-#include "shadow.h"
-#include "debugproc.h"
 #include "player.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
 #define	PLAYER_AIRPLANE		"data/MODEL/model_arm.x"	// 読み込むモデル名
-#define	VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
-#define	RATE_MOVE_PLAYER		(0.20f)						// 移動慣性係数
-#define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.05f)			// 回転速度
-#define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -29,11 +22,11 @@
 // グローバル変数
 //*****************************************************************************
 static LPDIRECT3DTEXTURE9	 D3DTexture;			// テクスチャ読み込み場所
-static LPD3DXMESH			 D3DXMesh;			// ID3DXMeshインターフェイスへのポインタ
-static LPD3DXBUFFER		 D3DXBuffMat;		// メッシュのマテリアル情報を格納
+static LPD3DXMESH			 D3DXMesh;				// ID3DXMeshインターフェイスへのポインタ
+static LPD3DXBUFFER			 D3DXBuffMat;			// メッシュのマテリアル情報を格納
 static DWORD				 NumMat;				// 属性情報の総数
 
-RIGHTARM			rightArm[PLAYER_MAX];
+RIGHTARM					RightArm[PLAYER_MAX];	// 右腕モデル構造体
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -47,8 +40,8 @@ HRESULT InitRightArm(void)
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
-		rightArm[i].pos = D3DXVECTOR3(12.0f, 10.0f, 0.0f);
-		rightArm[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		RightArm[i].pos = D3DXVECTOR3(12.0f, 10.0f, 0.0f);
+		RightArm[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
 
 	// Xファイルの読み込み
@@ -63,13 +56,6 @@ HRESULT InitRightArm(void)
 	{
 		return E_FAIL;
 	}
-
-#if 0
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice,					// デバイスへのポインタ
-		TEXTURE_FILENAME,		// ファイルの名前
-		&D3DTexture);	// 読み込むメモリー
-#endif
 
 	return S_OK;
 }
@@ -104,12 +90,6 @@ void UninitRightArm(void)
 void UpdateRightArm(void)
 {
 
-	// 影の位置設定
-	//SetPositionShadow(nIdxShadow, D3DXVECTOR3(rightArm[i].pos.x, 0.1f, rightArm[i].pos.z));
-
-	//SetVertexShadow(nIdxShadow, fSizeShadow, fSizeShadow);
-	//SetColorShadow(nIdxShadow, colShadow);
-
 }
 
 //=============================================================================
@@ -128,21 +108,21 @@ void DrawRightArm(void)
 		if (player->use)
 		{
 			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&rightArm[i].mtxWorld);
+			D3DXMatrixIdentity(&RightArm[i].mtxWorld);
 
 			// 回転を反映
-			D3DXMatrixRotationYawPitchRoll(&mtxRot, rightArm[i].rot.y, rightArm[i].rot.x, rightArm[i].rot.z);
-			D3DXMatrixMultiply(&rightArm[i].mtxWorld, &rightArm[i].mtxWorld, &mtxRot);
+			D3DXMatrixRotationYawPitchRoll(&mtxRot, RightArm[i].rot.y, RightArm[i].rot.x, RightArm[i].rot.z);
+			D3DXMatrixMultiply(&RightArm[i].mtxWorld, &RightArm[i].mtxWorld, &mtxRot);
 
 			// 移動を反映
-			D3DXMatrixTranslation(&mtxTranslate, rightArm[i].pos.x, rightArm[i].pos.y, rightArm[i].pos.z);
-			D3DXMatrixMultiply(&rightArm[i].mtxWorld, &rightArm[i].mtxWorld, &mtxTranslate);
+			D3DXMatrixTranslation(&mtxTranslate, RightArm[i].pos.x, RightArm[i].pos.y, RightArm[i].pos.z);
+			D3DXMatrixMultiply(&RightArm[i].mtxWorld, &RightArm[i].mtxWorld, &mtxTranslate);
 
 
-			D3DXMatrixMultiply(&rightArm[i].mtxWorld, &rightArm[i].mtxWorld, &player->mtxWorld);
+			D3DXMatrixMultiply(&RightArm[i].mtxWorld, &RightArm[i].mtxWorld, &player->mtxWorld);
 
 			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &rightArm[i].mtxWorld);
+			pDevice->SetTransform(D3DTS_WORLD, &RightArm[i].mtxWorld);
 
 
 			// 現在のマテリアルを取得

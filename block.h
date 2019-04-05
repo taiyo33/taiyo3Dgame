@@ -7,8 +7,6 @@
 #ifndef _BLOCK_H_
 #define _BLOCK_H_
 
-#include "main.h"
-
 //=============================================================================
 //マクロ定義
 //=============================================================================
@@ -26,22 +24,23 @@
 #define BLOCK_NUM_NEARSIDE_OBJ			(126)	// 
 #define BLOCK_NUM_RIGHTSIDE_OBJ			(136)	// 
 #define BLOCK_NUM_FEARSIDE_OBJ			(146)	// 
-#define BLOCK_LEFT_OUTSIDE_OBJ_VTX		(108)	// ポリゴンのナンバリング
-#define BLOCK_NEAR_OUTSIDE_OBJ_VTX		(110)	// ポリゴンのナンバリング
-#define BLOCK_RIGHT_OUTSIDE_OBJ_VTX		(112)	// ポリゴンのナンバリング
-#define BLOCK_FEAR_OUTSIDE_OBJ_VTX		(114)	// ポリゴンのナンバリング
-#define BLOCK_LEFT_INSIDE_OBJ_VTX		(116)	// ポリゴンのナンバリング
-#define BLOCK_NEAR_INSIDE_OBJ_VTX		(118)	// ポリゴンのナンバリング
-#define BLOCK_RIGHT_INSIDE_OBJ_VTX		(120)	// ポリゴンのナンバリング
-#define BLOCK_FEAR_INSIDE_OBJ_VTX		(122)	// ポリゴンのナンバリング
 
+// 障害物ブロックのポリゴン
+#define BLOCK_LEFT_OUTSIDE_OBJ_VTX		(2)		// ポリゴンのナンバリング
+#define BLOCK_NEAR_OUTSIDE_OBJ_VTX		(4)		// ポリゴンのナンバリング
+#define BLOCK_RIGHT_OUTSIDE_OBJ_VTX		(6)		// ポリゴンのナンバリング
+#define BLOCK_FEAR_OUTSIDE_OBJ_VTX		(8)		// ポリゴンのナンバリング
+#define BLOCK_LEFT_INSIDE_OBJ_VTX		(10)	// ポリゴンのナンバリング
+#define BLOCK_NEAR_INSIDE_OBJ_VTX		(12)	// ポリゴンのナンバリング
+#define BLOCK_RIGHT_INSIDE_OBJ_VTX		(14)	// ポリゴンのナンバリング
+#define BLOCK_FEAR_INSIDE_OBJ_VTX		(16)	// ポリゴンのナンバリング
 
-
+//=============================================================================
+// 構造体宣言
+//=============================================================================
 typedef struct {
 	
 	D3DXVECTOR3					pos;		// 現在の位置
-	int							life;		// ブロックの寿命
-	int							textureNum; // テクスチャーの番号
 	bool						use;		// 使用状態
 
 }BLOCK;

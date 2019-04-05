@@ -6,7 +6,6 @@
 //=============================================================================
 #include "main.h"
 #include "buttleGauge.h"
-#include "input.h"
 #include "player.h"
 #include "ball.h"
 

@@ -145,7 +145,6 @@
     <ClCompile Include="gaugeEffect.cpp" />
     <ClCompile Include="head.cpp" />
     <ClCompile Include="input.cpp" />
-    <ClCompile Include="item.cpp" />
     <ClCompile Include="leftArm.cpp" />
     <ClCompile Include="lifeGauge.cpp" />
     <ClCompile Include="light.cpp" />
@@ -179,7 +178,6 @@
     <ClInclude Include="gaugeEffect.h" />
     <ClInclude Include="head.h" />
     <ClInclude Include="input.h" />
-    <ClInclude Include="item.h" />
     <ClInclude Include="leftArm.h" />
     <ClInclude Include="lifeGauge.h" />
     <ClInclude Include="light.h" />

@@ -7,7 +7,9 @@
 #ifndef _BUTTLEGAUGE_H_
 #define _BUTTLEGAUGE_H_
 
-// マクロ定義
+//*****************************************************************************
+// プロトタイプ宣言
+//*****************************************************************************
 #define TEXTURE_BUTTLEGAUGE_OUTER_SIZE_X	 (700)	 // テクスチャサイズ
 #define TEXTURE_BUTTLEGAUGE_OUTER_SIZE_Y	 (350)	 // 
 #define TEXTURE_BUTTLEGAUGE_INNER_SIZE_X	 (680)	 // テクスチャサイズ

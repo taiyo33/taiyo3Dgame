@@ -111,9 +111,6 @@
     <ClCompile Include="lifeGauge.cpp">
       <Filter>ソース ファイル\ui</Filter>
     </ClCompile>
-    <ClCompile Include="item.cpp">
-      <Filter>ソース ファイル\stage</Filter>
-    </ClCompile>
     <ClCompile Include="ai.cpp">
       <Filter>ソース ファイル\npc</Filter>
     </ClCompile>
@@ -211,9 +208,6 @@
     </ClInclude>
     <ClInclude Include="lifeGauge.h">
       <Filter>ヘッダー ファイル\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="item.h">
-      <Filter>ヘッダー ファイル\stage</Filter>
     </ClInclude>
     <ClInclude Include="ai.h">
       <Filter>ヘッダー ファイル\npc</Filter>

@@ -1,30 +1,27 @@
 //=============================================================================
 //
-// ブロック処理 [block.cpp]
+// ブロック処理 [Block.cpp]
 // Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
-#include "block.h"
-#include "camera.h"
-#include "input.h"
-#include "shadow.h"
+#include "main.h"
+#include "Block.h"
 #include "checkhit.h"
 #include "explosion.h"
 #include "bullet.h"
-#include "item.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	BLOCK_MODEL				"data/MODEL/block001.x"	// 読み込むモデル名
+#define	BLOCK_MODEL				"data/MODEL/Block001.x"	// 読み込むモデル名
 #define TEXTURE_MAX				(5)
 #define INIT_POS_X_RIGHTSIDE	(375.0f)	// 右側のブロックの初期X座標
 #define INIT_POS_X_LEFTSIDE		(-375.0f)	// 左側のブロックの初期X座標
 #define INIT_POS_Y				(0.0f)		// ブロックの初期Y座標
 #define INIT_POS_Z_NEARSIDE		(-287.5f)	// 手前のブロックの初期Z座標
 #define INIT_POS_Z_FEARSIDE		(287.5f)	// 奥のブロックの初期Z座標
-#define BLOCK_ONEUNIT_SIDEOBJ_NUM	(9)			// 横1纏まりのブロック数
-#define BLOCK_ONEUNIT_DEPTHOBJ_NUM	(11)			// 縦1纏まりのブロック数
+#define BLOCK_ONEUNIT_SIDEOBJ_NUM	(9)		// 横1纏まりのブロック数
+#define BLOCK_ONEUNIT_DEPTHOBJ_NUM	(11)	// 縦1纏まりのブロック数
 
 #define BLOCK_VERTEX			(4)			// 
 #define VTX_SIZE_X				(355.0f)	// 頂点のX軸サイズ
@@ -44,8 +41,7 @@ void InitVertexBlock(void);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9		D3DTextureBlock[TEXTURE_MAX] = { 
-									NULL,NULL,NULL,NULL,NULL }; // テクスチャ読み込み場所
+LPDIRECT3DTEXTURE9		D3DTextureBlock;	// テクスチャ読み込み場所
 LPD3DXMESH				D3DXMeshBlock;		// ID3DXMeshBlockインターフェイスへのポインタ
 LPD3DXBUFFER			D3DXBuffMatBlock;	// メッシュのマテリアル情報を格納
 DWORD					NumMat;				// 属性情報の総数
@@ -53,7 +49,7 @@ LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBlock;	// 頂点バッファへのポインタ
 D3DXMATRIX				MtxWorld;			// ワールドマトリックス
 D3DXMATRIX				MtxWorldVtx;		// ワールドマトリックス
 static int				TextureNum;			// テクスチャーの番号
-BLOCK					block[BLOCK_MAX];	// ブロック構造体
+BLOCK					Block[BLOCK_MAX];	// ブロック構造体
 
 //=============================================================================
 // 初期化処理
@@ -73,8 +69,7 @@ HRESULT InitBlock(int type)
 
 	for (int i = 0; i < BLOCK_MAX; i++)
 	{
-		block[i].use = true;		// 使用へ初期化
-		block[i].life = INIT_LIFE;	// ライフの初期化
+		Block[i].use = true;
 	}
 
 	D3DXMeshBlock = NULL;			// インターフェースの初期化
@@ -114,13 +109,10 @@ void UninitBlock(void)
 		D3DXBuffMatBlock = NULL;
 	}
 
-	for (int i = 0; i < TEXTURE_MAX; i++)
-	{
-		if (D3DTextureBlock[i] != NULL)
-		{// テクスチャの開放
-			D3DTextureBlock[i]->Release();
-			D3DTextureBlock[i] = NULL;
-		}
+	if (D3DTextureBlock != NULL)
+	{// テクスチャの開放
+		D3DTextureBlock->Release();
+		D3DTextureBlock = NULL;
 	}
 }
 
@@ -144,13 +136,13 @@ void DrawBlock(void)
 
 	for (int i = 0; i < BLOCK_MAX; i++)
 	{
-		if (block[i].use)
+		if (Block[i].use)
 		{
 			// ワールドマトリックスの初期化
 			D3DXMatrixIdentity(&MtxWorld);
 
 			// 移動を反映
-			D3DXMatrixTranslation(&mtxTranslate, block[i].pos.x, block[i].pos.y, block[i].pos.z);
+			D3DXMatrixTranslation(&mtxTranslate, Block[i].pos.x, Block[i].pos.y, Block[i].pos.z);
 			D3DXMatrixMultiply(&MtxWorld, &MtxWorld, &mtxTranslate);
 
 			// ワールドマトリックスの設定
@@ -168,7 +160,7 @@ void DrawBlock(void)
 				pDevice->SetMaterial(&pD3DXMat[nCntMat].MatD3D);
 
 				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTextureBlock[TextureNum]);
+				pDevice->SetTexture(0, D3DTextureBlock);
 
 				// 描画
 				D3DXMeshBlock->DrawSubset(nCntMat);
@@ -187,7 +179,7 @@ void DrawBlock(void)
 			//pDevice->SetFVF(FVF_VERTEX_3D);
 
 			//// テクスチャの設定
-			//pDevice->SetTexture(0, D3DTextureBlock[0]);
+			//pDevice->SetTexture(0, D3DTextureBlock);
 
 			//// ポリゴンの描画
 			//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
@@ -202,7 +194,7 @@ void DrawBlock(void)
 //=============================================================================
 BLOCK *GetBlock(int bno)
 {
-	return &block[bno];
+	return &Block[bno];
 }
 
 //=============================================================================
@@ -218,71 +210,71 @@ void SetPosBlock(void)
 	// フィールド周囲のブロック配置
 		for (i = 0; i < BLOCK_NUM_LEFTSIDE; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, INIT_POS_Z_FEARSIDE - size);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE, INIT_POS_Y, INIT_POS_Z_FEARSIDE - size);
 		}
 
 		size = BLOCK_SIZE;
 
 		for (i = BLOCK_NUM_LEFTSIDE; i < BLOCK_NUM_NEARSIDE; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + size, INIT_POS_Y, INIT_POS_Z_NEARSIDE);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + size, INIT_POS_Y, INIT_POS_Z_NEARSIDE);
 		}
 
 		size = 0.0f;
 
 		for (i = BLOCK_NUM_NEARSIDE; i < BLOCK_NUM_RIGHTSIDE; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE, INIT_POS_Y, INIT_POS_Z_NEARSIDE + size);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE, INIT_POS_Y, INIT_POS_Z_NEARSIDE + size);
 		}
 
 		size = BLOCK_SIZE;
 
 		for (i = BLOCK_NUM_RIGHTSIDE; i < BLOCK_NUM_FEARSIDE; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - size, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - size, INIT_POS_Y, INIT_POS_Z_FEARSIDE);
 		}
 	
 
-	// 障害物ブロック配置
+		// 障害物ブロック配置
 	
 		size = 0.0f;
 		for (i = BLOCK_NUM_FEARSIDE; i < BLOCK_NUM_LEFTSIDE_OBJ - 5; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + 170.0f, INIT_POS_Y, INIT_POS_Z_FEARSIDE - 125.0f - size);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + 170.0f, INIT_POS_Y, INIT_POS_Z_FEARSIDE - 125.0f - size);
 		}
 		for (i = BLOCK_NUM_LEFTSIDE_OBJ - 5; i < BLOCK_NUM_LEFTSIDE_OBJ; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + 170.0f, INIT_POS_Y, INIT_POS_Z_FEARSIDE - 225.0f - size);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + 170.0f, INIT_POS_Y, INIT_POS_Z_FEARSIDE - 225.0f - size);
 		}
 
 		size = 0.0f;
 		for (i = BLOCK_NUM_LEFTSIDE_OBJ; i < BLOCK_NUM_NEARSIDE_OBJ - 5; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + 195.0f + size, INIT_POS_Y, INIT_POS_Z_NEARSIDE + 125.0f);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + 195.0f + size, INIT_POS_Y, INIT_POS_Z_NEARSIDE + 125.0f);
 		}
 		for (i = BLOCK_NUM_NEARSIDE_OBJ - 5; i < BLOCK_NUM_NEARSIDE_OBJ; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + 320.0f + size, INIT_POS_Y, INIT_POS_Z_NEARSIDE + 125.0f);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_LEFTSIDE + 320.0f + size, INIT_POS_Y, INIT_POS_Z_NEARSIDE + 125.0f);
 		}
 
 		size = 0.0f;
 		for (i = BLOCK_NUM_NEARSIDE_OBJ; i < BLOCK_NUM_RIGHTSIDE_OBJ - 5; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - 180.0f, INIT_POS_Y, INIT_POS_Z_NEARSIDE + 125.0f + size);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - 180.0f, INIT_POS_Y, INIT_POS_Z_NEARSIDE + 125.0f + size);
 		}
 		for (i = BLOCK_NUM_RIGHTSIDE_OBJ - 5; i < BLOCK_NUM_RIGHTSIDE_OBJ; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - 180.0f, INIT_POS_Y, INIT_POS_Z_NEARSIDE + 225.0f + size);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - 180.0f, INIT_POS_Y, INIT_POS_Z_NEARSIDE + 225.0f + size);
 		}
 
 		size = 0.0f;
 		for (i = BLOCK_NUM_RIGHTSIDE_OBJ; i < BLOCK_NUM_FEARSIDE_OBJ - 5; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - 205.0f - size, INIT_POS_Y, INIT_POS_Z_FEARSIDE - 125.0f);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - 205.0f - size, INIT_POS_Y, INIT_POS_Z_FEARSIDE - 125.0f);
 		}
 		for (i = BLOCK_NUM_FEARSIDE_OBJ - 5; i < BLOCK_NUM_FEARSIDE_OBJ; i++, size += BLOCK_SIZE)
 		{
-			block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - 330.0f - size, INIT_POS_Y, INIT_POS_Z_FEARSIDE - 125.0f);
+			Block[i].pos = D3DXVECTOR3(INIT_POS_X_RIGHTSIDE - 330.0f - size, INIT_POS_Y, INIT_POS_Z_FEARSIDE - 125.0f);
 		}
 
 }
@@ -312,6 +304,8 @@ HRESULT MakeVertexBlock(LPDIRECT3DDEVICE9 pDevice)
 
 //============================================================================
 // ブロックの頂点作成
+// 引　数：な　し
+// 戻り値：な　し
 //============================================================================
 void InitVertexBlock(void)
 {
@@ -325,13 +319,12 @@ void InitVertexBlock(void)
 		D3DVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
 
 		// フィールド周囲のブロック
-		for (i = 0; i < BLOCK_NUM_LEFTSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
-			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z - size);
-			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z + BLOCK_SIZE - size);
-			pVtx[2].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z - size);
-			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z + BLOCK_SIZE - size);
+			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z);
+			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z);
+			pVtx[2].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, -VTX_SIZE_Z);
+			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
 
 			// 法線ベクトルの設定
 			pVtx[0].nor = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
@@ -351,16 +344,13 @@ void InitVertexBlock(void)
 			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 		}
-
-		size = BLOCK_SIZE;
-
-		for (i = BLOCK_NUM_LEFTSIDE; i < BLOCK_NUM_NEARSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
+		pVtx += 4;
 		{
 			// 頂点座標の設定
-			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X - BLOCK_SIZE + size, VTX_SIZE_Y, -VTX_SIZE_Z);
-			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X + size, VTX_SIZE_Y, -VTX_SIZE_Z);
-			pVtx[2].vtx = D3DXVECTOR3(-VTX_SIZE_X - BLOCK_SIZE + size, 0.0f, -VTX_SIZE_Z);
-			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X + size, 0.0f, -VTX_SIZE_Z);
+			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z);
+			pVtx[1].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z);
+			pVtx[2].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, -VTX_SIZE_Z);
+			pVtx[3].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, -VTX_SIZE_Z);
 
 			// 法線ベクトルの設定
 			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
@@ -379,18 +369,14 @@ void InitVertexBlock(void)
 			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
 			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
 		}
-
-		size = 0.0f;
-
-		for (i = BLOCK_NUM_NEARSIDE; i < BLOCK_NUM_RIGHTSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
+		pVtx += 4;
 		{
 			// 頂点座標の設定
-			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z + size);
-			pVtx[1].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z - BLOCK_SIZE + size);
-			pVtx[2].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, -VTX_SIZE_Z + size);
-			pVtx[3].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, -VTX_SIZE_Z - BLOCK_SIZE + size);
+			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z);
+			pVtx[1].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, -VTX_SIZE_Z);
+			pVtx[2].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
+			pVtx[3].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, -VTX_SIZE_Z);
 
 			// 法線ベクトルの設定
 			pVtx[0].nor = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
@@ -410,16 +396,13 @@ void InitVertexBlock(void)
 			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 		}
-
-		size = BLOCK_SIZE;
-
-		for (i = BLOCK_NUM_RIGHTSIDE; i < BLOCK_NUM_FEARSIDE; i++, pVtx += 4, size += BLOCK_SIZE)
+		pVtx += 4;
 		{
 			// 頂点座標の設定
-			pVtx[0].vtx = D3DXVECTOR3(VTX_SIZE_X - size, VTX_SIZE_Y, VTX_SIZE_Z);
-			pVtx[1].vtx = D3DXVECTOR3(VTX_SIZE_X + BLOCK_SIZE - size, VTX_SIZE_Y, VTX_SIZE_Z);
-			pVtx[2].vtx = D3DXVECTOR3(VTX_SIZE_X - size, 0.0f, VTX_SIZE_Z);
-			pVtx[3].vtx = D3DXVECTOR3(VTX_SIZE_X + BLOCK_SIZE - size, 0.0f, VTX_SIZE_Z);
+			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z);
+			pVtx[1].vtx = D3DXVECTOR3(VTX_SIZE_X, VTX_SIZE_Y, VTX_SIZE_Z);
+			pVtx[2].vtx = D3DXVECTOR3(-VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
+			pVtx[3].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
 
 			// 法線ベクトルの設定
 			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
@@ -441,8 +424,7 @@ void InitVertexBlock(void)
 		}
 
 		// 障害物ブロック配置
-		size = 0.0f;
-		for (i = BLOCK_NUM_FEARSIDE; i < BLOCK_LEFT_OUTSIDE_OBJ_VTX; i++, pVtx += 4, size += BLOCK_SIZE)
+		for (i = 0; i < BLOCK_LEFT_OUTSIDE_OBJ_VTX; i++, pVtx += 4, size += BLOCK_SIZE)
 		{
 			// 頂点座標の設定
 			pVtx[0].vtx = D3DXVECTOR3(-VTX_SIZE_X + 140.0f, VTX_SIZE_Y, VTX_SIZE_Z - 225.0f - size * BLOCK_ONEUNIT_SIDEOBJ_NUM);
@@ -667,8 +649,9 @@ void InitVertexBlock(void)
 
 //=============================================================================
 // ブロックの透明ポリゴンとの当たり判定
-// pos0:始点（移動前）
-// pos1:終点（移動後）
+// 引　数：D3dXVECTOR3 pos0(移動前), D3DXVECTOR3 pos1(移動後), 
+//		   int max(ループカウントの最大数)
+// 戻り値：bool型
 //=============================================================================
 bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, int max)
 {
@@ -681,7 +664,7 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, int max)
 
 	for (int i = 0; i < max; i++, pVtx += 4)
 	{
-		if (block[i].use)
+		if (Block[i].use)
 		{
 			// 頂点座標の設定
 			pos[0] = pVtx[0].vtx;
@@ -711,83 +694,62 @@ bool HitCheckBlock(D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, int max)
 }
 
 //=============================================================================
-// 4つ角との当たり判定
+// 各ブロックの端との当たり判定
 // 引　数：D3DXVECTOR3 pos0(判定対象の位置）
 // 戻り値：bool型　trueだと当たっている、falseだと当たっていない
 //=============================================================================
 bool HitCheckCornerBlock(D3DXVECTOR3 pos0)
 {
 	// 外枠
-	if (CheckHitBB(pos0, block[0].pos,
+	if (CheckHitBB(pos0, Block[0].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_LEFTSIDE].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_NEARSIDE].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_NEARSIDE].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_RIGHTSIDE].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(20.0f, 25.0f, 20.0f))) return true;
 
 	// 障害物
-	if (CheckHitBB(pos0, block[BLOCK_NUM_FEARSIDE].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_FEARSIDE].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE_OBJ - 1].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_LEFTSIDE_OBJ - 1].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_NEARSIDE_OBJ].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_NEARSIDE_OBJ].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE_OBJ - 1].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_RIGHTSIDE_OBJ - 1].pos,
 		D3DXVECTOR3(25.0f, 100.0f, 25.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f))) return true;
 
 	// 各中央入口のブロック
-	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE_OBJ - 5].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_LEFTSIDE_OBJ - 5].pos,
 		D3DXVECTOR3(20.0f, 100.0f, 5.0f), D3DXVECTOR3(10.0f, 10.0f, 5.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_LEFTSIDE_OBJ - 6].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_LEFTSIDE_OBJ - 6].pos,
 		D3DXVECTOR3(20.0f, 100.0f, 5.0f), D3DXVECTOR3(10.0f, 10.0f, 5.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_NEARSIDE_OBJ - 5].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_NEARSIDE_OBJ - 5].pos,
 		D3DXVECTOR3(5.0f, 100.0f, 20.0f), D3DXVECTOR3(50.0f, 10.0f, 10.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_NEARSIDE_OBJ - 6].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_NEARSIDE_OBJ - 6].pos,
 		D3DXVECTOR3(5.0f, 100.0f, 20.0f), D3DXVECTOR3(50.0f, 10.0f, 10.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE_OBJ - 5].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_RIGHTSIDE_OBJ - 5].pos,
 		D3DXVECTOR3(20.0f, 100.0f, 5.0f), D3DXVECTOR3(10.0f, 10.0f, 5.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_RIGHTSIDE_OBJ - 6].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_RIGHTSIDE_OBJ - 6].pos,
 		D3DXVECTOR3(20.0f, 100.0f, 5.0f), D3DXVECTOR3(10.0f, 10.0f, 5.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_FEARSIDE_OBJ - 5].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_FEARSIDE_OBJ - 5].pos,
 		D3DXVECTOR3(5.0f, 100.0f, 20.0f), D3DXVECTOR3(50.0f, 10.0f, 10.0f))) return true;
 
-	if (CheckHitBB(pos0, block[BLOCK_NUM_FEARSIDE_OBJ - 6].pos,
+	if (CheckHitBB(pos0, Block[BLOCK_NUM_FEARSIDE_OBJ - 6].pos,
 		D3DXVECTOR3(5.0f, 100.0f, 20.0f), D3DXVECTOR3(50.0f, 10.0f, 10.0f))) return true;
 
 	return false;
-}
-
-//================================================================================
-// ブロックへのダメージ処理
-// 引　数：int bno(ブロックのアドレス番号)
-// 戻り値：なし
-//================================================================================
-void BlockDamageManager(int bno)
-{
-	block[bno].life -= BLOCK_DAMAGE;
-
-	if (block[bno].life == 3)
-	{
-		//TextureNum = TEX_TYPE02;
-	}
-	else if (block[bno].life == 0)
-	{
-		block[bno].use = false;
-		SetExplosion(block[bno].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0.0f);
-		SetItem(block[bno].pos);
-	}
 }

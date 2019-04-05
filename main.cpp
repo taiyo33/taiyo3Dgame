@@ -5,12 +5,8 @@
 //
 //=============================================================================
 #include "main.h"
-#include "input.h"
 #include "light.h"
-#include "camera.h"
 #include "player.h"
-#include "shadow.h"
-#include "debugproc.h"
 #include "hitEffect.h"
 #include "bullet.h"
 #include "title.h"
@@ -27,7 +23,6 @@
 #include "block.h"
 #include "bulletGauge.h"
 #include "lifeGauge.h"
-#include "item.h"
 #include "ball.h"
 #include "ai.h"
 #include "buttleGauge.h"
@@ -340,9 +335,6 @@ void Uninit(void)
 	// デバッグ表示処理の終了処理
 	UninitDebugProc();
 
-	// 影の終了処理
-	UninitShadow();
-
 	// バレットの終了処理
 	UninitBullet();
 
@@ -387,9 +379,6 @@ void Uninit(void)
 
 	// ライフゲージの終了処理
 	UninitLifeGauge();
-
-	// アイテムの終了処理
-	UninitItem();
 
 	// 子供モデルの終了処理
 	UninitBall();
@@ -478,9 +467,6 @@ void Update(void)
 				// フィールドの更新
 				UpdateField();
 
-				// 影処理の更新
-				UpdateShadow();
-
 				// カメラ更新
 				UpdateCamera();
 
@@ -516,9 +502,6 @@ void Update(void)
 
 				// バレットの更新
 				UpdateBullet();
-
-				// アイテムの更新
-				UpdateItem();
 
 				// 時間の更新
 				UpdateTime();
@@ -664,12 +647,6 @@ void Draw(void)
 
 				// ブロックの描画
 				DrawBlock();
-
-				// アイテムの描画
-				DrawItem();
-
-				// 影処理の描画
-				DrawShadow();
 
 				// バレットの描画
 				DrawBullet();
@@ -902,9 +879,6 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	// カメラの初期化
 	InitCamera();
 
-	// 影の初期化
-	InitShadow(0);
-
 	// プレイヤーの初期化
 	InitPlayer(0);
 
@@ -953,9 +927,6 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	// ライフゲージの初期化
 	InitLifeGauge(0);
 
-	// アイテムの初期化
-	InitItem(0);
-
 	// 子供モデルの初期化
 	InitBall();
 
@@ -991,9 +962,6 @@ void InitGame(void)
 
 	// カメラの初期化
 	InitCamera();
-
-	// 影の初期化
-	InitShadow(INIT_GAME);
 
 	// プレイヤーの初期化
 	InitPlayer(INIT_GAME);
@@ -1042,9 +1010,6 @@ void InitGame(void)
 
 	// ライフゲージの初期化
 	InitLifeGauge(INIT_GAME);
-
-	// アイテムの初期化
-	InitItem(INIT_GAME);
 
 	// 子供モデルの初期化
 	InitBall();

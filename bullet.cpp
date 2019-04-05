@@ -395,7 +395,7 @@ void CheckReflection(int index, int bno)
 	BULLET *bullet = &BulletWk[index];
 
 	// バレットとブロックの当たり判定
-	if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno], BLOCK_VTX_MAX))
+	if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno], 6))
 	{
 		PlaySound(bullet->ReflectSE, E_DS8_FLAG_NONE);
 		bullet->refVec[bno] = ReflectVector(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno], GetNormal());
