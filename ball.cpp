@@ -4,6 +4,7 @@
 // Author : GP11A341_22_田中太陽
 //
 //=============================================================================
+#include "main.h"
 #include "ball.h"
 #include "bullet.h"
 #include "player.h"
@@ -19,10 +20,9 @@
 #define	BALL_MODEL01		"data/MODEL/ball01.x"				// 読み込むモデル名
 #define	BALL_MODEL02		"data/MODEL/ball02.x"				// 読み込むモデル名
 
-#define RATE_MOVE_BALL		(0.20f)
-#define BALL_SIZE			(17.0f)					// モデルサイズ
-#define CENTER_PULL_BALL	(25.0f)
-
+#define RATE_MOVE_BALL		(0.20f)				// 移動速度
+#define BALL_SIZE			(17.0f)				// モデルサイズ
+#define BALL_FALL_SPEED	(5.0f)					// 落下速度
 
 enum BALLMODEL{
 	MODEL_TYPE001,
@@ -34,34 +34,29 @@ enum BALLMODEL{
 //*****************************************************************************
 void MoveBall(int index, int cno);
 void ChaseBall(int index, int cno);
-void InitPosBall(void);
-void WallShearBall(int index, int cno);
-void CheckNorBall(D3DXVECTOR3 nor0, int index, int cno);
-
-void AlignmentBall(int index, int cno);
-void ChesionBall(int index, int cno);
-void SeparationBall(int index, int cno);
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static LPDIRECT3DTEXTURE9	D3DTexture;		// テクスチャへのポインタ
+static LPDIRECT3DTEXTURE9	D3DTexture = NULL;					// テクスチャへのポインタ
 static LPD3DXMESH			D3DMesh[BALL_SET_MAX];		// メッシュ情報へのポインタ
 static LPD3DXBUFFER			D3DXBuffMat[BALL_SET_MAX];	// マテリアル情報へのポインタ
-static DWORD				NumMat[BALL_SET_MAX];			// マテリアル情報の数
+static DWORD				NumMat[BALL_SET_MAX];		// マテリアル情報の数
 
-
-static D3DXMATRIX			MtxWorld;				// ワールドマトリックス
-BALL						ballWk[BALL_SET_MAX];
-//=============================================================================
+static D3DXMATRIX			MtxWorld;					// ワールドマトリックス
+BALL						BallWk[BALL_SET_MAX];		// ボール構造体
+//===============================================================================
 // 初期化処理
-//=============================================================================
+// 引　数：int type(再初期化の2数判定値)
+// 戻り値：HRESULT型
+//===============================================================================
 HRESULT InitBall(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	BALL *ball = &ballWk[0];
+	BALL *ball = &BallWk[0];
 	PLAYER *player = GetPlayer(0);
 
+	// 各変数の初期化
 	for (int i = 0; i < BALL_SET_MAX; i++)
 	{
 		D3DMesh[i] = NULL;
@@ -86,9 +81,6 @@ HRESULT InitBall(void)
 			ball[i].use[k] = true;
 		}
 	}
-
-
-	D3DTexture = NULL;
 
 	// Xファイルの読み込み
 	{
@@ -153,7 +145,7 @@ void UninitBall(void)
 //=============================================================================
 void UpdateBall(void)
 {
-	BALL *ball = &ballWk[0];
+	BALL *ball = &BallWk[0];
 	PLAYER *player = GetPlayer(0);
 
 	for (int i = 0; i < BALL_SET_MAX; i++)
@@ -162,27 +154,23 @@ void UpdateBall(void)
 		{
 			if (ball[i].use[j])
 			{
+				// 過去の位置を保存
 				ball[i].prevPos[j] = ball[i].pos[j];
-
+				
+				// フィールドへ落下
 				if (ball[i].pos[j].y > 10.0f)
 				{
-					ball[i].pos[j].y -= PLAYER_FALL_SPEED;
+					ball[i].pos[j].y -= BALL_FALL_SPEED;
 				}
 
-				if (ball[i].pos[j].y > 0.0f)
+				// フィールド上での動き
+				if (ball[i].pos[j].y > 10.0f)
 				{
 					// 追跡
 					ChaseBall(i, j);
 					// 移動
 					MoveBall(i, j);
 				}
-
-				//// 壁ずり
-				//WallShearBall(i, j);
-
-				//AlignmentBall(i, j);
-				//ChesionBall(i, j);
-				//SeparationBall(i, j);
 			}
 		}
 	}
@@ -197,7 +185,7 @@ void DrawBall(void)
 	D3DXMATRIX mtxScl, mtxRot, mtxTranslate;
 	D3DXMATERIAL *pD3DXMat;
 	D3DMATERIAL9 matDef;
-	BALL *ball = &ballWk[0];
+	BALL *ball = &BallWk[0];
 
 	for (int i = 0; i < BALL_SET_MAX; i++)
 	{
@@ -252,14 +240,13 @@ void DrawBall(void)
 }
 
 //========================================================================
-// ボールの反射回数判定処理
-// 引　数：int index(組ボールのアドレス), int blockNo(ブロックのアドレス)
-//		   D3DXVECTOR3 pos(対象ボールの位置)
-// 戻り値：bool型　trueであれば、falseならば消滅
+// ボールのアドレス取得
+// 引　数：int index(組ボールのアドレス)
+// 戻り値：BALL型
 //========================================================================
 BALL *GetBall(int index)
 {
-	return &ballWk[index];
+	return &BallWk[index];
 }
 
 //========================================================================
@@ -269,11 +256,12 @@ BALL *GetBall(int index)
 //========================================================================
 void ComprareBall(void)
 {
-	BALL *ball = &ballWk[0]; 
+	BALL *ball = &BallWk[0]; 
 	PLAYER *player = GetPlayer(0);
 	int max = 0;
 	int index = 0;
 
+	// 所持数の比較
 	for (int i = 0; i < BALL_SET_MAX; i++)
 	{
 		max = max(ball[i].cnt, max);
@@ -283,10 +271,13 @@ void ComprareBall(void)
 		}
 	}
 
+	// ゲームモードによるアイコン変更
+	// NPCモード
 	if (player[index].npc)
 	{
 		max == ball[index].cnt ? SetResult(index, index) : SetResult(index, NPC);
 	}
+	// P2モード
 	else
 	{
 		max == ball[index].cnt ? SetResult(index, index) : SetResult(index, index);
@@ -294,33 +285,13 @@ void ComprareBall(void)
 }
 
 //========================================================================
-// ボールのダメージ判定処理
-// 引　数：int index(組ボールのアドレス), int blockNo(ブロックのアドレス)
-//		   D3DXVECTOR3 pos(対象ボールの位置)
-// 戻り値：bool型　trueであれば、falseならば消滅
-//========================================================================
-void InitPosBall(void)
-{
-	BALL *ball = &ballWk[0];
-
-	for (int i = 0; i < BALL_ONESET_MAX; i++)
-	{
-		ball[0].pos[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		ball[1].pos[i] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	}
-}
-
-//========================================================================
 // ボールの移動処理
-// 引　数：int index(組ボールのアドレス), int blockNo(ブロックのアドレス)
-// 戻り値：bool型　trueであれば、falseならば消滅
+// 引　数：int index(組ボールのアドレス), int cno(ボール単体のアドレス)
+// 戻り値：な　し
 //========================================================================
 void MoveBall(int index, int cno)
 {
-	BALL *ball = &ballWk[index];
-
-	//ball->move[cno].x = ball->move[cno].x + (ball->v1[cno].x * 0.1f) + (ball->v2[cno].x * 1.0f) + (ball->v3[cno].x * 0.8f);
-	//ball->move[cno].z = ball->move[cno].z + (ball->v1[cno].z * 0.1f) + (ball->v2[cno].z * 1.0f) + (ball->v3[cno].z * 0.8f);
+	BALL *ball = &BallWk[index];
 
 	// 移動量に慣性をかける
 	ball->move[cno].x += (0.0f - ball->move[cno].x) * RATE_MOVE_BALL;
@@ -332,10 +303,6 @@ void MoveBall(int index, int cno)
 	ball->pos[cno].y += ball->move[cno].y;
 	ball->pos[cno].z += ball->move[cno].z;
 
-	//ball->v1[cno] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	//ball->v2[cno] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	//ball->v3[cno] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
 }
 
 //============================================================================
@@ -345,42 +312,27 @@ void MoveBall(int index, int cno)
 //============================================================================
 void ChaseBall(int index, int cno)
 {
-	BALL *ball = &ballWk[index];
+	BALL *ball = &BallWk[index];
 	PLAYER *player = GetPlayer(index);
 	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
-	 // プレイヤーと子供の先頭アドレス番号の追従
-	//if (cno % 4 == 0)
+	// 追従ベクトルの計算
+	vec = player->pos - ball->pos[cno];
+	D3DXVec3Normalize(&vec, &vec);
+	// プレイヤーが範囲外に移動した場合追従
+	if (!CheckHitBC(player->pos, ball->pos[cno], BALL_SIZE, BALL_SIZE))
 	{
-		// 追従ベクトルの計算
-		vec = player->pos - ball->pos[cno];
-		D3DXVec3Normalize(&vec, &vec);
-		// プレイヤーが範囲外に移動した場合追従
-		if (!CheckHitBC(player->pos, ball->pos[cno], BALL_SIZE, BALL_SIZE))
-		{
-			ball->move[cno].x = vec.x * 5.0f;
-			ball->move[cno].z = vec.z * 5.0f;
-		}
+		ball->move[cno].x = vec.x * 5.0f;
+		ball->move[cno].z = vec.z * 5.0f;
 	}
-	// 子供同士の追従
-	//else
-	//{
-	//	// 追従ベクトルの計算
-	//	vec = ball->pos[cno - 1] - ball->pos[cno];
-	//	D3DXVec3Normalize(&vec, &vec);
-	//	// 前アドレスの子供が範囲外に移動した場合追従
-	//	if (!CheckHitBC(ball->pos[cno], ball->pos[cno - 1], BALL_SIZE, BALL_SIZE))
-	//	{
-	//		ball->move[cno].x = vec.x * 5.0f;
-	//		ball->move[cno].z = vec.z * 5.0f;
-	//	}
-	//}
 
+	// ボール同士の離散処理
 	for (int i = 0; i < BALL_ONESET_MAX; i++)
 	{
 		if (!ball->use[i]) continue;
 		if (CheckHitBC(ball->pos[cno], ball->pos[i], BALL_SIZE, BALL_SIZE))
 		{
+			// 重なり合うボールと逆方向ベクトルへ
 			ball->vec[cno] = ball->pos[cno] - ball->pos[i];
 			D3DXVec3Normalize(&ball->vec[cno], &ball->vec[cno]);
 			ball->move[cno].x = (ball->move[cno].x + ball->vec[cno].x);
@@ -389,55 +341,14 @@ void ChaseBall(int index, int cno)
 	}
 }
 
-//==========================================================================
-// 壁ずりのすり抜け予防処理(ブロック使用中にマップ外へ出ないように)
-// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
-// 戻り値：な　し
-//==========================================================================
-void WallShearBall(int index, int cno)
-{
-	BALL *ball = &ballWk[index];
-	PLAYER *player = GetPlayer(index);
-	if (!HitCheckBlock(ball->prevPos[cno] + ball->move[cno], ball->prevPos[cno], BLOCK_VTX_MAX))
-	{
-		ball->move[cno] = WallShear(ball->pos[cno] + ball->move[cno], GetNormal(), index);
-		CheckNorBall(GetNormal(), index, cno);
-	}
-}
-
-//==========================================================================
-// 壁ずりのすり抜け予防処理(ブロック使用中にマップ外へ出ないように)
-// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
-// 戻り値：な　し
-//==========================================================================
-void CheckNorBall(D3DXVECTOR3 nor0, int index, int cno)
-{
-	BALL *ball = &ballWk[index];
-
-	// 法線がX軸方向なら
-	if (nor0.x != 0.0f)
-	{
-		ball->move[cno].x = 0.0f;
-		ball->pos[cno].x = ball->prevPos[cno].x;
-		return;
-	}
-	// 法線がZ軸方向なら
-	if (nor0.z != 0.0f)
-	{
-		ball->move[cno].z = 0.0f;
-		ball->pos[cno].z = ball->prevPos[cno].z;
-		return;
-	}
-}
-
 //=========================================================================
-// ボールの増加
-// 引　数：D3DXVECTOR3 pos(位置)、int index(ボールのアドレス番号)
-// 戻り値：bool型　未使用の場合 true、使用中の場合 false
+// ボールの発生処理
+// 引　数：int index(組ボールのアドレス番号)
+// 戻り値：な　し
 //=========================================================================
 void SetBall(int index)
 {
-	BALL *ball = &ballWk[index];
+	BALL *ball = &BallWk[index];
 
 	for (int i = 0; i < BALL_ONESET_MAX; i++)
 	{
@@ -460,28 +371,6 @@ void SetBall(int index)
 }
 
 //=========================================================================
-// ボールの増加
-// 引　数：D3DXVECTOR3 pos(位置)、int index(ボールのアドレス番号)
-// 戻り値：bool型　未使用の場合 true、使用中の場合 false
-//=========================================================================
-void SetInitPosBall(void)
-{
-	BALL *ball = &ballWk[0];
-	PLAYER *player = GetPlayer(0);
-
-	for (int i = 0; i < BALL_SET_MAX; i++)
-	{
-		for (int j = 0; j < BALL_ONESET_MAX / 2; j++)
-		{
-			// 位置・回転・スケールの初期設定
-			ball[i].pos[j].x = player[i].pos.x + rand() % 50;
-			ball[i].pos[j].y = player[i].pos.y;
-			ball[i].pos[j].z = player[i].pos.z + rand() % 50;
-		}
-	}
-}
-
-//=========================================================================
 // ボールのダメージ判定処理
 // 引　数：int index00(ダメージを受けたボールのアドレス)、
 //		   int index01(ダメージを与えた相手のアドレス)、int bno(組バレットのアドレス)
@@ -491,6 +380,7 @@ void DamageBall(int index00, int index01, int bno)
 {
 	BALL *ball = GetBall(0);
 	BULLET *bullet = GetBullet(0);
+
 	for (int j = 0; j < BALL_ONESET_MAX; j++)
 	{
 		if (!ball[index00].use[j]) continue;
@@ -507,67 +397,23 @@ void DamageBall(int index00, int index01, int bno)
 	}
 }
 
-// 整列
-void AlignmentBall(int index, int cno)
+//=========================================================================
+// ボールの位置初期化処理
+// 引　数：int index(ボールのアドレス番号)
+// 戻り値：bool型　未使用の場合 true、使用中の場合 false
+//=========================================================================
+void SetInitPosBall(void)
 {
-	BALL *ball = &ballWk[index];
-	PLAYER *player = GetPlayer(index);
+	BALL *ball = &BallWk[0];
+	PLAYER *player = GetPlayer(0);
 
-	for (int i = 0; i < BALL_ONESET_MAX; i++)
+	for (int i = 0; i < BALL_SET_MAX; i++)
 	{
-		if (cno == i) continue;
-		ball->v1[cno].x += ball->move[i].x;
-		ball->v1[cno].z += ball->move[i].z;
-	}
-	ball->v1[cno].x += player->move.x;
-	ball->v1[cno].z += player->move.z;
-
-	ball->v1[cno].x /= (BALL_ONESET_MAX);
-	ball->v1[cno].z /= (BALL_ONESET_MAX);
-
-
-	ball->v1[cno].x = (ball->v1[cno].x - ball->move[cno].x) / 2;
-	ball->v1[cno].z = (ball->v1[cno].z - ball->move[cno].z) / 2;
-
-}
-
-// 結合
-void ChesionBall(int index, int cno)
-{
-	BALL *ball = &ballWk[index];
-	PLAYER *player = GetPlayer(index);
-
-	for (int i = 0; i < BALL_ONESET_MAX; i++)
-	{
-		if (cno == i) continue;
-		ball->v2[cno].x += ball->pos[i].x;
-		ball->v2[cno].z += ball->pos[i].z;
-	}
-
-	ball->v2[cno].x += player->pos.x;
-	ball->v2[cno].z += player->pos.z;
-
-	ball->v2[cno].x /= (BALL_ONESET_MAX);
-	ball->v2[cno].z /= (BALL_ONESET_MAX);
-
-	ball->v2[cno].x = (ball->v2[cno].x - ball->pos[cno].x) / CENTER_PULL_BALL;
-	ball->v2[cno].z = (ball->v2[cno].z - ball->pos[cno].z) / CENTER_PULL_BALL;
-}
-
-
-// 分離
-void SeparationBall(int index, int cno)
-{
-	BALL *ball = &ballWk[index];
-	PLAYER *player = GetPlayer(index);
-
-	for (int i = 0; i < BALL_ONESET_MAX; i++)
-	{
-		if (cno == i) continue;
-		if (CheckHitBC(ball->pos[cno], ball->pos[i], 15.0f, 15.0f))
+		for (int j = 0; j < BALL_ONESET_MAX / 2; j++)
 		{
-			ball->v3[cno].x -= ball->pos[cno].x - ball->pos[i].x;
-			ball->v3[cno].z -= ball->pos[cno].z - ball->pos[i].z;
+			ball[i].pos[j].x = player[i].pos.x + rand() % 50;
+			ball[i].pos[j].y = player[i].pos.y;
+			ball[i].pos[j].z = player[i].pos.z + rand() % 50;
 		}
 	}
 }

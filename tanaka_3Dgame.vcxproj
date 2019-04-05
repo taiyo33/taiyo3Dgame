@@ -153,7 +153,6 @@
     <ClCompile Include="explosion.cpp" />
     <ClCompile Include="pause.cpp" />
     <ClCompile Include="player.cpp" />
-    <ClCompile Include="icon.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="rightArm.cpp" />
     <ClCompile Include="sound.cpp" />
@@ -188,7 +187,6 @@
     <ClInclude Include="explosion.h" />
     <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="icon.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="rightArm.h" />
     <ClInclude Include="sound.h" />

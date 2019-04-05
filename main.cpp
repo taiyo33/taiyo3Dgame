@@ -32,7 +32,6 @@
 #include "ai.h"
 #include "buttleGauge.h"
 #include "gaugeEffect.h"
-#include "icon.h"
 #include "gameCall.h"
 #include "chargeEffect.h"
 #include "pause.h"
@@ -401,8 +400,6 @@ void Uninit(void)
 	//
 	UninitGaugeEffect();
 
-	//
-	UninitIcon();
 
 	// ゲーム遷移テロップの終了処理
 	UninitGameCall();
@@ -472,7 +469,7 @@ void Update(void)
 			break;
 		}
 		case START:
-		{
+		{	
 			if (!pause)
 			{
 				// ブロックの更新
@@ -541,6 +538,7 @@ void Update(void)
 				// 当たり判定
 				CheckHit();
 			}
+			// ポーズ画面
 			else if(pause)
 			{
 				// ポーズ画面の更新
@@ -721,7 +719,7 @@ void Draw(void)
 				// ゲージエフェクトの描画
 				DrawGaugeEffect();
 
-				// メニューの描画
+				// ポーズメニューの描画
 				if (pause)
 				{
 					DrawPause();
@@ -866,8 +864,8 @@ int GetStage(void)
 
 //============================================================================
 // ポーズ画面の設置
-// 引数： int Stage(遷移先の番号)
-// 戻り値：なし
+// 引　数：bool on(ポーズの使用状態)
+// 戻り値：bool型
 //============================================================================
 bool SetPause(bool on)
 {
@@ -875,9 +873,9 @@ bool SetPause(bool on)
 }
 
 //============================================================================
-// ポーズ画面の設置
-// 引数： int Stage(遷移先の番号)
-// 戻り値：なし
+// ポーズ画面の取得
+// 引　数：bool on(ポーズの使用状態)
+// 戻り値：bool型
 //============================================================================
 bool GetPause(void)
 {
@@ -948,9 +946,6 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 
 	// 頭モデルの初期化
 	InitHead();
-
-	// キャラクターアイコンの初期化
-	InitIcon(0);
 
 	// バレットゲージの初期化
 	InitBulletGauge(0);
@@ -1042,9 +1037,6 @@ void InitGame(void)
 	// 頭モデルの初期化
 	InitHead();
 
-	// キャラクターアイコンの初期化
-	InitIcon(INIT_GAME);
-
 	// バレットゲージの初期化
 	InitBulletGauge(INIT_GAME);
 
@@ -1075,6 +1067,7 @@ void InitGame(void)
 	// チャージエフェクトの初期化
 	InitChargeEffect(INIT_GAME);
 }
+
 //============================================================================
 // ゲームポーズ処理後の初期化
 // 引　数：な　し
@@ -1114,9 +1107,6 @@ void InitPauseGame(void)
 
 	// 頭モデルの初期化
 	InitHead();
-
-	// キャラクターアイコンの初期化
-	InitIcon(INIT_GAME);
 
 	// バレットゲージの初期化
 	InitBulletGauge(INIT_GAME);

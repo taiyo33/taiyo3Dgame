@@ -7,17 +7,14 @@
 #ifndef _LEFTARM_H_
 #define _LEFTARM_H_
 
-#include "main.h"
-
+//*****************************************************************************
+// 構造体宣言
+//*****************************************************************************
 typedef struct
 {
 	D3DXMATRIX			mtxWorld;			// ワールドマトリックス
 	D3DXVECTOR3			pos;					// 現在の位置
 	D3DXVECTOR3			rot;					// 現在の向き
-
-	int					nIdxShadow;				// 影ID
-	float				fSizeShadow;				// 影のサイズ
-	D3DXCOLOR			colShadow;				// 影の色
 
 }LEFTARM;
 

@@ -4,17 +4,14 @@
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "leftArm.h"
-#include "camera.h"
-#include "input.h"
-#include "shadow.h"
-#include "debugproc.h"
 #include "player.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	PLAYER_AIRPLANE		"data/MODEL/model_arm.x"	// 読み込むモデル名
+#define	PLAYER_LEFTARM		"data/MODEL/model_arm.x"	// 読み込むモデル名
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -24,12 +21,12 @@
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static LPDIRECT3DTEXTURE9	 D3DTexture;		// テクスチャ読み込み場所
-static LPD3DXMESH			 D3DXMesh;			// ID3DXMeshインターフェイスへのポインタ
-static LPD3DXBUFFER			 D3DXBuffMat;		// メッシュのマテリアル情報を格納
-static DWORD				 NumMat;			// 属性情報の総数
+static LPDIRECT3DTEXTURE9	 D3DTexture;			// テクスチャ読み込み場所
+static LPD3DXMESH			 D3DXMesh;				// ID3DXMeshインターフェイスへのポインタ
+static LPD3DXBUFFER			 D3DXBuffMat;			// メッシュのマテリアル情報を格納
+static DWORD				 NumMat;				// 属性情報の総数
 
-LEFTARM		leftArm[PLAYER_MAX];
+LEFTARM						 LeftArm[PLAYER_MAX];	// 左腕モデル構造体
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -42,11 +39,11 @@ HRESULT InitLeftArm(void)
 	D3DXBuffMat = NULL;
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
-		leftArm[i].pos = D3DXVECTOR3(-12.0f, 10.0f, 0.0f);
-		leftArm[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		LeftArm[i].pos = D3DXVECTOR3(-12.0f, 10.0f, 0.0f);
+		LeftArm[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
 	// Xファイルの読み込み
-	if (FAILED(D3DXLoadMeshFromX(PLAYER_AIRPLANE,
+	if (FAILED(D3DXLoadMeshFromX(PLAYER_LEFTARM,
 		D3DXMESH_SYSTEMMEM,
 		Device,
 		NULL,
@@ -58,18 +55,6 @@ HRESULT InitLeftArm(void)
 		return E_FAIL;
 	}
 
-#if 0
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(Device,					// デバイスへのポインタ
-		TEXTURE_FILENAME,		// ファイルの名前
-		&D3DTexture);	// 読み込むメモリー
-#endif
-
-	//// 影の生成
-	//nIdxShadow = CreateShadow(leftArm[i].pos, 25.0f, 25.0f);
-
-	//fSizeShadow = 25.0f;
-	//colShadow = D3DXCOLOR(0.5f, 0.5f, 0.5f, 0.5f);
 
 	return S_OK;
 }
@@ -122,21 +107,21 @@ void DrawLeftArm(void)
 		if (player->use)
 		{
 			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&leftArm[i].mtxWorld);
+			D3DXMatrixIdentity(&LeftArm[i].mtxWorld);
 
 			// 回転を反映
-			D3DXMatrixRotationYawPitchRoll(&mtxRot, leftArm[i].rot.y, leftArm[i].rot.x, leftArm[i].rot.z);
-			D3DXMatrixMultiply(&leftArm[i].mtxWorld, &leftArm[i].mtxWorld, &mtxRot);
+			D3DXMatrixRotationYawPitchRoll(&mtxRot, LeftArm[i].rot.y, LeftArm[i].rot.x, LeftArm[i].rot.z);
+			D3DXMatrixMultiply(&LeftArm[i].mtxWorld, &LeftArm[i].mtxWorld, &mtxRot);
 
 			// 移動を反映
-			D3DXMatrixTranslation(&mtxTranslate, leftArm[i].pos.x, leftArm[i].pos.y, leftArm[i].pos.z);
-			D3DXMatrixMultiply(&leftArm[i].mtxWorld, &leftArm[i].mtxWorld, &mtxTranslate);
+			D3DXMatrixTranslation(&mtxTranslate, LeftArm[i].pos.x, LeftArm[i].pos.y, LeftArm[i].pos.z);
+			D3DXMatrixMultiply(&LeftArm[i].mtxWorld, &LeftArm[i].mtxWorld, &mtxTranslate);
 
 
-			D3DXMatrixMultiply(&leftArm[i].mtxWorld, &leftArm[i].mtxWorld, &player->mtxWorld);
+			D3DXMatrixMultiply(&LeftArm[i].mtxWorld, &LeftArm[i].mtxWorld, &player->mtxWorld);
 
 			// ワールドマトリックスの設定
-			Device->SetTransform(D3DTS_WORLD, &leftArm[i].mtxWorld);
+			Device->SetTransform(D3DTS_WORLD, &LeftArm[i].mtxWorld);
 
 
 			// 現在のマテリアルを取得
@@ -168,5 +153,5 @@ void DrawLeftArm(void)
 //=============================================================================
 LEFTARM *GetLeftArm(int index)
 {
-	return &leftArm[index];
+	return &LeftArm[index];
 }

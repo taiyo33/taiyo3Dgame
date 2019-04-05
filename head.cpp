@@ -4,21 +4,14 @@
 // Author : GP11A_341_22_田中太陽 
 //
 //=============================================================================
+#include "main.h"
 #include "head.h"
-#include "camera.h"
-#include "input.h"
-#include "shadow.h"
-#include "debugproc.h"
 #include "player.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	PLAYER_AIRPLANE		"data/MODEL/model_head.x"	// 読み込むモデル名
-#define	VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
-#define	RATE_MOVE_PLAYER		(0.20f)						// 移動慣性係数
-#define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.05f)			// 回転速度
-#define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
+#define	PLAYER_HEAD		"data/MODEL/model_head.x"	// 読み込むモデル名
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -33,7 +26,7 @@ static LPD3DXMESH			 D3DXMesh;			// ID3DXMeshインターフェイスへのポインタ
 static LPD3DXBUFFER			 D3DXBuffMat;		// メッシュのマテリアル情報を格納
 static DWORD				 NumMat;			// 属性情報の総数
 
-HEAD				head[PLAYER_MAX];
+HEAD						 Head[PLAYER_MAX];
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -47,13 +40,13 @@ HRESULT InitHead(void)
 	
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
-		head[i].pos = D3DXVECTOR3(0.0f, 20.0f, 0.0f);
-		head[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		head[i].scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+		Head[i].pos = D3DXVECTOR3(0.0f, 20.0f, 0.0f);
+		Head[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		Head[i].scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 	}
 	
 	// Xファイルの読み込み
-	if (FAILED(D3DXLoadMeshFromX(PLAYER_AIRPLANE,
+	if (FAILED(D3DXLoadMeshFromX(PLAYER_HEAD,
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -73,7 +66,7 @@ HRESULT InitHead(void)
 #endif
 
 	//// 影の生成
-	//g_nIdxShadow = CreateShadow(head.pos, 25.0f, 25.0f);
+	//g_nIdxShadow = CreateShadow(Head.pos, 25.0f, 25.0f);
 
 	//g_fSizeShadow = 25.0f;
 	//g_colShadow = D3DXCOLOR(0.5f, 0.5f, 0.5f, 0.5f);
@@ -129,25 +122,25 @@ void DrawHead(void)
 		if (player->use)
 		{
 			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&head[i].mtxWorld);
+			D3DXMatrixIdentity(&Head[i].mtxWorld);
 
 			// 拡大の反映
-			D3DXMatrixScaling(&mtxScl, head[i].scl.x, head[i].scl.y, head[i].scl.z);
-			D3DXMatrixMultiply(&head[i].mtxWorld, &head[i].mtxWorld, &mtxScl);
+			D3DXMatrixScaling(&mtxScl, Head[i].scl.x, Head[i].scl.y, Head[i].scl.z);
+			D3DXMatrixMultiply(&Head[i].mtxWorld, &Head[i].mtxWorld, &mtxScl);
 
 			// 回転を反映
-			D3DXMatrixRotationYawPitchRoll(&mtxRot, head[i].rot.y, head[i].rot.x, head[i].rot.z);
-			D3DXMatrixMultiply(&head[i].mtxWorld, &head[i].mtxWorld, &mtxRot);
+			D3DXMatrixRotationYawPitchRoll(&mtxRot, Head[i].rot.y, Head[i].rot.x, Head[i].rot.z);
+			D3DXMatrixMultiply(&Head[i].mtxWorld, &Head[i].mtxWorld, &mtxRot);
 
 			// 移動を反映
-			D3DXMatrixTranslation(&mtxTranslate, head[i].pos.x, head[i].pos.y, head[i].pos.z);
-			D3DXMatrixMultiply(&head[i].mtxWorld, &head[i].mtxWorld, &mtxTranslate);
+			D3DXMatrixTranslation(&mtxTranslate, Head[i].pos.x, Head[i].pos.y, Head[i].pos.z);
+			D3DXMatrixMultiply(&Head[i].mtxWorld, &Head[i].mtxWorld, &mtxTranslate);
 
 
-			D3DXMatrixMultiply(&head[i].mtxWorld, &head[i].mtxWorld, &player->mtxWorld);
+			D3DXMatrixMultiply(&Head[i].mtxWorld, &Head[i].mtxWorld, &player->mtxWorld);
 
 			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &head[i].mtxWorld);
+			pDevice->SetTransform(D3DTS_WORLD, &Head[i].mtxWorld);
 
 
 			// 現在のマテリアルを取得

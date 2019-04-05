@@ -1,9 +1,10 @@
 //=============================================================================
 //
-// プレイヤー処理 [player.cpp]
+// プレイヤー処理 [Player.cpp]
 // Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
+#include "main.h"
 #include "player.h"
 #include "bullet.h"
 #include "field.h"
@@ -18,13 +19,11 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	PLAYER_AIRPLANE		"data/MODEL/model_body.x"	// 読み込むモデル名
-#define	RATE_MOVE_PLAYER		(0.20f)					// 移動慣性係数
+#define	PLAYER_BODY			"data/MODEL/model_body.x"	// 読み込むモデル名
+#define	RATE_MOVE_PLAYER	(0.20f)						// 移動慣性係数
 #define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.02f)			// 回転速度
 #define	RATE_ROTATE_PLAYER	(0.20f)						// 回転慣性係数
 #define VALUE_MOVE_PLAYER	(0.50f)						// 移動速度
-#define PLAYER_POS_Y_LIMIT	(-200.0f)					// Y軸の上限値
-#define AI_UPDATE_TIME		(10)						// ＡＩの情報更新時間
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -32,20 +31,19 @@
 void MovePlayer(int index);
 void InputPlayer1(void);
 void InputKeyPlayer2(void);
-void InputGamePadPlayer1(void);
-void InputGamePadPlayer2(void);
+void InputGamePadPlayer(int index);
 void WallShearPlayer(int index);
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static LPDIRECT3DTEXTURE9			D3DTexture;				// テクスチャ読み込み場所
-static LPD3DXMESH					D3DXMesh;				// ID3DXMeshインターフェイスへのポインタ
-static LPD3DXBUFFER					D3DXBuffMat;			// メッシュのマテリアル情報を格納
-static DWORD						NumMat;					// 属性情報の総数
-static int							cntFrame[PLAYER_MAX];	// フレームカウント
+static LPDIRECT3DTEXTURE9			D3DTexture = NULL;		// テクスチャ読み込み場所
+static LPD3DXMESH					D3DXMesh = NULL;		// ID3DXMeshインターフェイスへのポインタ
+static LPD3DXBUFFER					D3DXBuffMat = NULL;		// メッシュのマテリアル情報を格納
+static DWORD						NumMat = NULL;			// 属性情報の総数
+static int							cntFrame[PLAYER_MAX];	// バレットチャージのフレームカウント
 
-PLAYER								player[PLAYER_MAX];		// プレイヤー構造体
+PLAYER								Player[PLAYER_MAX];		// プレイヤー構造体
 //=============================================================================
 // 初期化処理
 // 引　数：int type(再初期化２数判定値)
@@ -55,29 +53,27 @@ HRESULT InitPlayer(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	CAMERA *camera = GetCamera();
-	D3DTexture = NULL;	// テクスチャーの初期化
-	D3DXMesh = NULL;		// インタフェースの初期化
-	D3DXBuffMat = NULL;	// マテリアルの初期化
-	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
-	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
-	player[P1].rot = D3DXVECTOR3(0.0f, 90.0f, 0.0f);	// 回転の初期化
-	player[P2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
+
+	Player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
+	Player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
+	Player[P1].rot = D3DXVECTOR3(0.0f, 90.0f, 0.0f);	// 回転の初期化
+	Player[P2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 回転の初期化
 
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
-		player[i].use = true;								// 使用状態を初期化
-		player[i].npc = false;								// 使用状態を初期化
-		player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
-		player[i].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
-		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 100.0f, 0.0f, cosf(player[i].rot.y) * 100.0f);
-		player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
-		player[i].cntFrame= 0;
-		player[i].hitSE = LoadSound(SE_HIT);
-		player[i].chargeSE = LoadSound(SE_CHARGE);
+		Player[i].use = true;								// 使用状態を初期化
+		Player[i].npc = false;								// 使用状態を初期化
+		Player[i].rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転の目的位置を初期化
+		Player[i].life = PLAYER_LIFE_MAX;					// プレイヤーの体力を初期化
+		Player[i].frontVec = D3DXVECTOR3(sinf(Player[i].rot.y) * 100.0f, 0.0f, cosf(Player[i].rot.y) * 100.0f);
+		Player[i].speed = VALUE_MOVE_PLAYER;				// 移動速度の初期化
+		Player[i].cntFrame= 0;
+		Player[i].hitSE = LoadSound(SE_HIT);
+		Player[i].chargeSE = LoadSound(SE_CHARGE);
 	}
 
 	// Xファイルの読み込み
-	if (FAILED(D3DXLoadMeshFromX(PLAYER_AIRPLANE,
+	if (FAILED(D3DXLoadMeshFromX(PLAYER_BODY,
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -128,9 +124,10 @@ void UpdatePlayer(void)
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		// 現在位置を保存
-		player[i].prevPos = player[i].pos;
-		player[i].cntFrame++;
-		player[i].frontVec = D3DXVECTOR3(sinf(player[i].rot.y) * 75.0f, 0.0f, cosf(player[i].rot.y) * 75.0f);
+		Player[i].prevPos = Player[i].pos;
+		Player[i].cntFrame++;
+		// 前方ベクトルの更新
+		Player[i].frontVec = D3DXVECTOR3(sinf(Player[i].rot.y) * 75.0f, 0.0f, cosf(Player[i].rot.y) * 75.0f);
 		
 		// タイトル内でのプレイヤー制御
 		if (GetStage() == TITLE)
@@ -140,17 +137,18 @@ void UpdatePlayer(void)
 		// ゲーム開始時
 		else if (GetStage() == START)
 		{
-			InputPlayer1();
-			InputGamePadPlayer1();
-			if (player[i].npc)
+			// AIの行動
+			if (Player[i].npc)
 			{
 				NonePlayerMove();
 				NonePlayerAttack();
 			}
+			// 操作
 			else
 			{
+				InputPlayer1();
+				InputGamePadPlayer(i);
 				InputKeyPlayer2();
-				InputGamePadPlayer2();
 			}
 		}
 
@@ -159,8 +157,8 @@ void UpdatePlayer(void)
 		// プレイヤーの操作
 		MovePlayer(i);
 
-		PrintDebugProc("プレイヤーの回転[(%f)]\n", player[i].rot.y);
-		PrintDebugProc("プレイヤーの位置: [X:(%f),z:(%f)]\n", player[i].pos.x, player[i].pos.z);
+		PrintDebugProc("プレイヤーの回転[(%f)]\n", Player[i].rot.y);
+		PrintDebugProc("プレイヤーの位置: [X:(%f),z:(%f)]\n", Player[i].pos.x, Player[i].pos.z);
 	}
 }
 
@@ -177,20 +175,20 @@ void DrawPlayer(void)
 	for (int i = 0; i < PLAYER_MAX; i++)
 	{
 		// ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&player[i].mtxWorld);
+		D3DXMatrixIdentity(&Player[i].mtxWorld);
 
 		mtxView = GetMtxView();
 
 		// 回転を反映
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, player[i].rot.y, player[i].rot.x, player[i].rot.z);
-		D3DXMatrixMultiply(&player[i].mtxWorld, &player[i].mtxWorld, &mtxRot);
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, Player[i].rot.y, Player[i].rot.x, Player[i].rot.z);
+		D3DXMatrixMultiply(&Player[i].mtxWorld, &Player[i].mtxWorld, &mtxRot);
 
 		// 移動を反映
-		D3DXMatrixTranslation(&mtxTranslate, player[i].pos.x, player[i].pos.y, player[i].pos.z);
-		D3DXMatrixMultiply(&player[i].mtxWorld, &player[i].mtxWorld, &mtxTranslate);
+		D3DXMatrixTranslation(&mtxTranslate, Player[i].pos.x, Player[i].pos.y, Player[i].pos.z);
+		D3DXMatrixMultiply(&Player[i].mtxWorld, &Player[i].mtxWorld, &mtxTranslate);
 
 		// ワールドマトリックスの設定
-		pDevice->SetTransform(D3DTS_WORLD, &player[i].mtxWorld);
+		pDevice->SetTransform(D3DTS_WORLD, &Player[i].mtxWorld);
 
 		// 現在のマテリアルを取得
 		pDevice->GetMaterial(&matDef);
@@ -222,7 +220,7 @@ void DrawPlayer(void)
 //=============================================================================
 PLAYER *GetPlayer(int index)
 {
-	return &player[index];
+	return &Player[index];
 }
 
 //=============================================================================
@@ -232,7 +230,7 @@ PLAYER *GetPlayer(int index)
 //=============================================================================
 void InputPlayer1(void)
 {
-	if (player[P1].use)
+	if (Player[P1].use)
 	{
 		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
 		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
@@ -241,99 +239,99 @@ void InputPlayer1(void)
 		{
 			if (GetKeyboardPress(DIK_UP))
 			{// 右前移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.25f;
+				Player[P1].rot.y = camera->rot.y + D3DX_PI * 0.25f;
 			}
 			else if (GetKeyboardPress(DIK_DOWN))
 			{// 右後移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.75f;
+				Player[P1].rot.y = camera->rot.y + D3DX_PI * 0.75f;
 			}
 			else
 			{// 右移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.50f;
+				Player[P1].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 		}
 		else if (GetKeyboardPress(DIK_LEFT))
 		{
 			if (GetKeyboardPress(DIK_UP))
 			{// 左前移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.25f;
+				Player[P1].rot.y = camera->rot.y - D3DX_PI * 0.25f;
 			}
 			else if (GetKeyboardPress(DIK_DOWN))
 			{// 左後移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.75f;
+				Player[P1].rot.y = camera->rot.y - D3DX_PI * 0.75f;
 			}
 			else
 			{// 左移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.50f;
+				Player[P1].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 		}
 		else if (GetKeyboardPress(DIK_UP))
 		{
 			if(GetKeyboardPress(DIK_RIGHT))
 			{// 右移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.50f;
+				Player[P1].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 			else
 			{
 				// 前移動
-				player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P1].speed;
-				player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P1].speed;
+				Player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * Player[P1].speed;
+				Player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y;
+				Player[P1].rot.y = camera->rot.y;
 			}
 		}
 		else if (GetKeyboardPress(DIK_DOWN))
 		{
 			if (GetKeyboardPress(DIK_LEFT))
 			{// 左移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * Player[P1].speed;
 
-				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.50f;
+				Player[P1].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 			else
 			{
 				// 後移動
-				player[P1].move.x -= sinf(camera->rot.y) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y) * player[P1].speed;
+				Player[P1].move.x -= sinf(camera->rot.y) * Player[P1].speed;
+				Player[P1].move.z -= cosf(camera->rot.y) * Player[P1].speed;
 
-				player[P1].rot.y = D3DX_PI + camera->rot.y;
+				Player[P1].rot.y = D3DX_PI + camera->rot.y;
 			}
 		}
 
 		// バレットのチャージ
 		if (GetKeyboardPress(DIK_SPACE))
 		{
-			 SetChargeEffect(player[P1].pos, P1);
-			PlaySound(player[P1].chargeSE, E_DS8_FLAG_NONE);
+			 SetChargeEffect(Player[P1].pos, P1);
+			PlaySound(Player[P1].chargeSE, E_DS8_FLAG_NONE);
 			// 最大値になった場合
 			if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
 			{
                 bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
-			else if (player[P1].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
+			else if (Player[P1].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
 				bullet->speedIncrease += 0.2f;
 			}
@@ -341,8 +339,8 @@ void InputPlayer1(void)
 		// バレットの発射
         else if(GetKeyboardRelease(DIK_SPACE))
 		{
-			StopSound(player[P1].chargeSE);
-          	SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
+			StopSound(Player[P1].chargeSE);
+          	SetBullet(Player[P1].pos, Player[P1].rot, bullet->speedIncrease, 0, P1);
 			cntFrame[P1] = 0;
 		}
 
@@ -356,7 +354,7 @@ void InputPlayer1(void)
 		// 位置を初期化
 		if (GetKeyboardTrigger(DIK_O))
 		{
-			player[P1].pos = D3DXVECTOR3(0.0f, 10.0f, 0.0f);
+			Player[P1].pos = D3DXVECTOR3(0.0f, 10.0f, 0.0f);
 		}
 #endif
 	}
@@ -373,71 +371,71 @@ void InputKeyPlayer2(void)
 	CAMERA *camera = GetCamera();
 	BULLET *bullet = GetBullet(P2);
 
-	if (player[P2].use)
+	if (Player[P2].use)
 	{
 		if (GetKeyboardPress(DIK_D))
 		{
 			if (GetKeyboardPress(DIK_W))
 			{// 右前移動
-				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
+				Player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * Player[P2].speed;
+				Player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * Player[P2].speed;
 
-				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.25f;
+				Player[P2].rot.y = camera->rot.y + D3DX_PI * 0.25f;
 			}
 			else if (GetKeyboardPress(DIK_S))
 			{// 右後移動
-				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
+				Player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * Player[P2].speed;
+				Player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * Player[P2].speed;
 
-				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.75f;
+				Player[P2].rot.y = camera->rot.y + D3DX_PI * 0.75f;
 			}
 			else
 			{// 右移動
-				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
+				Player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * Player[P2].speed;
+				Player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * Player[P2].speed;
 
-				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.50f;
+				Player[P2].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 		}
 		else if (GetKeyboardPress(DIK_A))
 		{
 			if (GetKeyboardPress(DIK_W))
 			{// 左前移動
-				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
+				Player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * Player[P2].speed;
+				Player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * Player[P2].speed;
 
-				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.25f;
+				Player[P2].rot.y = camera->rot.y - D3DX_PI * 0.25f;
 			}
 			else if (GetKeyboardPress(DIK_S))
 			{// 左後移動
-				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
+				Player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * Player[P2].speed;
+				Player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * Player[P2].speed;
 
-				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.75f;
+				Player[P2].rot.y = camera->rot.y - D3DX_PI * 0.75f;
 			}
 			else
 			{// 左移動
-				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
+				Player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * Player[P2].speed;
+				Player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * Player[P2].speed;
 
-				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.50f;
+				Player[P2].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 		}
 		else if (GetKeyboardPress(DIK_W))
 		{
 			// 前移動
-			player[P2].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P2].speed;
-			player[P2].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P2].speed;
+			Player[P2].move.x -= sinf(D3DX_PI + camera->rot.y) * Player[P2].speed;
+			Player[P2].move.z -= cosf(D3DX_PI + camera->rot.y) * Player[P2].speed;
 
-			player[P2].rot.y = camera->rot.y;
+			Player[P2].rot.y = camera->rot.y;
 		}
 		else if (GetKeyboardPress(DIK_S))
 		{
 			// 後移動
-			player[P2].move.x -= sinf(camera->rot.y) * player[P2].speed;
-			player[P2].move.z -= cosf(camera->rot.y) * player[P2].speed;
+			Player[P2].move.x -= sinf(camera->rot.y) * Player[P2].speed;
+			Player[P2].move.z -= cosf(camera->rot.y) * Player[P2].speed;
 
-			player[P2].rot.y = D3DX_PI + camera->rot.y;
+			Player[P2].rot.y = D3DX_PI + camera->rot.y;
 		}
 
 		if (GetKeyboardPress(DIK_Z))
@@ -451,16 +449,16 @@ void InputKeyPlayer2(void)
 				bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
-			else if (player[P2].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
+			else if (Player[P2].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
-				PlaySound(player[P2].chargeSE, E_DS8_FLAG_NONE);
+				PlaySound(Player[P2].chargeSE, E_DS8_FLAG_NONE);
 				bullet->speedIncrease += 0.5f;
 			}
 		}
 		else if (GetKeyboardRelease(DIK_Z))
 		{			
-			StopSound(player[P2].chargeSE);
-			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
+			StopSound(Player[P2].chargeSE);
+			SetBullet(Player[P2].pos, Player[P2].rot, bullet->speedIncrease, 0, P2);
 			cntFrame[P2] = 0;
 		}
 		
@@ -473,86 +471,86 @@ void InputKeyPlayer2(void)
 }
 
 //=============================================================================
-// プレイヤー1のゲームパッド操作処理
+// プレイヤーのゲームパッド操作処理
 // 引　数：なし
 // 戻り値：なし
 //=============================================================================
-void InputGamePadPlayer1(void)
+void InputGamePadPlayer(int index)
 {
-	if (player[P1].use)
+	if (Player[index].use)
 	{
 		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
-		BULLET *bullet = GetBullet(P1);	// バレットのアドレスを取得
-		if (IsButtonPressed(P1,BUTTON_RIGHT))
+		BULLET *bullet = GetBullet(index);	// バレットのアドレスを取得
+		if (IsButtonPressed(index,BUTTON_RIGHT))
 		{
-			if (IsButtonPressed(P1,BUTTON_UP))
+			if (IsButtonPressed(index,BUTTON_UP))
 			{// 右前移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P1].speed;
+				Player[index].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * Player[index].speed;
+				Player[index].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * Player[index].speed;
 
-				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.25f;
+				Player[index].rot.y = camera->rot.y + D3DX_PI * 0.25f;
 			}
-			else if (IsButtonPressed(P1,BUTTON_DOWN))
+			else if (IsButtonPressed(index,BUTTON_DOWN))
 			{// 右後移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P1].speed;
+				Player[index].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * Player[index].speed;
+				Player[index].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * Player[index].speed;
 
-				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.75f;
+				Player[index].rot.y = camera->rot.y + D3DX_PI * 0.75f;
 			}
 			else
 			{// 右移動
-				player[P1].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P1].speed;
+				Player[index].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * Player[index].speed;
+				Player[index].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * Player[index].speed;
 
-				player[P1].rot.y = camera->rot.y + D3DX_PI * 0.50f;
+				Player[index].rot.y = camera->rot.y + D3DX_PI * 0.50f;
 			}
 		}
-		else if (IsButtonPressed(P1,BUTTON_LEFT))
+		else if (IsButtonPressed(index,BUTTON_LEFT))
 		{
-			if (IsButtonPressed(P1,BUTTON_UP))
+			if (IsButtonPressed(index,BUTTON_UP))
 			{// 左前移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P1].speed;
+				Player[index].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * Player[index].speed;
+				Player[index].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * Player[index].speed;
 
-				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.25f;
+				Player[index].rot.y = camera->rot.y - D3DX_PI * 0.25f;
 			}
-			else if (IsButtonPressed(P1,BUTTON_DOWN))
+			else if (IsButtonPressed(index,BUTTON_DOWN))
 			{// 左後移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P1].speed;
+				Player[index].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * Player[index].speed;
+				Player[index].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * Player[index].speed;
 
-				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.75f;
+				Player[index].rot.y = camera->rot.y - D3DX_PI * 0.75f;
 			}
 			else
 			{// 左移動
-				player[P1].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
-				player[P1].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P1].speed;
+				Player[index].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * Player[index].speed;
+				Player[index].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * Player[index].speed;
 
-				player[P1].rot.y = camera->rot.y - D3DX_PI * 0.50f;
+				Player[index].rot.y = camera->rot.y - D3DX_PI * 0.50f;
 			}
 		}
-		else if (IsButtonPressed(P1,BUTTON_UP))
+		else if (IsButtonPressed(index,BUTTON_UP))
 		{
 			// 前移動
-			player[P1].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P1].speed;
-			player[P1].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P1].speed;
+			Player[index].move.x -= sinf(D3DX_PI + camera->rot.y) * Player[index].speed;
+			Player[index].move.z -= cosf(D3DX_PI + camera->rot.y) * Player[index].speed;
 
-			player[P1].rot.y = camera->rot.y;
+			Player[index].rot.y = camera->rot.y;
 		}
-		else if (IsButtonPressed(P1,BUTTON_DOWN))
+		else if (IsButtonPressed(index,BUTTON_DOWN))
 		{
 			// 後移動
-			player[P1].move.x -= sinf(camera->rot.y) * player[P1].speed;
-			player[P1].move.z -= cosf(camera->rot.y) * player[P1].speed;
+			Player[index].move.x -= sinf(camera->rot.y) * Player[index].speed;
+			Player[index].move.z -= cosf(camera->rot.y) * Player[index].speed;
 
-			player[P1].rot.y = D3DX_PI + camera->rot.y;
+			Player[index].rot.y = D3DX_PI + camera->rot.y;
 		}
 
 		// バレットのチャージ
-		if (IsButtonPressed(P1, BUTTON_B))
+		if (IsButtonPressed(index, BUTTON_B))
 		{
-			 SetChargeEffect(player[P1].pos, P1);
-			PlaySound(player[P1].chargeSE, E_DS8_FLAG_NONE);
+			 SetChargeEffect(Player[index].pos, index);
+			PlaySound(Player[index].chargeSE, E_DS8_FLAG_NONE);
 
 			// 最大値になった場合
 			if (bullet->speedIncrease >= BULLET_CHARGE_MAX)
@@ -560,132 +558,24 @@ void InputGamePadPlayer1(void)
 				bullet->speedIncrease = BULLET_CHARGE_MAX;
 			}
 			// 10フレーム
-			else if (player[P1].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
+			else if (Player[index].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
 			{
 				bullet->speedIncrease += 0.2f;
 			}
 		}
 		// バレットの発射
-		else if (IsButtonRelease(P1, BUTTON_B))
+		else if (IsButtonRelease(index, BUTTON_B))
 		{
-			StopSound(player[P1].chargeSE);
-			SetBullet(player[P1].pos, player[P1].rot, bullet->speedIncrease, 0, P1);
-			cntFrame[P1] = 0;
+			StopSound(Player[index].chargeSE);
+			SetBullet(Player[index].pos, Player[index].rot, bullet->speedIncrease, 0, index);
+			cntFrame[index] = 0;
 		}
 
-		if (IsButtonTriggered(P1, BUTTON_R))
-		{
-			SetPause(true);
-		}
-
-	}
-}
-
-//=============================================================================
-// プレイヤー2のゲームパッド操作処理
-// 引　数：なし
-// 戻り値：なし
-//=============================================================================
-void InputGamePadPlayer2(void)
-{
-	if (player[P2].use)
-	{
-		CAMERA *camera = GetCamera();	// カメラのアドレスを取得
-		BULLET *bullet = GetBullet(P2);	// バレットのアドレスを取得
-		if (IsButtonPressed(P2, BUTTON_RIGHT))
-		{
-			if (IsButtonPressed(P2, BUTTON_UP))
-			{// 右前移動
-				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.75f) * player[P2].speed;
-
-				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.25f;
-			}
-			else if (IsButtonPressed(P2, BUTTON_DOWN))
-			{// 右後移動
-				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.25f) * player[P2].speed;
-
-				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.75f;
-			}
-			else
-			{// 右移動
-				player[P2].move.x -= sinf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y - D3DX_PI * 0.50f) * player[P2].speed;
-
-				player[P2].rot.y = camera->rot.y + D3DX_PI * 0.50f;
-			}
-		}
-		else if (IsButtonPressed(P2, BUTTON_LEFT))
-		{
-			if (IsButtonPressed(P2, BUTTON_UP))
-			{// 左前移動
-				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.75f) * player[P2].speed;
-
-				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.25f;
-			}
-			else if (IsButtonPressed(P2, BUTTON_DOWN))
-			{// 左後移動
-				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.25f) * player[P2].speed;
-
-				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.75f;
-			}
-			else
-			{// 左移動
-				player[P2].move.x -= sinf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
-				player[P2].move.z -= cosf(camera->rot.y + D3DX_PI * 0.50f) * player[P2].speed;
-
-				player[P2].rot.y = camera->rot.y - D3DX_PI * 0.50f;
-			}
-		}
-		else if (IsButtonPressed(P2, BUTTON_UP))
-		{
-			// 前移動
-			player[P2].move.x -= sinf(D3DX_PI + camera->rot.y) * player[P2].speed;
-			player[P2].move.z -= cosf(D3DX_PI + camera->rot.y) * player[P2].speed;
-
-			player[P2].rot.y = camera->rot.y;
-		}
-		else if (IsButtonPressed(P2, BUTTON_DOWN))
-		{
-			// 後移動
-			player[P2].move.x -= sinf(camera->rot.y) * player[P2].speed;
-			player[P2].move.z -= cosf(camera->rot.y) * player[P2].speed;
-
-			player[P2].rot.y = D3DX_PI + camera->rot.y;
-		}
-
-		// バレットのチャージ
-		if (IsButtonPressed(P2, BUTTON_C))
-		{
-			SetChargeEffect(player[P2].pos, P2);
-			PlaySound(player[P2].chargeSE, E_DS8_FLAG_NONE);
-
-			// 最大値になった場合
-			if (bullet->speedIncrease > BULLET_CHARGE_MAX)
-			{
-				bullet->speedIncrease = BULLET_CHARGE_MAX;
-			}
-			// 10フレーム
-			else if (player[P2].cntFrame % BULLET_CHARGE_FRAME_CNT == 0)
-			{
-				bullet->speedIncrease += 0.2f;
-			}
-		}
-		// バレットの発射
-		else if (IsButtonRelease(P2, BUTTON_C))
-		{
-			StopSound(player[P2].chargeSE);
-			SetBullet(player[P2].pos, player[P2].rot, bullet->speedIncrease, 0, P2);
-			cntFrame[P2] = 0;
-		}
-
-		if (IsButtonTriggered(P2, BUTTON_M))
+		if (IsButtonTriggered(index, BUTTON_R))
 		{
 			SetPause(true);
 		}
+
 	}
 }
 
@@ -696,37 +586,37 @@ void InputGamePadPlayer2(void)
 //=============================================================================
 void MovePlayer(int index)
 {
-	if (player[index].rot.y > D3DX_PI)
+	if (Player[index].rot.y > D3DX_PI)
 	{
-		player[index].rot.y -= D3DX_PI * 2.0f;
+		Player[index].rot.y -= D3DX_PI * 2.0f;
 	}
-	if (player[index].rot.y < -D3DX_PI)
+	if (Player[index].rot.y < -D3DX_PI)
 	{
-		player[index].rot.y += D3DX_PI * 2.0f;
+		Player[index].rot.y += D3DX_PI * 2.0f;
 	}
 
 	// 移動量に慣性をかける
-	player[index].move.x += (0.0f - player[index].move.x) * RATE_MOVE_PLAYER;
-	player[index].move.y += (0.0f - player[index].move.y) * RATE_MOVE_PLAYER;
-	player[index].move.z += (0.0f - player[index].move.z) * RATE_MOVE_PLAYER;
+	Player[index].move.x += (0.0f - Player[index].move.x) * RATE_MOVE_PLAYER;
+	Player[index].move.y += (0.0f - Player[index].move.y) * RATE_MOVE_PLAYER;
+	Player[index].move.z += (0.0f - Player[index].move.z) * RATE_MOVE_PLAYER;
 
 	// 位置移動
-	player[index].pos.x += player[index].move.x;
-	player[index].pos.y += player[index].move.y;
-	player[index].pos.z += player[index].move.z;
+	Player[index].pos.x += Player[index].move.x;
+	Player[index].pos.y += Player[index].move.y;
+	Player[index].pos.z += Player[index].move.z;
 
 }
  
 //==========================================================================
 // 壁ずり判定処理
-// 引　数：D3DXVECTOR3 nor0(ポリゴンの法線), int index(プレイヤーのアドレス番号)
+// 引　数：int index(プレイヤーのアドレス番号)
 // 戻り値：な　し
 //==========================================================================
 void WallShearPlayer(int index)
 {
-	if (!HitCheckBlock(player[index].prevPos + player[index].move, player[index].prevPos, BLOCK_VTX_MAX))
+	if (!HitCheckBlock(Player[index].prevPos + Player[index].move, Player[index].prevPos, BLOCK_VTX_MAX))
 	{
-		player[index].move = WallShear(player[index].pos + player[index].move, GetNormal(), index);
+		Player[index].move = WallShear(Player[index].pos + Player[index].move, GetNormal(), index);
 		CheckNorPlayer(GetNormal(), index);
 	}
 }
@@ -734,19 +624,21 @@ void WallShearPlayer(int index)
 //=============================================================================
 // プレイヤーのダメージ処理
 // 引　数：int pno00(ダメージを受けたプレイヤーアドレス番号), 
-//		   int pno01(ダメージを与えたプレイヤーアドレス番号), int bno(組バレットアドレス番号)
+//		   int pno01(ダメージを与えたプレイヤーアドレス番号), 
+//		   int bno(バレット単体のアドレス番号)
 // 戻り値：なし
 //=============================================================================
 void PlayerDamageManager(int pno00, int pno01, int bno)
 {
 	BULLET *bullet = GetBullet(0);
-	if (CheckHitBC(bullet[pno01].pos[bno], player[pno00].pos,
+
+	if (CheckHitBC(bullet[pno01].pos[bno], Player[pno00].pos,
 		bullet[pno01].size[bno].x, 10.0f))
 	{
 		// プレイヤーに対する処理
-		PlaySound(player[pno00].hitSE, E_DS8_FLAG_NONE);
+		PlaySound(Player[pno00].hitSE, E_DS8_FLAG_NONE);
 		SetHitEffect(bullet[pno01].pos[bno], D3DXVECTOR3(0.0f, 0.0f, 0.0f), 0);
-		player[pno00].life -= BULLET_DAMAGE;
+		Player[pno00].life -= BULLET_DAMAGE;
 		
 		// バレットに対する処理
 		bullet[pno01].use[bno] = false;
@@ -756,25 +648,10 @@ void PlayerDamageManager(int pno00, int pno01, int bno)
 	}
 
 	// ダメージを受けたプレイヤーのライフがなくなったとき
-	if (player[pno00].life < 0)
+	if (Player[pno00].life < 0)
 	{
 		SetStage(FINISHCALL);
 	}
-}
-
-//=============================================================================
-// プレイヤーのフィールド内外判定処理
-// 引　数：int index(プレイヤーのアドレス番号)
-// 戻り値：bool型　trueだとフィールド内、falseだとフィールド外を返す
-//=============================================================================
-bool CheckBlockInPlayer(int index)
-{
-	if (player[index].pos.x > FIELD_SIZE_X) return false;
-	if (player[index].pos.x < -FIELD_SIZE_X) return false;
-	if (player[index].pos.z > FIELD_SIZE_Z) return false;
-	if (player[index].pos.z < -FIELD_SIZE_Z) return false;
-
-	return true;
 }
 
 //==========================================================================
@@ -787,15 +664,15 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 	// 法線がX軸方向なら
 	if (nor0.x != 0.0f)
 	{
-		player[index].move.x = 0.0f;
-		player[index].pos.x = player[index].prevPos.x;
+		Player[index].move.x = 0.0f;
+		Player[index].pos.x = Player[index].prevPos.x;
 		return;
 	}
 	// 法線がZ軸方向なら
 	if (nor0.z != 0.0f)
 	{
-		player[index].move.z = 0.0f;
-		player[index].pos.z = player[index].prevPos.z;
+		Player[index].move.z = 0.0f;
+		Player[index].pos.z = Player[index].prevPos.z;
 		return;
 	}
 }
@@ -807,8 +684,8 @@ void CheckNorPlayer(D3DXVECTOR3 nor0, int index)
 //=============================================================================
 void SetInitPosPlayer(void)
 {
-	PLAYER *player = GetPlayer(0);
+	PLAYER *Player = GetPlayer(0);
 
-	player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
-	player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
+	Player[P1].pos = D3DXVECTOR3(PLAYER01_INITPOS_X, PLAYER01_INITPOS_Y, PLAYER01_INITPOS_Z);	// 位置の初期化
+	Player[P2].pos = D3DXVECTOR3(PLAYER02_INITPOS_X, PLAYER02_INITPOS_Y, PLAYER02_INITPOS_Z);	//
 }

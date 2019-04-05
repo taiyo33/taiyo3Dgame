@@ -39,11 +39,8 @@ void MoveBullet(int index, int bno);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-
 LPDIRECT3DTEXTURE9		D3DTextureBullet[TEXTURE_MAX];	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBullet = NULL;	// 頂点バッファインターフェースへのポインタ
-static float			dif_mi[BULLET_MAX];
-static int				cntFrame[BULLET_SET_MAX];
 BULLET					bulletWk[BULLET_SET_MAX];
 
 //===============================================================================
@@ -74,22 +71,20 @@ HRESULT InitBullet(int type)
 
 	for (int i = 0; i < BULLET_SET_MAX; i++)
 	{
-		cntFrame[i] = BULLET_RADY_FRAME;						// フレームを初期化
-		bullet[i].sclIncrease = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加量
-		bullet[i].speedIncrease = 0.0f;	// スケールの増加量
+		bullet[i].speedIncrease = 0.0f;		
 		// SEのロード
 		bullet[i].BulletSE = LoadSound(SE_BULLET);
 		bullet[i].ReflectSE = LoadSound(SE_REFLECT);
 
 		for (int j = 0; j < BULLET_ONESET_MAX; j++)
 		{	
-			bullet[i].use[j] = false;									// 使用状態を初期化
+			bullet[i].use[j] = false;									
 			bullet[i].reflect[j] = false;
-			bullet[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 位置を初期化
-			bullet[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 回転を初期化
-			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);			// 拡大率を初期化
-			bullet[i].size[j] = D3DXVECTOR3(BULLET_SIZE_X, BULLET_SIZE_Y, BULLET_SIZE_Z); // 大きさを初期化
-			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;					// 反発の初期化
+			bullet[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			
+			bullet[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		
+			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+			bullet[i].size[j] = D3DXVECTOR3(BULLET_SIZE_X, BULLET_SIZE_Y, BULLET_SIZE_Z); 
+			bullet[i].cntReflect[j] = INIT_REFLECT_CNT;	
 			bullet[i].speed[j] = INIT_BULLET_SPEED;
 		}
 	}
@@ -129,8 +124,6 @@ void UpdateBullet(void)
 
 	for (i = 0; i < BULLET_SET_MAX; i++)
 	{
-		cntFrame[i]++;	// フレームカウントの更新
-
 		for (j = 0; j < BULLET_ONESET_MAX; j++)
 		{
 			// 使用中ならば
@@ -361,12 +354,8 @@ void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int in
 			bullet->pos[i].z = pos.z + sinf(rot.y) * Dest;			//　
 			bullet->pos[i].y = pos.y;								//
 			bullet->rot[i] = rot;									// 回転量を代入
- 			bullet->speed[i] = bullet->speed[i] + speed;
-			//bullet->scl[i] = scl;									// スケールを代入
-			//bullet->size[i] = BULLET_SIZE_X * scl;					//
+ 			bullet->speed[i] = bullet->speed[i] + speed;			// 速度を
 			SetVertexBullet(i, bullet->size[i].x, bullet->size[i].y);	// 頂点を作成
-			cntFrame[index] = 0;									// フレームカウントを初期化
-			bullet->sclIncrease = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スケールの増加値を初期化
 			bullet->speedIncrease = 0.0f;							// 速度Aの増加値を初期化
 
 			return;
@@ -415,9 +404,9 @@ bool CheckBlockInBullet(int index, int bno)
 {
 	BULLET *bullet = &bulletWk[index];
 	
-	if (bullet->pos[bno].x > SCREEN_WIDTH  / 2)	return false;
-	if (bullet->pos[bno].x < -SCREEN_WIDTH / 2)	return false;
-	if (bullet->pos[bno].z > SCREEN_HEIGHT / 2)	return false;
+	if (bullet->pos[bno].x > SCREEN_WIDTH  / 2)		return false;
+	if (bullet->pos[bno].x < -SCREEN_WIDTH / 2)		return false;
+	if (bullet->pos[bno].z > SCREEN_HEIGHT / 2)		return false;
 	if (bullet->pos[bno].z < -SCREEN_HEIGHT / 2)	return false;
 
 	return true;

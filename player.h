@@ -7,25 +7,23 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-#include "main.h"
-
 //=============================================================================
 //マクロ定義
 //=============================================================================
+#define PLAYER_MAX				(2)			// プレイヤーの最大数
+#define PLAYER_LIFE_MAX			(100.0f)	// プレイヤーの最大体力
 
-#define PLAYER_MAX				(2)
-#define PLAYER_LIFE_MAX			(100.0f)
-#define PLAYER_FALL_SPEED		(5.0f)
+#define PLAYER01_INITPOS_X		(-300.0f)	// P1の初期位置
+#define PLAYER01_INITPOS_Y		(10.0f)		//
+#define PLAYER01_INITPOS_Z		(200.0f)	//
 
-#define PLAYER01_INITPOS_X		(-300.0f)
-#define PLAYER01_INITPOS_Y		(10.0f)
-#define PLAYER01_INITPOS_Z		(200.0f)
+#define PLAYER02_INITPOS_X		(300.0f)	// P2の初期位置
+#define PLAYER02_INITPOS_Y		(10.0f)		//
+#define PLAYER02_INITPOS_Z		(-200.0f)	//
 
-#define PLAYER02_INITPOS_X		(300.0f)
-#define PLAYER02_INITPOS_Y		(10.0f)
-#define PLAYER02_INITPOS_Z		(-200.0f)
-
-
+//*****************************************************************************
+// 構造体宣言
+//*****************************************************************************
 typedef struct {
 	
 	D3DXMATRIX					mtxWorld;			// ワールドマトリックス
@@ -38,9 +36,6 @@ typedef struct {
 	bool						use;				// 使用状態
 	float						speed;				// 移動の速さ
 	float						life;				// 体力
-	int							IdxShadow;			// 影ID
-	float						SizeShadow;			// 影のサイズ
-	D3DXCOLOR					colShadow;			// 影の色
 	int							cntFrame;
 	bool						npc;				// NPCの使用状態
 	LPDIRECTSOUNDBUFFER8		hitSE;				// 被弾時SE
@@ -48,7 +43,7 @@ typedef struct {
 
 }PLAYER;
 
-enum {
+enum PLAYER_TYPE{
 	P1,
 	P2,
 	NPC
@@ -64,7 +59,6 @@ void DrawPlayer(void);
 
 PLAYER *GetPlayer(int index);
 void PlayerDamageManager(int pno00, int pno01, int bno);
-bool CheckBlockInPlayer(int index);
 void CheckNorPlayer(D3DXVECTOR3 nor0, int index);
 void SetInitPosPlayer(void);
 
