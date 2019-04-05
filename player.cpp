@@ -137,6 +137,9 @@ void UpdatePlayer(void)
 		// ゲーム開始時
 		else if (GetStage() == START)
 		{
+			InputPlayer1();
+			InputGamePadPlayer(P1);
+
 			// AIの行動
 			if (Player[i].npc)
 			{
@@ -146,9 +149,8 @@ void UpdatePlayer(void)
 			// 操作
 			else
 			{
-				InputPlayer1();
-				InputGamePadPlayer(i);
 				InputKeyPlayer2();
+				InputGamePadPlayer(P2);
 			}
 		}
 
@@ -216,7 +218,7 @@ void DrawPlayer(void)
 //=============================================================================
 // プレイヤーのアドレス取得
 // 引　数：int index(プレイヤーのアドレス番号)
-// 戻り値：なし
+// 戻り値：PLAYER型
 //=============================================================================
 PLAYER *GetPlayer(int index)
 {
@@ -614,8 +616,10 @@ void MovePlayer(int index)
 //==========================================================================
 void WallShearPlayer(int index)
 {
+	// ポリゴンとの判定
 	if (!HitCheckBlock(Player[index].prevPos + Player[index].move, Player[index].prevPos, BLOCK_VTX_MAX))
-	{
+	{	
+		// 壁ずりベクトルの算出
 		Player[index].move = WallShear(Player[index].pos + Player[index].move, GetNormal(), index);
 		CheckNorPlayer(GetNormal(), index);
 	}
@@ -632,6 +636,7 @@ void PlayerDamageManager(int pno00, int pno01, int bno)
 {
 	BULLET *bullet = GetBullet(0);
 
+	// プレイヤーHPのダメージ判定
 	if (CheckHitBC(bullet[pno01].pos[bno], Player[pno00].pos,
 		bullet[pno01].size[bno].x, 10.0f))
 	{

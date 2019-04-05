@@ -4,9 +4,8 @@
 // Author : GP11A_341_22_田中太陽 
 //
 //===============================================================================
+#include "main.h"
 #include "bullet.h"
-#include "camera.h"
-#include "debugproc.h"
 #include "player.h"
 #include "field.h"
 #include "checkhit.h"
@@ -30,18 +29,16 @@
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice);
-void SetVertexBullet(int Index, float fSizeX, float fSizeY);
-bool CheckBlockInBullet(int index, int bno);
+void SetVertexBullet(int index, float sizeX, float sizeY);
 void MoveBullet(int index, int bno);
-//bool CheckReflectBullet(int index, int bno);
-//void SetDiffuseBullet(int Index, float val);
+void CheckReflection(int index, int bno);
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9		D3DTextureBullet[TEXTURE_MAX];	// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBullet = NULL;	// 頂点バッファインターフェースへのポインタ
-BULLET					bulletWk[BULLET_SET_MAX];
+LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffBullet = NULL;		// 頂点バッファインターフェースへのポインタ
+BULLET					BulletWk[BULLET_SET_MAX];		// バレット構造体	
 
 //===============================================================================
 // 初期化処理
@@ -51,7 +48,7 @@ BULLET					bulletWk[BULLET_SET_MAX];
 HRESULT InitBullet(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	BULLET *bullet = &bulletWk[0];
+	BULLET *bullet = &BulletWk[0];
 
 	// 頂点情報の作成
 	MakeVertexBullet(pDevice);
@@ -68,7 +65,7 @@ HRESULT InitBullet(int type)
 			&D3DTextureBullet[TEX_NUM002]);	// 読み込むメモリー
 	}
 
-
+	// 各変数の初期化
 	for (int i = 0; i < BULLET_SET_MAX; i++)
 	{
 		bullet[i].speedIncrease = 0.0f;		
@@ -79,7 +76,6 @@ HRESULT InitBullet(int type)
 		for (int j = 0; j < BULLET_ONESET_MAX; j++)
 		{	
 			bullet[i].use[j] = false;									
-			bullet[i].reflect[j] = false;
 			bullet[i].pos[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			
 			bullet[i].rot[j] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		
 			bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
@@ -119,7 +115,7 @@ void UninitBullet(void)
 //===============================================================================
 void UpdateBullet(void)
 {
-	BULLET *bullet = &bulletWk[0];
+	BULLET *bullet = &BulletWk[0];
 	int i, j;
 
 	for (i = 0; i < BULLET_SET_MAX; i++)
@@ -129,11 +125,15 @@ void UpdateBullet(void)
 			// 使用中ならば
 			if (bullet[i].use[j])
 			{
-				// 現在位置を保存
+				// 前回位置を保存
 				bullet[i].prevPos[j] = bullet[i].pos[j];
 
+				// バレットエフェクトの発生
 				SetBulletEffect(bullet[i].pos[j], i);
 				
+				// 反射判定処理
+				CheckReflection(i, j);
+
 				// 移動処理
 				MoveBullet(i, j);
 
@@ -143,12 +143,11 @@ void UpdateBullet(void)
 				bullet[i].pos[j].z += bullet[i].move[j].z;
 
 				// 消滅処理
-				if (!CheckBlockInBullet(i, j))
+				if (bullet[i].cntReflect[j] == 0)
 				{
 					bullet[i].use[j] = false;
-					bullet[i].reflect[j] = false;
-					bullet[i].scl[j] = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 					bullet[i].speed[j] = INIT_BULLET_SPEED;
+					bullet[i].cntReflect[j] = INIT_REFLECT_CNT;
 				}
 			}
 		}
@@ -162,7 +161,7 @@ void DrawBullet(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX *mtxView, mtxScale, mtxTranslate;
-	BULLET *bullet = &bulletWk[0];
+	BULLET *bullet = &BulletWk[0];
 
 	// Z比較なし
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
@@ -300,10 +299,10 @@ HRESULT MakeVertexBullet(LPDIRECT3DDEVICE9 pDevice)
 
 //=================================================================================
 // 頂点座標の設定
-// 引　数：int Index(bレットのアドレス番号),float fSizeX(横幅),float fSizeY(縦幅)
+// 引　数：int index(バレットのアドレス番号),float sizeX(横幅),float sizeY(縦幅)
 // 戻り値：なし
 //=================================================================================
-void SetVertexBullet(int Index, float fSizeX, float fSizeY)
+void SetVertexBullet(int index, float sizeX, float sizeY)
 {
 	{//頂点バッファの中身を埋める
 		VERTEX_3D *pVtx;
@@ -311,13 +310,13 @@ void SetVertexBullet(int Index, float fSizeX, float fSizeY)
 		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
 		D3DVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
 
-		pVtx += (Index * 4);
+		pVtx += (index * 4);
 
 		// 頂点座標の設定
-		pVtx[0].vtx = D3DXVECTOR3(-fSizeX / 2, -fSizeY / 2, 0.0f);
-		pVtx[1].vtx = D3DXVECTOR3(-fSizeX / 2, fSizeY / 2, 0.0f);
-		pVtx[2].vtx = D3DXVECTOR3(fSizeX / 2, -fSizeY / 2, 0.0f);
-		pVtx[3].vtx = D3DXVECTOR3(fSizeX / 2, fSizeY / 2, 0.0f);
+		pVtx[0].vtx = D3DXVECTOR3(-sizeX / 2, -sizeY / 2, 0.0f);
+		pVtx[1].vtx = D3DXVECTOR3(-sizeX / 2, sizeY / 2, 0.0f);
+		pVtx[2].vtx = D3DXVECTOR3(sizeX / 2, -sizeY / 2, 0.0f);
+		pVtx[3].vtx = D3DXVECTOR3(sizeX / 2, sizeY / 2, 0.0f);
 
 		// 頂点データをアンロックする
 		D3DVtxBuffBullet->Unlock();
@@ -328,35 +327,36 @@ void SetVertexBullet(int Index, float fSizeX, float fSizeY)
 //=========================================================================
 // バレットのアドレスを取得
 // 引　数：バレットのアドレス番号
-// 戻り値：BULLET構造体型
+// 戻り値：BULLET型
 //=========================================================================
 BULLET *GetBullet(int bno)
 {
-	return &bulletWk[bno];
+	return &BulletWk[bno];
 }
 
 //=========================================================================
 // バレットの生成
-// 引　数：D3DXVECTOR3 pos(位置)、D3DXVECTOR3 rot(角度)、float Dest(距離)
-// 戻り値：bool型　未使用の場合 true、使用中の場合 false
+// 引　数：D3DXVECTOR3 pos(位置)、D3DXVECTOR3 rot(角度)、float speed(速度の増加値)
+//		   float Dest(距離)、int index(組バレットのアドレス)
+// 戻り値：な　し
 //=========================================================================
 void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int index)
 {
-	BULLET *bullet = &bulletWk[index];
+	BULLET *bullet = &BulletWk[index];
 
 	for (int i = 0; i < BULLET_ONESET_MAX; i++)
 	{
 		if (!bullet->use[i])
 		{
 			PlaySound(bullet[i].BulletSE, E_DS8_FLAG_NONE);
-			bullet->use[i] = true;									// 使用中へ
-			bullet->pos[i].x = pos.x + cosf(rot.y) * Dest;			// プレイヤーの位置へ　
-			bullet->pos[i].z = pos.z + sinf(rot.y) * Dest;			//　
-			bullet->pos[i].y = pos.y;								//
-			bullet->rot[i] = rot;									// 回転量を代入
- 			bullet->speed[i] = bullet->speed[i] + speed;			// 速度を
+			bullet->use[i] = true;										// 使用中へ
+			bullet->pos[i].x = pos.x + cosf(rot.y) * Dest;				// プレイヤーの位置へ　
+			bullet->pos[i].z = pos.z + sinf(rot.y) * Dest;				//　
+			bullet->pos[i].y = pos.y;									//
+			bullet->rot[i] = rot;										// 回転量を代入
+ 			bullet->speed[i] = bullet->speed[i] + speed;				// 速度を
 			SetVertexBullet(i, bullet->size[i].x, bullet->size[i].y);	// 頂点を作成
-			bullet->speedIncrease = 0.0f;							// 速度Aの増加値を初期化
+			bullet->speedIncrease = 0.0f;								// 速度の増加値を初期化
 
 			return;
 		}
@@ -371,70 +371,34 @@ void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int in
 //========================================================================
 void MoveBullet(int index, int bno)
 {
-	BULLET *bullet = &bulletWk[index];
+	BULLET *bullet = &BulletWk[index];
 
-	if (!bullet->reflect[bno])
+	if (bullet->cntReflect[bno] >= INIT_REFLECT_CNT)
 	{
 		bullet->move[bno].x = sinf(bullet->rot[bno].y) * bullet->speed[bno];
 		bullet->move[bno].y = tanf(bullet->rot[bno].x) * bullet->speed[bno];
 		bullet->move[bno].z = cosf(bullet->rot[bno].y) * bullet->speed[bno];
-
-		// バレットとブロックの当たり判定
-		if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno], BLOCK_VTX_MAX))
-		{
-			PlaySound(bullet->ReflectSE, E_DS8_FLAG_NONE);
-			bullet->refVec[bno] = ReflectVector(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno],GetNormal());
-			bullet->move[bno] = bullet->refVec[bno] * bullet->speed[bno];
-			bullet->reflect[bno] = true;
-			bullet->cntReflect[bno]--;
-		}
 	}
-	else if (bullet->reflect[bno])
+	else if (bullet->cntReflect[bno] < INIT_REFLECT_CNT)
 	{
 		bullet->move[bno] = bullet->refVec[bno] * bullet->speed[bno];
 	}
 }
 
 //========================================================================
-// バレットの画面内外判定処理
+// バレットの反射判定処理
 // 引　数：int index(組バレットのアドレス), int bno(バレット単体のアドレス)
-// 戻り値：bool型　trueであれば画面内にある、falseならば画面外にある
+// 戻り値：な　し
 //========================================================================
-bool CheckBlockInBullet(int index, int bno)
+void CheckReflection(int index, int bno)
 {
-	BULLET *bullet = &bulletWk[index];
-	
-	if (bullet->pos[bno].x > SCREEN_WIDTH  / 2)		return false;
-	if (bullet->pos[bno].x < -SCREEN_WIDTH / 2)		return false;
-	if (bullet->pos[bno].z > SCREEN_HEIGHT / 2)		return false;
-	if (bullet->pos[bno].z < -SCREEN_HEIGHT / 2)	return false;
+	BULLET *bullet = &BulletWk[index];
 
-	return true;
-}
-
-//========================================================================
-// バレットの反射回数判定処理
-// 引　数：int index(組バレットのアドレス), int blockNo(ブロックのアドレス)
-//		   D3DXVECTOR3 pos(対象バレットの位置)
-// 戻り値：bool型　trueであれば、falseならば消滅
-//========================================================================
-void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos)
-{
-	BULLET *bullet = GetBullet(index);	//バレットのアドレスを取得
-	for (int i = 0; i < BULLET_ONESET_MAX; i++)
+	// バレットとブロックの当たり判定
+	if (!HitCheckBlock(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno], BLOCK_VTX_MAX))
 	{
-		if (!bullet->use[i]) continue;
-		if (CheckHitBB(bullet->pos[i], pos,
-			D3DXVECTOR3(15.0f, 15.0f, 15.0f), D3DXVECTOR3(25.0f, 25.0f, 25.0f)))
-		{
-			bullet->cntReflect[i]--;
-			if (bullet->cntReflect[i] < 0)
-			{
-				bullet->use[i] = false;
-				bullet->reflect[i] = false;
-				bullet->cntReflect[i] = 2;
-				bullet->speed[i] = INIT_BULLET_SPEED;
-			}
-		}
+		PlaySound(bullet->ReflectSE, E_DS8_FLAG_NONE);
+		bullet->refVec[bno] = ReflectVector(bullet->pos[bno] + bullet->move[bno], bullet->prevPos[bno], GetNormal());
+		bullet->cntReflect[bno]--;
 	}
 }

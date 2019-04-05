@@ -38,7 +38,7 @@ void ChaseBall(int index, int cno);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static LPDIRECT3DTEXTURE9	D3DTexture = NULL;					// テクスチャへのポインタ
+static LPDIRECT3DTEXTURE9	D3DTexture = NULL;			// テクスチャへのポインタ
 static LPD3DXMESH			D3DMesh[BALL_SET_MAX];		// メッシュ情報へのポインタ
 static LPD3DXBUFFER			D3DXBuffMat[BALL_SET_MAX];	// マテリアル情報へのポインタ
 static DWORD				NumMat[BALL_SET_MAX];		// マテリアル情報の数
@@ -164,7 +164,7 @@ void UpdateBall(void)
 				}
 
 				// フィールド上での動き
-				if (ball[i].pos[j].y > 10.0f)
+				if (ball[i].pos[j].y > 0.0f)
 				{
 					// 追跡
 					ChaseBall(i, j);
@@ -319,6 +319,7 @@ void ChaseBall(int index, int cno)
 	// 追従ベクトルの計算
 	vec = player->pos - ball->pos[cno];
 	D3DXVec3Normalize(&vec, &vec);
+
 	// プレイヤーが範囲外に移動した場合追従
 	if (!CheckHitBC(player->pos, ball->pos[cno], BALL_SIZE, BALL_SIZE))
 	{

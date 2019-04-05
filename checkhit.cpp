@@ -29,18 +29,6 @@ void CheckHit(void)
 
 	/* 対ブロックの当たり判定 */
 	BLOCK *block = GetBlock(0);	// ブロックのアドレスを取得
-	for (i = 0; i < BLOCK_MAX; i++, block++)
-	{
-		// ブロックとバレットの判定
-		if (!block->use) continue;
-
-		for (j = 0; j < BULLET_SET_MAX; j++)
-		{
-			CheckBlockHitBullet(i, j, block->pos);
-		}
-	}
-
-	block = GetBlock(0);		// ブロックのアドレスを取得
 	for (i = 0; i < BLOCK_NUM_FEARSIDE; i++, block++)
 	{
 		// P1の子供モデルとの判定

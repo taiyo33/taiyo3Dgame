@@ -1,6 +1,6 @@
 //=============================================================================
 //
-// 子供モデル処理 [ball.h]
+// ボールモデル処理 [ball.h]
 // Author : GP11A_341_22_田中太陽
 //
 //=============================================================================
@@ -10,8 +10,8 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define BALL_SET_MAX	(2)
-#define BALL_ONESET_MAX	(100)
+#define BALL_SET_MAX	(2)		// 組の最大数
+#define BALL_ONESET_MAX	(100)	// 1組の最大数
 
 //*****************************************************************************
 // 構造体宣言
@@ -24,10 +24,7 @@ typedef struct {
 	D3DXVECTOR3				scl[BALL_ONESET_MAX];		// 大きさ(スケール)
 	D3DXVECTOR3				move[BALL_ONESET_MAX];		// 移動量
 	bool					use[BALL_ONESET_MAX];		// 使用状態
-	D3DXVECTOR3				vec[BALL_ONESET_MAX];
-	D3DXVECTOR3				v1[BALL_ONESET_MAX];
-	D3DXVECTOR3				v2[BALL_ONESET_MAX];
-	D3DXVECTOR3				v3[BALL_ONESET_MAX];
+	D3DXVECTOR3				vec[BALL_ONESET_MAX];		// 方向ベクトル
 	int						cnt;						// 子供モデルの数
 	LPDIRECTSOUNDBUFFER8	damageSE;					// 消滅SE
 }BALL;

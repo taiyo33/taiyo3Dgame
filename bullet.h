@@ -7,18 +7,21 @@
 #ifndef _BULLET_H_
 #define _BULLET_H_
 
-#include "main.h"
-
-
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
 #define BULLET_MAX				(128)				// 使用可能のバレット数
 #define BULLET_ONESET_MAX		(1)					// バレット1組の最大数
 #define BULLET_SET_MAX			(2)					// バレットの組数
 #define BULLET_CHARGE_FRAME_CNT	(10)				// チャージ速度の調整フレーム数
 #define BULLET_CHARGE_MAX		(10.0f)				// 速度チャージの最大値
-#define INIT_REFLECT_CNT		(1)					// 反射回数
+#define INIT_REFLECT_CNT		(2)					// 反射回数
 #define INIT_BULLET_SPEED		(5.0f)				// バレット速度の初期値
 #define BULLET_DAMAGE			(10.0f)				// バレットのダメージ値
 
+//*****************************************************************************
+// 構造体宣言
+//*****************************************************************************
 typedef struct
 {
 	D3DXMATRIX		mtxWorld;						// ワールドマトリックス
@@ -33,8 +36,8 @@ typedef struct
 	D3DXVECTOR3		scl[BULLET_ONESET_MAX];			// スケール
 	D3DXVECTOR3		size[BULLET_ONESET_MAX];		// 大きさ
 	D3DXVECTOR3		sclIncrease;					// スケールの増加値
-	LPDIRECTSOUNDBUFFER8	BulletSE;		// バレット発射時のSE
-	LPDIRECTSOUNDBUFFER8	ReflectSE;		// 反射時のSE
+	LPDIRECTSOUNDBUFFER8	BulletSE;				// バレット発射時のSE
+	LPDIRECTSOUNDBUFFER8	ReflectSE;				// 反射時のSE
 	int				time[BULLET_ONESET_MAX];		// 寿命
 	int				cntReflect[BULLET_ONESET_MAX];	// 反射回数
 	bool			use[BULLET_ONESET_MAX];			// 使用状態
@@ -53,6 +56,5 @@ void UpdateBullet(void);
 void DrawBullet(void);
 BULLET *GetBullet(int bno);
 void SetBullet(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float speed, float Dest, int index);
-void CheckBlockHitBullet(int blockNo, int index, D3DXVECTOR3 pos);
 
 #endif
