@@ -5,27 +5,24 @@
 //
 //=============================================================================
 #include "main.h"
+#include "title.h"
+#include "tutorial.h"
+#include "result.h"
 #include "light.h"
 #include "player.h"
 #include "hitEffect.h"
 #include "bullet.h"
-#include "title.h"
-#include "tutorial.h"
-#include "result.h"
 #include "time.h"
 #include "field.h"
 #include "checkhit.h"
 #include "explosion.h"
 #include "bulletEffect.h"
-#include "leftArm.h"
-#include "rightArm.h"
-#include "head.h"
 #include "block.h"
 #include "bulletGauge.h"
 #include "lifeGauge.h"
 #include "ball.h"
 #include "ai.h"
-#include "buttleGauge.h"
+#include "ballGauge.h"
 #include "gaugeEffect.h"
 #include "gameCall.h"
 #include "chargeEffect.h"
@@ -384,7 +381,7 @@ void Uninit(void)
 	UninitBall();
 
 	// バトルゲージの終了処理
-	UninitButtleGauge();
+	UninitBallGauge();
 
 	//
 	UninitGaugeEffect();
@@ -513,7 +510,7 @@ void Update(void)
 				UpdateLifeGauge();
 
 				// バトルゲージ更新
-				UpdateButtleGauge();
+				UpdateBallGauge();
 
 				// ゲージエフェクトの更新
 				UpdateGaugeEffect();
@@ -691,7 +688,7 @@ void Draw(void)
 				DrawBulletGauge();
 
 				// バトルゲージの描画
-				DrawButtleGauge();
+				DrawBallGauge();
 
 				// ゲージエフェクトの描画
 				DrawGaugeEffect();
@@ -746,7 +743,7 @@ void Draw(void)
 				DrawBulletGauge();
 
 				// バトルゲージの描画
-				DrawButtleGauge();
+				DrawBallGauge();
 
 				// ゲージエフェクトの描画
 				DrawGaugeEffect();
@@ -790,7 +787,7 @@ void Draw(void)
 				DrawBulletGauge();
 
 				// バトルゲージの描画
-				DrawButtleGauge();
+				DrawBallGauge();
 
 				// ゲージエフェクトの描画
 				DrawGaugeEffect();
@@ -934,7 +931,7 @@ void Init(HINSTANCE hInstance, HWND hWnd)
 	InitAi();
 
 	// バトルゲージの初期化
-	InitButtleGauge(0);
+	InitBallGauge(0);
 
 	// ゲージエフェクトの初期化
 	InitGaugeEffect(0);
@@ -1021,7 +1018,7 @@ void InitGame(void)
 	InitPause(INIT_GAME);
 
 	// バトルゲージの初期化
-	InitButtleGauge(INIT_GAME);
+	InitBallGauge(INIT_GAME);
 
 	// ゲージエフェクトの初期化
 	InitGaugeEffect(INIT_GAME);
@@ -1089,7 +1086,7 @@ void InitPauseGame(void)
 	InitPause(INIT_GAME);
 
 	// バトルゲージの初期化
-	InitButtleGauge(INIT_GAME);
+	InitBallGauge(INIT_GAME);
 
 	// ゲージエフェクトの初期化
 	InitGaugeEffect(INIT_GAME);

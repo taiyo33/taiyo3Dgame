@@ -6,7 +6,6 @@
 //=============================================================================
 #include "main.h"
 #include "pause.h"
-#include "input.h"
 #include "player.h"
 #include "ai.h"
 #include "lifeGauge.h"
@@ -18,13 +17,12 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define	TEXTURE_PAUSE		("data/TEXTURE/menu.png")	// 読み込むテクスチャファイル名
-#define TEXTURE_SELECT		("data/TEXTURE/bullet001.png")
+#define	TEXTURE_PAUSE		("data/TEXTURE/menu.png")			// 読み込むテクスチャファイル名
+#define TEXTURE_SELECT		("data/TEXTURE/bullet001.png")		// 読み込むテクスチャファイル名
 #define	TEXTURE_RESTART		("data/TEXTURE/restart_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_REOPNE		("data/TEXTURE/reopne_logo.png")	// 読み込むテクスチャファイル名
 #define	TEXTURE_RETITLE		("data/TEXTURE/retitle_logo.png")	// 読み込むテクスチャファイル名
-#define PAUSE_LOGO_MAX			(4)
-
+#define PAUSE_LOGO_MAX		(4)									// ロゴの最大数
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -36,25 +34,27 @@ void SetVertexPause(int move);
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9				D3DTexturePause = NULL;			// テクスチャへのポインタ
-static LPDIRECT3DTEXTURE9				D3DTextureLogo[PAUSE_LOGO_MAX];	// テクスチャへのポインタ
-static LPDIRECT3DTEXTURE9				D3DTextureSelect;			// テクスチャへのポインタ
+static LPDIRECT3DTEXTURE9		D3DTextureLogo[PAUSE_LOGO_MAX];	// テクスチャへのポインタ
+static LPDIRECT3DTEXTURE9		D3DTextureSelect;				// テクスチャへのポインタ
 
-VERTEX_2D						vertexWkPause[NUM_VERTEX];				// 頂点情報格納ワーク
-static VERTEX_2D						vertexWkLogo[PAUSE_LOGO_MAX][NUM_VERTEX];		// 頂点情報格納ワーク
-static VERTEX_2D						vertexWkSelect[NUM_VERTEX];				// 頂点情報格納ワーク
-static float					yMove;				// ロゴの位置調整
-static int						SelectNum;			// セレクトのされているロゴ番号
-bool							PauseUse;			// メニュー決定フラグ
-static int						CntFrame;
-//=============================================================================
+VERTEX_2D						VertexWkPause[NUM_VERTEX];					// 頂点情報格納ワーク
+static VERTEX_2D				VertexWkLogo[PAUSE_LOGO_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
+static VERTEX_2D				VertexWkSelect[NUM_VERTEX];					// 頂点情報格納ワーク
+static float					MoveY;						// ロゴの位置調整
+static int						SelectNum;					// セレクトのされているロゴ番号
+bool							PauseUse;					// メニュー決定フラグ
+static int						CntFrame;					// 操作可能までのフレームカウント
+//===============================================================================
 // 初期化処理
-//=============================================================================
+// 引　数：int type(再初期化の2数判定値)
+// 戻り値：HRESULT型
+//===============================================================================
 HRESULT InitPause(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	
 	// 変数初期化
-	yMove = 0.0;
+	MoveY = 0.0;
 	SelectNum = 0;
 	PauseUse = false;
 	CntFrame = 0;
@@ -118,6 +118,7 @@ void UpdatePause(void)
 {
 	PLAYER *player = GetPlayer(0);
 
+	// ポーズへ遷移してからカウント
 	if (GetPause())
 	{
 		CntFrame++;
@@ -145,26 +146,24 @@ void UpdatePause(void)
 	// 上方向のセレクトを移動
 	if (GetKeyboardTrigger(DIK_UP))
 	{
-
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexPause(SelectNum);
 	}
 	else if (IsButtonTriggered(P1, BUTTON_UP))
 	{
-
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexPause(SelectNum);
 	}
 	else if (IsButtonTriggered(P2, BUTTON_UP))
 	{
-
 		SelectNum = (SelectNum + 2) % 3;
 		SetVertexPause(SelectNum);
 	}
 
-	// 
+	// 30フレームで操作可能
 	if (CntFrame % 30 == 0)
 	{
+		// ポーズ解除
 		if ((GetKeyboardTrigger(DIK_M)))
 		{
 			SetPause(false);
@@ -183,6 +182,7 @@ void UpdatePause(void)
 		}
 	}
 
+	// チャージSEの停止
 	StopSound(player[P1].chargeSE);
 	StopSound(player[P2].chargeSE);
 
@@ -205,12 +205,15 @@ void UpdatePause(void)
 	// やり直しへ
 	else if (SelectNum == SELECT_REOPNE)
 	{
+		// ゲーム開始前まで戻る
 		if ((GetKeyboardTrigger(DIK_RETURN)))
 		{
+			// 全てのBGMの停止
 			StopSound(GetGameBGM01());
 			StopSound(GetGameBGM02());
 			StopSound(GetGameBGM03());
 
+			// NPCモードの場合
 			if (player[P2].npc)
 			{
 				InitGame();
@@ -222,17 +225,20 @@ void UpdatePause(void)
 				return;
 			}
 
+			// 初期状態へ
 			SetStage(STARTCALL);
 			SetPause(false);
 			InitGame();
 			StopSound(*GetTitleSound());
 		}
 		else if (IsButtonPressed(P1, BUTTON_A))
-		{
+		{		
+			// 全てのBGMの停止
 			StopSound(GetGameBGM01());
 			StopSound(GetGameBGM02());
 			StopSound(GetGameBGM03());
-
+			
+			// NPCモードの場合
 			if (player[P2].npc)
 			{
 				InitGame();
@@ -243,7 +249,8 @@ void UpdatePause(void)
 				SetPause(false);
 				return;
 			}
-	
+
+			// 初期状態へ
 			InitGame();
 			StopSound(*GetTitleSound());
 			SetStage(STARTCALL);
@@ -275,8 +282,10 @@ void UpdatePause(void)
 	// タイトルへ
 	else if (SelectNum == SELECT_RETITLE)
 	{
+		// タイトルまで戻る
 		if ((GetKeyboardTrigger(DIK_RETURN)))
 		{
+			// BCMの停止と初期化
 			StopSound(GetGameBGM01());
 			StopSound(GetGameBGM02());
 			StopSound(GetGameBGM03());			
@@ -286,6 +295,7 @@ void UpdatePause(void)
 		}
 		else if (IsButtonPressed(P1, BUTTON_A))
 		{
+			// BCMの停止と初期化
 			StopSound(GetGameBGM01());
 			StopSound(GetGameBGM02());
 			StopSound(GetGameBGM03());			
@@ -295,6 +305,7 @@ void UpdatePause(void)
 		}
 		else if (IsButtonPressed(P2, BUTTON_B))
 		{
+			// BCMの停止と初期化
 			StopSound(GetGameBGM01());
 			StopSound(GetGameBGM02());
 			StopSound(GetGameBGM03());			
@@ -326,7 +337,7 @@ void DrawPause(void)
 		pDevice->SetTexture(0, D3DTexturePause);
 
 		// ポリゴンの描画
-		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_PAUSE, vertexWkPause, sizeof(VERTEX_2D));
+		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_POLYGON, VertexWkPause, sizeof(VERTEX_2D));
 	}
 
 	// セレクトの描画
@@ -335,7 +346,7 @@ void DrawPause(void)
 		pDevice->SetTexture(0, D3DTextureSelect);
 
 		// ポリゴンの描画
-		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_PAUSE, vertexWkSelect, sizeof(VERTEX_2D));
+		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_POLYGON, VertexWkSelect, sizeof(VERTEX_2D));
 	}
 
 	// セレクトロゴの描画
@@ -345,7 +356,7 @@ void DrawPause(void)
 		pDevice->SetTexture(0, D3DTextureLogo[i]);
 
 		// ポリゴンの描画
-		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_PAUSE, vertexWkLogo[i], sizeof(VERTEX_2D));
+		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_POLYGON, VertexWkLogo[i], sizeof(VERTEX_2D));
 	}
 
 	// αテストを無効に
@@ -359,87 +370,88 @@ void DrawPause(void)
 HRESULT MakeVertexPause(void)
 {
 	float set = 0.0;
-	// タイトル背景
+	
+	// ポーズ枠
 	{
 		// 頂点座標の設定
-		vertexWkPause[0].vtx = D3DXVECTOR3(PAUSE_POS_X, PAUSE_POS_Y, 0.0f);
-		vertexWkPause[1].vtx = D3DXVECTOR3(PAUSE_POS_X + PAUSE_SIZE_X, PAUSE_POS_Y, 0.0f);
-		vertexWkPause[2].vtx = D3DXVECTOR3(PAUSE_POS_X, PAUSE_POS_Y + PAUSE_SIZE_Y, 0.0f);
-		vertexWkPause[3].vtx = D3DXVECTOR3(PAUSE_POS_X + PAUSE_SIZE_X, PAUSE_POS_Y + PAUSE_SIZE_Y, 0.0f);
+		VertexWkPause[0].vtx = D3DXVECTOR3(PAUSE_POS_X, PAUSE_POS_Y, 0.0f);
+		VertexWkPause[1].vtx = D3DXVECTOR3(PAUSE_POS_X + PAUSE_SIZE_X, PAUSE_POS_Y, 0.0f);
+		VertexWkPause[2].vtx = D3DXVECTOR3(PAUSE_POS_X, PAUSE_POS_Y + PAUSE_SIZE_Y, 0.0f);
+		VertexWkPause[3].vtx = D3DXVECTOR3(PAUSE_POS_X + PAUSE_SIZE_X, PAUSE_POS_Y + PAUSE_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWkPause[0].rhw =
-		vertexWkPause[1].rhw =
-		vertexWkPause[2].rhw =
-		vertexWkPause[3].rhw = 1.0f;
+		VertexWkPause[0].rhw =
+		VertexWkPause[1].rhw =
+		VertexWkPause[2].rhw =
+		VertexWkPause[3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWkPause[0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkPause[1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkPause[2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkPause[3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkPause[0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkPause[1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkPause[2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkPause[3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWkPause[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWkPause[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWkPause[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWkPause[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWkPause[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWkPause[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWkPause[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWkPause[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 	}
 
 	// セレクトロゴ
 	for (int j =  1; j < PAUSE_LOGO_MAX; j++, set += SET_LOGO)
 	{
 		// 頂点座標の設定
-		vertexWkLogo[j][0].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X, PAUSE_LOGO_POS_Y + set, 0.0f);
-		vertexWkLogo[j][1].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X + PAUSE_LOGO_SIZE_X, PAUSE_LOGO_POS_Y + set, 0.0f);
-		vertexWkLogo[j][2].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X, PAUSE_LOGO_POS_Y + PAUSE_LOGO_SIZE_Y + set, 0.0f);
-		vertexWkLogo[j][3].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X + PAUSE_LOGO_SIZE_X, PAUSE_LOGO_POS_Y + PAUSE_LOGO_SIZE_Y + set, 0.0f);
+		VertexWkLogo[j][0].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X, PAUSE_LOGO_POS_Y + set, 0.0f);
+		VertexWkLogo[j][1].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X + PAUSE_LOGO_SIZE_X, PAUSE_LOGO_POS_Y + set, 0.0f);
+		VertexWkLogo[j][2].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X, PAUSE_LOGO_POS_Y + PAUSE_LOGO_SIZE_Y + set, 0.0f);
+		VertexWkLogo[j][3].vtx = D3DXVECTOR3(PAUSE_LOGO_POS_X + PAUSE_LOGO_SIZE_X, PAUSE_LOGO_POS_Y + PAUSE_LOGO_SIZE_Y + set, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWkLogo[j][0].rhw =
-		vertexWkLogo[j][1].rhw =
-		vertexWkLogo[j][2].rhw =
-		vertexWkLogo[j][3].rhw = 1.0f;
+		VertexWkLogo[j][0].rhw =
+		VertexWkLogo[j][1].rhw =
+		VertexWkLogo[j][2].rhw =
+		VertexWkLogo[j][3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWkLogo[j][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkLogo[j][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkLogo[j][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkLogo[j][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkLogo[j][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkLogo[j][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkLogo[j][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkLogo[j][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWkLogo[j][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWkLogo[j][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWkLogo[j][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWkLogo[j][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWkLogo[j][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWkLogo[j][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWkLogo[j][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWkLogo[j][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
 	}
 
 	// セレクト
 	{
 		// 頂点座標の設定
-		vertexWkSelect[0].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X, PAUSE_SELECT_POS_Y, 0.0f);
-		vertexWkSelect[1].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X + PAUSE_SELECT_SIZE_X, PAUSE_SELECT_POS_Y, 0.0f);
-		vertexWkSelect[2].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X, PAUSE_SELECT_POS_Y + PAUSE_SELECT_SIZE_Y, 0.0f);
-		vertexWkSelect[3].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X + PAUSE_SELECT_SIZE_X, PAUSE_SELECT_POS_Y + PAUSE_SELECT_SIZE_Y, 0.0f);
+		VertexWkSelect[0].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X, PAUSE_SELECT_POS_Y, 0.0f);
+		VertexWkSelect[1].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X + PAUSE_SELECT_SIZE_X, PAUSE_SELECT_POS_Y, 0.0f);
+		VertexWkSelect[2].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X, PAUSE_SELECT_POS_Y + PAUSE_SELECT_SIZE_Y, 0.0f);
+		VertexWkSelect[3].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X + PAUSE_SELECT_SIZE_X, PAUSE_SELECT_POS_Y + PAUSE_SELECT_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWkSelect[0].rhw =
-		vertexWkSelect[1].rhw =
-		vertexWkSelect[2].rhw =
-		vertexWkSelect[3].rhw = 1.0f;
+		VertexWkSelect[0].rhw =
+		VertexWkSelect[1].rhw =
+		VertexWkSelect[2].rhw =
+		VertexWkSelect[3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWkSelect[0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkSelect[1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkSelect[2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWkSelect[3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkSelect[0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkSelect[1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkSelect[2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWkSelect[3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWkSelect[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWkSelect[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWkSelect[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWkSelect[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWkSelect[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWkSelect[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWkSelect[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWkSelect[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 	}
 
 	return S_OK;
@@ -447,17 +459,18 @@ HRESULT MakeVertexPause(void)
 
 //============================================================================
 // セレクトの設置
-// 引数：move（セレクトロゴの種類）
+// 引　数：int move（セレクトロゴの種類）
+// 戻り値：な　し
 //============================================================================
 void SetVertexPause(int move)
 {
 	// セレクトテクスチャの移動値
-	yMove = (SELECT_MOVE * (float) move);
+	MoveY = (SELECT_MOVE * (float) move);
 
 	// 頂点座標の設定
-	vertexWkSelect[0].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X, PAUSE_SELECT_POS_Y + yMove, 0.0f);
-	vertexWkSelect[1].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X + PAUSE_SELECT_SIZE_X, PAUSE_SELECT_POS_Y + yMove, 0.0f);
-	vertexWkSelect[2].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X, PAUSE_SELECT_POS_Y + PAUSE_SELECT_SIZE_Y + yMove, 0.0f);
-	vertexWkSelect[3].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X + PAUSE_SELECT_SIZE_X, PAUSE_SELECT_POS_Y + PAUSE_SELECT_SIZE_Y + yMove, 0.0f);
+	VertexWkSelect[0].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X, PAUSE_SELECT_POS_Y + MoveY, 0.0f);
+	VertexWkSelect[1].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X + PAUSE_SELECT_SIZE_X, PAUSE_SELECT_POS_Y + MoveY, 0.0f);
+	VertexWkSelect[2].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X, PAUSE_SELECT_POS_Y + PAUSE_SELECT_SIZE_Y + MoveY, 0.0f);
+	VertexWkSelect[3].vtx = D3DXVECTOR3(PAUSE_SELECT_POS_X + PAUSE_SELECT_SIZE_X, PAUSE_SELECT_POS_Y + PAUSE_SELECT_SIZE_Y + MoveY, 0.0f);
 }
 

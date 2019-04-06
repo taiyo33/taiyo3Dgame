@@ -6,25 +6,22 @@
 //=============================================================================
 #include "main.h"
 #include "lifeGauge.h"
-#include "input.h"
 #include "player.h"
 #include "ball.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define TEXTURE_LIFEGAUGE1	("data/TEXTURE/gauge00.png")	// 歩行用画像
-#define TEXTURE_LIFEGAUGE2	("data/TEXTURE/gauge_01.png")	// 歩行用画像
-#define TEXTURE_LIFEGAUGE3	("data/TEXTURE/gauge_02.png")	// 歩行用画像
-#define TEXTURE_LIFEGAUGE4	("data/TEXTURE/gauge_03.png")	// 歩行用画像
-#define LIFEGAUGE_RED_P1	(20.0f)
-#define LIFEGAUGE_YELLOW_P1	(50.0f)
-#define LIFEGAUGE_RED_P2	(20.0f)
-#define LIFEGAUGE_YELLOW_P2	(50.0f)
-#define LIFEGAUGE_VTX_MAX	(12)
-#define TEXTURE_MAX			(7)
-#define LIFEGAUGE_MAX		(2)
-
+#define TEXTURE_LIFEGAUGE1	("data/TEXTURE/gauge00.png")	// 外枠画像
+#define TEXTURE_LIFEGAUGE2	("data/TEXTURE/gauge_01.png")	// 緑ゲージ画像
+#define TEXTURE_LIFEGAUGE3	("data/TEXTURE/gauge_02.png")	// 黄色ゲージ画像
+#define TEXTURE_LIFEGAUGE4	("data/TEXTURE/gauge_03.png")	// 赤ゲージ画像
+#define LIFEGAUGE_RED_P1	(20.0f)							// P1のゲージ色変更値(赤)
+#define LIFEGAUGE_YELLOW_P1	(50.0f)							// P1のゲージ色変更値(黄色)
+#define LIFEGAUGE_RED_P2	(20.0f)							// P2のゲージ色変更値(赤)
+#define LIFEGAUGE_YELLOW_P2	(50.0f)							// P2のゲージ色変更値(黄色)
+#define TEXTURE_MAX			(7)								// テクスチャーの最大数
+#define LIFEGAUGE_MAX		(2)								// ライフゲージの最大数
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -37,19 +34,20 @@ void SetVertexLifeGauge02(float val);
 void SetTextureLifeGauge02(float val);
 void SetLifeGaugeTextureType02(int index, float life);
 
-
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9			D3DTextureLifeGauge[TEXTURE_MAX];		// テクスチャへのポインタ
-static VERTEX_2D			vertexWk[TEXTURE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
+LPDIRECT3DTEXTURE9	D3DTextureLifeGauge[TEXTURE_MAX];	// テクスチャへのポインタ
+static VERTEX_2D	VertexWk[TEXTURE_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
 
-int							TextureNumLifeGauge[LIFEGAUGE_MAX];	//
-int							TextureNumIcon[LIFEGAUGE_MAX];			// 
-bool						LifeGaugeUse[LIFEGAUGE_MAX];		// 
-//=============================================================================
+int					TextureNumLifeGauge[LIFEGAUGE_MAX];	// ライフゲージのテクスチャ番号
+int					TextureNumIcon[LIFEGAUGE_MAX];		// アイコンのテクスチャ番号
+bool				LifeGaugeUse[LIFEGAUGE_MAX];		// 使用状態
+//===============================================================================
 // 初期化処理
-//=============================================================================
+// 引　数：int type(再初期化の2数判定値)
+// 戻り値：HRESULT型
+//===============================================================================
 HRESULT InitLifeGauge(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -175,7 +173,7 @@ void DrawLifeGauge(void)
 				pDevice->SetTexture(0, D3DTextureLifeGauge[LIFEGAUGE001]);
 
 				// ポリゴンの描画
-				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[LIFEGAUGE001 + i], sizeof(VERTEX_2D));
+				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_POLYGON, VertexWk[LIFEGAUGE001 + i], sizeof(VERTEX_2D));
 			}
 
 			// 中身
@@ -186,7 +184,7 @@ void DrawLifeGauge(void)
 				pDevice->SetTexture(0, D3DTextureLifeGauge[TextureNumLifeGauge[i]]);
 
 				// ポリゴンの描画
-				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[LIFEGAUGE003 + i], sizeof(VERTEX_2D));
+				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_POLYGON, VertexWk[LIFEGAUGE003 + i], sizeof(VERTEX_2D));
 			}
 			
 			// アイコン
@@ -197,7 +195,7 @@ void DrawLifeGauge(void)
 				pDevice->SetTexture(0, D3DTextureLifeGauge[TextureNumIcon[i]]);
 
 				// ポリゴンの描画
-				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertexWk[PLAYERICON01 + i], sizeof(VERTEX_2D));
+				pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_POLYGON, VertexWk[PLAYERICON01 + i], sizeof(VERTEX_2D));
 			}
 		}
 	}
@@ -216,164 +214,164 @@ HRESULT MakeVertexLifeGauge(void)
 	// 外枠
 	{
 		// 頂点座標の設定
-		vertexWk[LIFEGAUGE001][0].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01, LIFEGAUGE_OUTERPOS_Y_01, 0.0f);
-		vertexWk[LIFEGAUGE001][1].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X, LIFEGAUGE_OUTERPOS_Y_01, 0.0f);
-		vertexWk[LIFEGAUGE001][2].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01, LIFEGAUGE_OUTERPOS_Y_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
-		vertexWk[LIFEGAUGE001][3].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X, LIFEGAUGE_OUTERPOS_Y_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
+		VertexWk[LIFEGAUGE001][0].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01, LIFEGAUGE_OUTERPOS_Y_01, 0.0f);
+		VertexWk[LIFEGAUGE001][1].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X, LIFEGAUGE_OUTERPOS_Y_01, 0.0f);
+		VertexWk[LIFEGAUGE001][2].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01, LIFEGAUGE_OUTERPOS_Y_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
+		VertexWk[LIFEGAUGE001][3].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X, LIFEGAUGE_OUTERPOS_Y_01 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWk[LIFEGAUGE001][0].rhw =
-			vertexWk[LIFEGAUGE001][1].rhw =
-			vertexWk[LIFEGAUGE001][2].rhw =
-			vertexWk[LIFEGAUGE001][3].rhw = 1.0f;
+		VertexWk[LIFEGAUGE001][0].rhw =
+		VertexWk[LIFEGAUGE001][1].rhw =
+		VertexWk[LIFEGAUGE001][2].rhw =
+		VertexWk[LIFEGAUGE001][3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWk[LIFEGAUGE001][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE001][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE001][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE001][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE001][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE001][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE001][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE001][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWk[LIFEGAUGE001][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWk[LIFEGAUGE001][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWk[LIFEGAUGE001][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWk[LIFEGAUGE001][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWk[LIFEGAUGE001][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWk[LIFEGAUGE001][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWk[LIFEGAUGE001][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWk[LIFEGAUGE001][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 	}
 
 	// 外枠
 	{
 		// 頂点座標の設定
-		vertexWk[LIFEGAUGE002][0].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02,LIFEGAUGE_OUTERPOS_Y_02, 0.0f);
-		vertexWk[LIFEGAUGE002][1].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X,LIFEGAUGE_OUTERPOS_Y_02, 0.0f);
-		vertexWk[LIFEGAUGE002][2].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02,LIFEGAUGE_OUTERPOS_Y_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
-		vertexWk[LIFEGAUGE002][3].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X,LIFEGAUGE_OUTERPOS_Y_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
+		VertexWk[LIFEGAUGE002][0].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02,LIFEGAUGE_OUTERPOS_Y_02, 0.0f);
+		VertexWk[LIFEGAUGE002][1].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X,LIFEGAUGE_OUTERPOS_Y_02, 0.0f);
+		VertexWk[LIFEGAUGE002][2].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02,LIFEGAUGE_OUTERPOS_Y_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
+		VertexWk[LIFEGAUGE002][3].vtx = D3DXVECTOR3(LIFEGAUGE_OUTERPOS_X_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_X,LIFEGAUGE_OUTERPOS_Y_02 + TEXTURE_LIFEGAUGE_OUTER_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWk[LIFEGAUGE002][0].rhw =
-			vertexWk[LIFEGAUGE002][1].rhw =
-			vertexWk[LIFEGAUGE002][2].rhw =
-			vertexWk[LIFEGAUGE002][3].rhw = 1.0f;
+		VertexWk[LIFEGAUGE002][0].rhw =
+		VertexWk[LIFEGAUGE002][1].rhw =
+		VertexWk[LIFEGAUGE002][2].rhw =
+		VertexWk[LIFEGAUGE002][3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWk[LIFEGAUGE002][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE002][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE002][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE002][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE002][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE002][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE002][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE002][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWk[LIFEGAUGE002][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWk[LIFEGAUGE002][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWk[LIFEGAUGE002][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWk[LIFEGAUGE002][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWk[LIFEGAUGE002][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWk[LIFEGAUGE002][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWk[LIFEGAUGE002][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWk[LIFEGAUGE002][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 	}
 	
 	// 中身
 	{
 		// 頂点座標の設定
-		vertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
-		vertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
-		vertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
-		vertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+		VertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
+		VertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
+		VertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+		VertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWk[LIFEGAUGE003][0].rhw =
-			vertexWk[LIFEGAUGE003][1].rhw =
-			vertexWk[LIFEGAUGE003][2].rhw =
-			vertexWk[LIFEGAUGE003][3].rhw = 1.0f;
+		VertexWk[LIFEGAUGE003][0].rhw =
+		VertexWk[LIFEGAUGE003][1].rhw =
+		VertexWk[LIFEGAUGE003][2].rhw =
+		VertexWk[LIFEGAUGE003][3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWk[LIFEGAUGE003][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE003][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE003][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE003][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE003][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE003][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE003][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE003][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWk[LIFEGAUGE003][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWk[LIFEGAUGE003][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWk[LIFEGAUGE003][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWk[LIFEGAUGE003][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWk[LIFEGAUGE003][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWk[LIFEGAUGE003][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWk[LIFEGAUGE003][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWk[LIFEGAUGE003][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 	}
 
 	// 中身
 	{
 		// 頂点座標の設定
-		vertexWk[LIFEGAUGE004][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02,LIFEGAUGE_INNERPOS_Y_02, 0.0f);
-		vertexWk[LIFEGAUGE004][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X,LIFEGAUGE_INNERPOS_Y_02, 0.0f);
-		vertexWk[LIFEGAUGE004][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02,LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
-		vertexWk[LIFEGAUGE004][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X,LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+		VertexWk[LIFEGAUGE004][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02,LIFEGAUGE_INNERPOS_Y_02, 0.0f);
+		VertexWk[LIFEGAUGE004][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X,LIFEGAUGE_INNERPOS_Y_02, 0.0f);
+		VertexWk[LIFEGAUGE004][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02,LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+		VertexWk[LIFEGAUGE004][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X,LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWk[LIFEGAUGE004][0].rhw =
-			vertexWk[LIFEGAUGE004][1].rhw =
-			vertexWk[LIFEGAUGE004][2].rhw =
-			vertexWk[LIFEGAUGE004][3].rhw = 1.0f;
+		VertexWk[LIFEGAUGE004][0].rhw =
+		VertexWk[LIFEGAUGE004][1].rhw =
+		VertexWk[LIFEGAUGE004][2].rhw =
+		VertexWk[LIFEGAUGE004][3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWk[LIFEGAUGE004][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE004][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE004][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[LIFEGAUGE004][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE004][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE004][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE004][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[LIFEGAUGE004][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWk[LIFEGAUGE004][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWk[LIFEGAUGE004][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWk[LIFEGAUGE004][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWk[LIFEGAUGE004][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWk[LIFEGAUGE004][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWk[LIFEGAUGE004][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWk[LIFEGAUGE004][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWk[LIFEGAUGE004][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 	}
 
 	// アイコン
 	{
 		// 頂点座標の設定
-		vertexWk[PLAYERICON01][0].vtx = D3DXVECTOR3(LIFEICON_POS_X_01, LIFEICON_POS_Y_01, 0.0f);
-		vertexWk[PLAYERICON01][1].vtx = D3DXVECTOR3(LIFEICON_POS_X_01 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_01, 0.0f);
-		vertexWk[PLAYERICON01][2].vtx = D3DXVECTOR3(LIFEICON_POS_X_01, LIFEICON_POS_Y_01 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
-		vertexWk[PLAYERICON01][3].vtx = D3DXVECTOR3(LIFEICON_POS_X_01 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_01 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
+		VertexWk[PLAYERICON01][0].vtx = D3DXVECTOR3(LIFEICON_POS_X_01, LIFEICON_POS_Y_01, 0.0f);
+		VertexWk[PLAYERICON01][1].vtx = D3DXVECTOR3(LIFEICON_POS_X_01 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_01, 0.0f);
+		VertexWk[PLAYERICON01][2].vtx = D3DXVECTOR3(LIFEICON_POS_X_01, LIFEICON_POS_Y_01 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
+		VertexWk[PLAYERICON01][3].vtx = D3DXVECTOR3(LIFEICON_POS_X_01 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_01 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWk[PLAYERICON01][0].rhw =
-			vertexWk[PLAYERICON01][1].rhw =
-			vertexWk[PLAYERICON01][2].rhw =
-			vertexWk[PLAYERICON01][3].rhw = 1.0f;
+		VertexWk[PLAYERICON01][0].rhw =
+		VertexWk[PLAYERICON01][1].rhw =
+		VertexWk[PLAYERICON01][2].rhw =
+		VertexWk[PLAYERICON01][3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWk[PLAYERICON01][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[PLAYERICON01][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[PLAYERICON01][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[PLAYERICON01][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[PLAYERICON01][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[PLAYERICON01][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[PLAYERICON01][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[PLAYERICON01][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWk[PLAYERICON01][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWk[PLAYERICON01][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWk[PLAYERICON01][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWk[PLAYERICON01][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWk[PLAYERICON01][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWk[PLAYERICON01][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWk[PLAYERICON01][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWk[PLAYERICON01][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
 	}
 
 	// アイコン
 	{
 		// 頂点座標の設定
-		vertexWk[PLAYERICON02][0].vtx = D3DXVECTOR3(LIFEICON_POS_X_02, LIFEICON_POS_Y_02, 0.0f);
-		vertexWk[PLAYERICON02][1].vtx = D3DXVECTOR3(LIFEICON_POS_X_02 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_02, 0.0f);
-		vertexWk[PLAYERICON02][2].vtx = D3DXVECTOR3(LIFEICON_POS_X_02, LIFEICON_POS_Y_02 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
-		vertexWk[PLAYERICON02][3].vtx = D3DXVECTOR3(LIFEICON_POS_X_02 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_02 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
+		VertexWk[PLAYERICON02][0].vtx = D3DXVECTOR3(LIFEICON_POS_X_02, LIFEICON_POS_Y_02, 0.0f);
+		VertexWk[PLAYERICON02][1].vtx = D3DXVECTOR3(LIFEICON_POS_X_02 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_02, 0.0f);
+		VertexWk[PLAYERICON02][2].vtx = D3DXVECTOR3(LIFEICON_POS_X_02, LIFEICON_POS_Y_02 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
+		VertexWk[PLAYERICON02][3].vtx = D3DXVECTOR3(LIFEICON_POS_X_02 + TEXTURE_LIFEICON_SIZE_X, LIFEICON_POS_Y_02 + TEXTURE_LIFEICON_SIZE_Y, 0.0f);
 
 		// テクスチャのパースペクティブコレクト用
-		vertexWk[PLAYERICON02][0].rhw =
-			vertexWk[PLAYERICON02][1].rhw =
-			vertexWk[PLAYERICON02][2].rhw =
-			vertexWk[PLAYERICON02][3].rhw = 1.0f;
+		VertexWk[PLAYERICON02][0].rhw =
+		VertexWk[PLAYERICON02][1].rhw =
+		VertexWk[PLAYERICON02][2].rhw =
+		VertexWk[PLAYERICON02][3].rhw = 1.0f;
 
 		// 反射光の設定
-		vertexWk[PLAYERICON02][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[PLAYERICON02][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[PLAYERICON02][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
-		vertexWk[PLAYERICON02][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[PLAYERICON02][0].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[PLAYERICON02][1].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[PLAYERICON02][2].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
+		VertexWk[PLAYERICON02][3].diffuse = D3DCOLOR_RGBA(255, 255, 255, 255);
 
 		// テクスチャ座標の設定
-		vertexWk[PLAYERICON02][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		vertexWk[PLAYERICON02][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-		vertexWk[PLAYERICON02][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		vertexWk[PLAYERICON02][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		VertexWk[PLAYERICON02][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		VertexWk[PLAYERICON02][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		VertexWk[PLAYERICON02][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		VertexWk[PLAYERICON02][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
 	}
 
@@ -387,10 +385,10 @@ HRESULT MakeVertexLifeGauge(void)
 //=============================================================================
 void SetTextureLifeGauge01(float val)
 {
-	vertexWk[LIFEGAUGE003][0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	vertexWk[LIFEGAUGE003][1].tex = D3DXVECTOR2(1.0f * (float)(val), 0.0f);
-	vertexWk[LIFEGAUGE003][2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	vertexWk[LIFEGAUGE003][3].tex = D3DXVECTOR2(1.0f * (float)(val), 1.0f);
+	VertexWk[LIFEGAUGE003][0].tex = D3DXVECTOR2(0.0f, 0.0f);
+	VertexWk[LIFEGAUGE003][1].tex = D3DXVECTOR2(1.0f * (float)(val), 0.0f);
+	VertexWk[LIFEGAUGE003][2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	VertexWk[LIFEGAUGE003][3].tex = D3DXVECTOR2(1.0f * (float)(val), 1.0f);
 }
 
 //=============================================================================
@@ -401,10 +399,10 @@ void SetTextureLifeGauge01(float val)
 void SetVertexLifeGauge01(float val)
 {
 	// 頂点座標の設定
-	vertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
-	vertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_01, 0.0f);
-	vertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
-	vertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+	VertexWk[LIFEGAUGE003][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01, 0.0f);
+	VertexWk[LIFEGAUGE003][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_01, 0.0f);
+	VertexWk[LIFEGAUGE003][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01, LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+	VertexWk[LIFEGAUGE003][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_01 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_01 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
 }
 
 //=============================================================================
@@ -414,10 +412,10 @@ void SetVertexLifeGauge01(float val)
 //=============================================================================
 void SetTextureLifeGauge02(float val)
 {
-	vertexWk[LIFEGAUGE004][0].tex = D3DXVECTOR2((float)(val), 0.0f);
-	vertexWk[LIFEGAUGE004][1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	vertexWk[LIFEGAUGE004][2].tex = D3DXVECTOR2((float)(val), 1.0f);
-	vertexWk[LIFEGAUGE004][3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	VertexWk[LIFEGAUGE004][0].tex = D3DXVECTOR2((float)(val), 0.0f);
+	VertexWk[LIFEGAUGE004][1].tex = D3DXVECTOR2(1.0f, 0.0f);
+	VertexWk[LIFEGAUGE004][2].tex = D3DXVECTOR2((float)(val), 1.0f);
+	VertexWk[LIFEGAUGE004][3].tex = D3DXVECTOR2(1.0f, 1.0f);
 }
 
 //=============================================================================
@@ -428,15 +426,15 @@ void SetTextureLifeGauge02(float val)
 void SetVertexLifeGauge02(float val)
 {
 	// 頂点座標の設定
-	vertexWk[LIFEGAUGE004][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_02, 0.0f);
-	vertexWk[LIFEGAUGE004][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_02, 0.0f);
-	vertexWk[LIFEGAUGE004][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
-	vertexWk[LIFEGAUGE004][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+	VertexWk[LIFEGAUGE004][0].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_02, 0.0f);
+	VertexWk[LIFEGAUGE004][1].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_02, 0.0f);
+	VertexWk[LIFEGAUGE004][2].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + (TEXTURE_LIFEGAUGE_INNER_SIZE_X * val), LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
+	VertexWk[LIFEGAUGE004][3].vtx = D3DXVECTOR3(LIFEGAUGE_INNERPOS_X_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_X, LIFEGAUGE_INNERPOS_Y_02 + TEXTURE_LIFEGAUGE_INNER_SIZE_Y, 0.0f);
 }
 
 //=============================================================================
-// テクスチャタイプの設定
-// 引　数：int LIFEGAUGE003(テクスチャタイプのアドレス番号), faloat life(プレイヤーの体力)
+// P1のテクスチャタイプの設定
+// 引　数：int index(テクスチャタイプのアドレス番号), faloat life(プレイヤーの体力)
 // 戻り値：な　し
 //=============================================================================
 void SetLifeGaugeTextureType01(int index, float life)
@@ -459,8 +457,8 @@ void SetLifeGaugeTextureType01(int index, float life)
 }
 
 //=============================================================================
-// テクスチャタイプの設定
-// 引　数：int LIFEGAUGE003(テクスチャタイプのアドレス番号), faloat life(プレイヤーの体力)
+// P2のテクスチャタイプの設定
+// 引　数：int index(テクスチャタイプのアドレス番号), faloat life(プレイヤーの体力)
 // 戻り値：な　し
 //=============================================================================
 void SetLifeGaugeTextureType02(int index, float life)
@@ -483,8 +481,8 @@ void SetLifeGaugeTextureType02(int index, float life)
 }
 
 //=============================================================================
-// アイコンのテクスチャタイプの設定
-// 引　数：な　し
+// P2のアイコンのテクスチャタイプの設定
+// 引　数：int index(テクスチャ番号)
 // 戻り値：な　し
 //=============================================================================
 void SetIconTextureType(int index)

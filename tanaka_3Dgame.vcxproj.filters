@@ -87,9 +87,6 @@
     <ClCompile Include="field.cpp">
       <Filter>ソース ファイル\stage</Filter>
     </ClCompile>
-    <ClCompile Include="shadow.cpp">
-      <Filter>ソース ファイル\effect</Filter>
-    </ClCompile>
     <ClCompile Include="leftArm.cpp">
       <Filter>ソース ファイル\player</Filter>
     </ClCompile>
@@ -119,9 +116,6 @@
     </ClCompile>
     <ClCompile Include="checkhit.cpp">
       <Filter>ソース ファイル\main</Filter>
-    </ClCompile>
-    <ClCompile Include="buttleGauge.cpp">
-      <Filter>ソース ファイル\ui</Filter>
     </ClCompile>
     <ClCompile Include="gaugeEffect.cpp">
       <Filter>ソース ファイル\effect</Filter>
@@ -156,6 +150,9 @@
     <ClCompile Include="ball.cpp">
       <Filter>ソース ファイル\npc</Filter>
     </ClCompile>
+    <ClCompile Include="ballGauge.cpp">
+      <Filter>ソース ファイル\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet.h">
@@ -185,9 +182,6 @@
     <ClInclude Include="field.h">
       <Filter>ヘッダー ファイル\stage</Filter>
     </ClInclude>
-    <ClInclude Include="shadow.h">
-      <Filter>ヘッダー ファイル\effect</Filter>
-    </ClInclude>
     <ClInclude Include="head.h">
       <Filter>ヘッダー ファイル\player</Filter>
     </ClInclude>
@@ -214,9 +208,6 @@
     </ClInclude>
     <ClInclude Include="bulletEffect.h">
       <Filter>ヘッダー ファイル\effect</Filter>
-    </ClInclude>
-    <ClInclude Include="buttleGauge.h">
-      <Filter>ヘッダー ファイル\ui</Filter>
     </ClInclude>
     <ClInclude Include="gaugeEffect.h">
       <Filter>ヘッダー ファイル\effect</Filter>
@@ -250,6 +241,9 @@
     </ClInclude>
     <ClInclude Include="ball.h">
       <Filter>ヘッダー ファイル\npc</Filter>
+    </ClInclude>
+    <ClInclude Include="ballGauge.h">
+      <Filter>ヘッダー ファイル\ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

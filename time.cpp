@@ -12,14 +12,13 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define TEXTURE_GAME_TIME		("data/TEXTURE/number16x32.png")	// サンプル用画像
-#define TEXTURE_TIME00_SIZE_X	(70)	// テクスチャサイズ
-#define TEXTURE_TIME00_SIZE_Y	(100)	// 同上
+#define TEXTURE_GAME_TIME		("data/TEXTURE/number16x32.png")	// タイマー画像
+#define TEXTURE_TIME00_SIZE_X	(70)		// テクスチャサイズ
+#define TEXTURE_TIME00_SIZE_Y	(100)		// 同上
 #define TIME_POS_X				(930)		// ポリゴンの初期位置X
 #define TIME_POS_Y				(120)		// 同上
 #define TIME_MAX				(60)		// スコアの最大値
 #define TIME_DIGIT				(2)			// 桁数
-#define NUM_TIME				(2)
 #define TIME_COUNT_FRAME		(60)		// 時間経過のフレーム数
 #define CHANGE_BGM				(10)		// BGMを鳴らす秒数
 
@@ -46,7 +45,6 @@ HRESULT InitTime(int type)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	
-	// テクスチャーの初期化を行う？
 	if (type == 0)
 	{
 		// テクスチャの読み込み
@@ -55,18 +53,19 @@ HRESULT InitTime(int type)
 			&g_pD3DTextureTime);				// 読み込むメモリのポインタ
 	}
 
+	// 各変数の初期化
 	for (int i = 0; i < TIME_DIGIT; i++)
 	{
-
 		PosTime = D3DXVECTOR3((float)TIME_POS_X - 16.0f, (float)TIME_POS_Y, 0.0f);
 		Time = TIME_MAX;
 		CntFrame = 0;
 
-		// 頂点情報の作成
-		MakeVertexTime();
 	}
 
 	GameBGM002 = LoadSound(BGM_GAME02);
+
+	// 頂点情報の作成
+	MakeVertexTime();
 
 	return S_OK;
 }
@@ -111,6 +110,7 @@ void UpdateTime(void)
 		Time--;
 		CntFrame = 0;
 	}
+
 #ifdef _DEBUG
 	if (GetKeyboardTrigger(DIK_T))
 	{
@@ -136,6 +136,7 @@ void DrawTime(void)
 
 	// テクスチャの設定
 	pDevice->SetTexture( 0, g_pD3DTextureTime );
+	
 	// 制限時間
 	for (int j = 1; j < TIME_DIGIT; j++, DigitMax++)
 	{
@@ -145,13 +146,14 @@ void DrawTime(void)
 		}
 	}
 
+	// 秒数桁分表示
 	for( i = 0; i < DigitMax; i++ )
 	{
 		// 頂点フォーマットの設定
 		pDevice->SetFVF(FVF_VERTEX_2D);
 
 		// ポリゴンの描画
-		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_TIME, VertexWkTime[i], sizeof(VERTEX_2D));
+		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, NUM_POLYGON, VertexWkTime[i], sizeof(VERTEX_2D));
 	}
 
 	// αテストを無効
@@ -205,8 +207,11 @@ HRESULT MakeVertexTime(void)
 
 	return S_OK;
 }
+
 //=============================================================================
 // 頂点座標の設定
+// 引　数：な　し
+// 戻り値：な　し
 //=============================================================================
 void SetTextureTime(void)
 {
@@ -227,10 +232,12 @@ void SetTextureTime(void)
 }
 //=============================================================================
 // 制限時間データをセットする
-// 引数:add :追加する点数。マイナスも可能、初期化などに。
+// 引　数:int add(経過時間)
+// 戻り値：な　し
 //=============================================================================
 void AddTime( int add )
-{
+{	
+	// 経過時間を減算
 	Time += add;
 	if( Time > TIME_MAX )
 	{
@@ -241,6 +248,7 @@ void AddTime( int add )
 		Time = 0;
 	}
 }
+
 //==============================================================================
 // 残り時間を取得
 // 引　数：な　し
@@ -254,7 +262,7 @@ int GetTime(void)
 //==============================================================================
 // ゲームBGM２を取得
 // 引　数：な　し
-// 戻り値：int 型　
+// 戻り値：LPDIRECTSOUNDBUFFER8 型　
 //==============================================================================
 LPDIRECTSOUNDBUFFER8 GetGameBGM02(void)
 {
