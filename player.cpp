@@ -617,7 +617,7 @@ void MovePlayer(int index)
 void WallShearPlayer(int index)
 {
 	// ポリゴンとの判定
-	if (!HitCheckBlock(Player[index].prevPos + Player[index].move, Player[index].prevPos, 3))
+	if (!HitCheckBlock(Player[index].prevPos + Player[index].move, Player[index].prevPos, BLOCK_VTX_MAX))
 	{	
 		// 壁ずりベクトルの算出
 		Player[index].move = WallShear(Player[index].pos + Player[index].move, GetNormal(), index);

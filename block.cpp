@@ -138,51 +138,51 @@ void DrawBlock(void)
 	{
 		if (Block[i].use)
 		{
-			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&MtxWorld);
-
-			// 移動を反映
-			D3DXMatrixTranslation(&mtxTranslate, Block[i].pos.x, Block[i].pos.y, Block[i].pos.z);
-			D3DXMatrixMultiply(&MtxWorld, &MtxWorld, &mtxTranslate);
-
-			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &MtxWorld);
-
-			// 現在のマテリアルを取得
-			pDevice->GetMaterial(&matDef);
-
-			// マテリアル情報に対するポインタを取得
-			pD3DXMat = (D3DXMATERIAL*)D3DXBuffMatBlock->GetBufferPointer();
-
-			for (int nCntMat = 0; nCntMat < (int)NumMat; nCntMat++)
-			{
-				// マテリアルの設定
-				pDevice->SetMaterial(&pD3DXMat[nCntMat].MatD3D);
-
-				// テクスチャの設定
-				pDevice->SetTexture(0, D3DTextureBlock);
-
-				// 描画
-				D3DXMeshBlock->DrawSubset(nCntMat);
-			}
-
 			//// ワールドマトリックスの初期化
-			//D3DXMatrixIdentity(&MtxWorldVtx);
+			//D3DXMatrixIdentity(&MtxWorld);
+
+			//// 移動を反映
+			//D3DXMatrixTranslation(&mtxTranslate, Block[i].pos.x, Block[i].pos.y, Block[i].pos.z);
+			//D3DXMatrixMultiply(&MtxWorld, &MtxWorld, &mtxTranslate);
 
 			//// ワールドマトリックスの設定
-			//pDevice->SetTransform(D3DTS_WORLD, &MtxWorldVtx);
+			//pDevice->SetTransform(D3DTS_WORLD, &MtxWorld);
 
-			//// 頂点バッファをデバイスのデータストリームにバインド
-			//pDevice->SetStreamSource(0, D3DVtxBuffBlock, 0, sizeof(VERTEX_3D));
+			//// 現在のマテリアルを取得
+			//pDevice->GetMaterial(&matDef);
 
-			//// 頂点フォーマットの設定
-			//pDevice->SetFVF(FVF_VERTEX_3D);
+			//// マテリアル情報に対するポインタを取得
+			//pD3DXMat = (D3DXMATERIAL*)D3DXBuffMatBlock->GetBufferPointer();
 
-			//// テクスチャの設定
-			//pDevice->SetTexture(0, D3DTextureBlock);
+			//for (int nCntMat = 0; nCntMat < (int)NumMat; nCntMat++)
+			//{
+			//	// マテリアルの設定
+			//	pDevice->SetMaterial(&pD3DXMat[nCntMat].MatD3D);
 
-			//// ポリゴンの描画
-			//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
+			//	// テクスチャの設定
+			//	pDevice->SetTexture(0, D3DTextureBlock);
+
+			//	// 描画
+			//	D3DXMeshBlock->DrawSubset(nCntMat);
+			//}
+
+			// ワールドマトリックスの初期化
+			D3DXMatrixIdentity(&MtxWorldVtx);
+
+			// ワールドマトリックスの設定
+			pDevice->SetTransform(D3DTS_WORLD, &MtxWorldVtx);
+
+			// 頂点バッファをデバイスのデータストリームにバインド
+			pDevice->SetStreamSource(0, D3DVtxBuffBlock, 0, sizeof(VERTEX_3D));
+
+			// 頂点フォーマットの設定
+			pDevice->SetFVF(FVF_VERTEX_3D);
+
+			// テクスチャの設定
+			pDevice->SetTexture(0, D3DTextureBlock);
+
+			// ポリゴンの描画
+			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, (i * NUM_VERTEX), NUM_POLYGON);
 
 		}
 	}
@@ -405,10 +405,10 @@ void InitVertexBlock(void)
 			pVtx[3].vtx = D3DXVECTOR3(VTX_SIZE_X, 0.0f, VTX_SIZE_Z);
 
 			// 法線ベクトルの設定
-			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-			pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-			pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+			pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+			pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
 			// 反射光の設定
 			pVtx[0].diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
@@ -422,6 +422,7 @@ void InitVertexBlock(void)
 			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 		}
+		pVtx += 4;
 
 		// 障害物ブロック配置
 		for (i = 0; i < BLOCK_LEFT_OUTSIDE_OBJ_VTX; i++, pVtx += 4, size += BLOCK_SIZE)
