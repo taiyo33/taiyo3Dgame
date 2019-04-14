@@ -15,6 +15,7 @@
 #define TEXTURE_BULLETGAUGE2	("data/TEXTURE/bullet_gauge_01.png")	// ゲージ緑色
 #define BULLETGAUGE_MAX			(2)										// ゲージの数
 #define TEXTURE_MAX				(2)										// テクスチャの最大数
+#define VERTEX_MAX				(4)
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -26,11 +27,11 @@ void SetVertexBulletGauge(int index, float val);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9			D3DTextureBulletGauge[TEXTURE_MAX];		// テクスチャへのポインタ
-static VERTEX_2D			VertexWk[TEXTURE_MAX][NUM_VERTEX];		// 頂点情報格納ワーク
+LPDIRECT3DTEXTURE9			D3DTextureBulletGauge[TEXTURE_MAX];	// テクスチャへのポインタ
+static VERTEX_2D			VertexWk[VERTEX_MAX][NUM_VERTEX];	// 頂点情報格納ワーク
 
-int							TexNumBulletGauge[BULLETGAUGE_MAX];		// テクスチャーの種類
-bool						BulletGaugeUse[BULLETGAUGE_MAX];		// 使用状態
+int							TexNumBulletGauge[BULLETGAUGE_MAX];	// テクスチャーの種類
+bool						BulletGaugeUse[BULLETGAUGE_MAX];	// 使用状態
 //===============================================================================
 // 初期化処理
 // 引　数：int type(再初期化の2数判定値)
@@ -57,7 +58,7 @@ HRESULT InitBulletGauge(int type)
 	// 各変数の初期化
 	for (int i = 0; i < BULLETGAUGE_MAX; i++)
 	{
-		TexNumBulletGauge[i] = TEX_NUM004;
+		TexNumBulletGauge[i] = TEX_NUM002;
 		BulletGaugeUse[i] = true;
 	}
 

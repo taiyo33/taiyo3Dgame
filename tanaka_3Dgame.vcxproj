@@ -139,6 +139,7 @@
     <ClCompile Include="chargeEffect.cpp" />
     <ClCompile Include="checkhit.cpp" />
     <ClCompile Include="debugproc.cpp" />
+    <ClCompile Include="fuzzy.cpp" />
     <ClCompile Include="hitEffect.cpp" />
     <ClCompile Include="field.cpp" />
     <ClCompile Include="gameCall.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="chargeEffect.h" />
     <ClInclude Include="checkhit.h" />
     <ClInclude Include="debugproc.h" />
+    <ClInclude Include="fuzzy.h" />
     <ClInclude Include="hitEffect.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="gameCall.h" />

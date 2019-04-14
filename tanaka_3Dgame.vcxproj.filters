@@ -153,6 +153,9 @@
     <ClCompile Include="ballGauge.cpp">
       <Filter>ソース ファイル\ui</Filter>
     </ClCompile>
+    <ClCompile Include="fuzzy.cpp">
+      <Filter>ソース ファイル\npc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bullet.h">
@@ -244,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="ballGauge.h">
       <Filter>ヘッダー ファイル\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="fuzzy.h">
+      <Filter>ヘッダー ファイル\npc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
