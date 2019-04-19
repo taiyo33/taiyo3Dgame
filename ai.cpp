@@ -14,6 +14,7 @@
 #include "field.h"
 #include "chargeEffect.h"
 #include "ball.h"
+#include "field.h"
 
 
 //*****************************************************************************
@@ -61,7 +62,7 @@
 #define MOVE_NPCBALL_ROUTINE_FUZZY_X2		(50.0f)
 #define MOVE_NPCBALL_ROUTINE_FUZZY_X3		(70.0f)
 #define MOVE_NPCBALL_ROUTINE_FUZZY_X4		(100.0f)
-#define MOVE_NPCBALL_CHASE_FUZZY_X1			(50.0f)
+#define MOVE_NPCBALL_CHASE_FUZZY_X1			(30.0f)
 #define MOVE_NPCBALL_CHASE_FUZZY_X2			(75.0f)
 #define MOVE_NPCBALL_ESCAPE_FUZZY_X1		(50.0f)
 #define MOVE_NPCBALL_ESCAPE_FUZZY_X2		(80.0f)
@@ -142,15 +143,15 @@ enum ROUTE_PATTERN{
 // 巡回のパターン
 D3DXVECTOR3		RouteData[ROUTEDATA_MAX]{
 
-	D3DXVECTOR3(0.0f, 0.0f, 0.0f),										// 中央
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, FIELD_SIZE_Z - 50.0f),	// 左上
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, FIELD_SIZE_Z - 50.0f),	// 右上
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, -FIELD_SIZE_Z + 50.0f),	// 左下
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, -FIELD_SIZE_Z + 50.0f),	// 右下
-	D3DXVECTOR3(-FIELD_SIZE_X + 100.0f, 10.0f, 0.0f),	// 左中央
-	D3DXVECTOR3(FIELD_SIZE_X - 100.0f, 10.0f, 0.0f),	// 右中央
-	D3DXVECTOR3(0.0f, 10.0f, FIELD_SIZE_Z - 80.0f),		// 上中央
-	D3DXVECTOR3(0.0f, 10.0f, -FIELD_SIZE_Z + 80.0f),	// 下中央
+	D3DXVECTOR3(0.0f, 0.0f, 0.0f),							// 中央
+	D3DXVECTOR3(-400.0f + 100.0f, 10.0f, 300.0f - 50.0f),	// 左上
+	D3DXVECTOR3(400.0f - 100.0f, 10.0f, 300.0f - 50.0f),	// 右上
+	D3DXVECTOR3(-400.0f + 100.0f, 10.0f, -300.0f + 50.0f),	// 左下
+	D3DXVECTOR3(400.0f - 100.0f, 10.0f, -300.0f + 50.0f),	// 右下
+	D3DXVECTOR3(-400.0f + 100.0f, 10.0f, 0.0f),				// 左中央
+	D3DXVECTOR3(400.0f - 100.0f, 10.0f, 0.0f),				// 右中央
+	D3DXVECTOR3(0.0f, 10.0f, 300.0f - 80.0f),				// 上中央
+	D3DXVECTOR3(0.0f, 10.0f, -300.0f + 80.0f),				// 下中央
 };
 
 AI			AiWk[PLAYER_MAX];
@@ -224,6 +225,12 @@ void NonePlayerMove(void)
 			// P2に隣接してるルートデータでP1に近いルートデータを計算
 			SwitchRoutePlayer(ai[P2].routeIndex, RouteData[ai[P1].routeIndex]);
 			ai->routineCntFrame = 0;
+
+#ifdef _DEBUG
+			
+			SetCollarField(ai[P2].routeIndex, 1.0f, 0.0f, 0.0f);	// フィールド色を赤へ
+
+#endif
 		}
 		// 逃走
 		else if (ai->decision == ai->cmpPattern[ESCAPE])
@@ -234,6 +241,12 @@ void NonePlayerMove(void)
 			// P2に隣接してるルートデータでP1に遠いルートデータを計算
 			SwitchRoutePlayer(ai[P2].routeIndex, RouteData[ai[P1].routeIndex]);
 			ai->routineCntFrame = 0;
+#ifdef _DEBUG
+
+			SetCollarField(ai[P2].routeIndex, 0.0f, 1.0f, 0.0f);	// フィールド色を赤へ
+
+#endif
+
 		}
 		// 巡回
 		else if (ai->decision == ai->cmpPattern[ROUTINE])
@@ -241,6 +254,12 @@ void NonePlayerMove(void)
 			ai->routineStart = true;	// 巡回の開始
 			SwitchRoutePlayer(ai->routeIndex, player[P2].pos);	// ルートの切替
 			ai->routineCntFrame = 0;	// ルート再考時間
+#ifdef _DEBUG
+
+			SetCollarField(ai[P2].routeIndex, 0.0f, 0.0f, 1.0f);	// フィールド色を赤へ
+
+#endif
+
 		}
 	}
 
@@ -304,7 +323,7 @@ void NonePlayerFuzzy(void)
 
 	}
 	// 相手ライフが最高値の時は考慮しない
-	else if (player[P2].life == 0.0f)
+	else if (player[P2].life == PLAYER_LIFE_MAX)
 	{
 		// 結果反映
 		ai->cmpPattern[CHASE] = ai->chase[PATTERN1] * ai->chase[PATTERN2];
@@ -746,4 +765,14 @@ int SwitchPatrolPattern(int pattern)
 	}
 
 	return out;
+}
+
+//==========================================================================
+// AIのアドレス取得処理
+// 引　数：int pno(プレイヤーのアドレス番号)
+// 戻り値：AI型構造体
+//==========================================================================
+AI *GetAi(int pno)
+{
+	return &AiWk[pno];
 }

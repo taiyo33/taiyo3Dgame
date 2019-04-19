@@ -179,7 +179,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// I—¹ˆ—
 	Uninit();
 
-	timeEndPeriod(1);				// •ª‰ğ”\‚ğ–ß‚·
+	timeEndPeriod(1);	// •ª‰ğ”\‚ğ–ß‚·
 
 	return (int)msg.wParam;
 }

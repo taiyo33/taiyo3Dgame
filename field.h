@@ -7,13 +7,6 @@
 #ifndef _FIELD_H_
 #define _FIELD_H_
 
-//=============================================================================
-//マクロ定義
-//=============================================================================
-#define FIELD_SIZE_X	(400.0f)	// 地面の初期位置
-#define FIELD_SIZE_Y	(0.0f)		//
-#define FIELD_SIZE_Z	(300.0f)	//			
-
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
@@ -21,5 +14,6 @@ HRESULT InitField(int type);
 void UninitField(void);
 void UpdateField(void);
 void DrawField(void);
+void SetCollarField(int fno, float colR, float colB, float colG);
 
 #endif

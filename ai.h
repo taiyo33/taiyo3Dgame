@@ -48,5 +48,6 @@ HRESULT InitAi(void);
 void NonePlayerMove(void);
 void NonePlayerAttack(void);
 void NonePlayerPatrol(int index);
+AI *GetAi(int pno);
 
 #endif
