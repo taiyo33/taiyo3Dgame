@@ -18,9 +18,10 @@
 #define TIME_POS_X				(930)		// ポリゴンの初期位置X
 #define TIME_POS_Y				(120)		// 同上
 #define TIME_MAX				(60)		// スコアの最大値
-#define TIME_DIGIT				(2)			// 桁数
+#define TIME_DIGIT				(3)			// 桁数
 #define TIME_COUNT_FRAME		(60)		// 時間経過のフレーム数
 #define CHANGE_BGM				(10)		// BGMを鳴らす秒数
+#define DEBUG_TIME				(999)		// デバック時の制限時間
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -54,14 +55,18 @@ HRESULT InitTime(int type)
 	}
 
 	// 各変数の初期化
-	for (int i = 0; i < TIME_DIGIT; i++)
-	{
-		PosTime = D3DXVECTOR3((float)TIME_POS_X - 16.0f, (float)TIME_POS_Y, 0.0f);
-		Time = TIME_MAX;
-		CntFrame = 0;
+	PosTime = D3DXVECTOR3((float)TIME_POS_X - 16.0f, (float)TIME_POS_Y, 0.0f);
+	CntFrame = 0;
+	Time = TIME_MAX;
 
-	}
+	
+#if _DEBUG // デバック時の変数初期化
 
+	Time = DEBUG_TIME;	// 999秒間
+
+#endif
+
+	// サウンドのロード
 	GameBGM002 = LoadSound(BGM_GAME02);
 
 	// 頂点情報の作成
@@ -116,7 +121,7 @@ void UpdateTime(void)
 	{
 		Time = 5;
 	}
-#endif // !_DEBUG
+#endif 
 
 }
 

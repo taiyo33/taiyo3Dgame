@@ -214,7 +214,7 @@ void NonePlayerMove(void)
 	{
 		// 移動処理の結果算出
 		NonePlayerFuzzy();
-
+		
 		// 追跡
 		if (ai->decision == ai->cmpPattern[CHASE])
 		{
@@ -228,7 +228,7 @@ void NonePlayerMove(void)
 
 #ifdef _DEBUG
 			
-			SetCollarField(ai[P2].routeIndex, 1.0f, 0.0f, 0.0f);	// フィールド色を赤へ
+			SetCollarField(ai->routeIndex, 1.0f, 0.0f, 0.0f);	// フィールド色を赤へ
 
 #endif
 		}
@@ -243,7 +243,7 @@ void NonePlayerMove(void)
 			ai->routineCntFrame = 0;
 #ifdef _DEBUG
 
-			SetCollarField(ai[P2].routeIndex, 0.0f, 1.0f, 0.0f);	// フィールド色を赤へ
+			SetCollarField(ai->routeIndex, 0.0f, 0.0f, 1.0f);	// フィールド色を青へ
 
 #endif
 
@@ -256,7 +256,7 @@ void NonePlayerMove(void)
 			ai->routineCntFrame = 0;	// ルート再考時間
 #ifdef _DEBUG
 
-			SetCollarField(ai[P2].routeIndex, 0.0f, 0.0f, 1.0f);	// フィールド色を赤へ
+			SetCollarField(ai->routeIndex, 0.0f, 1.0f, 0.0f);	// フィールド色を緑へ
 
 #endif
 
@@ -265,6 +265,8 @@ void NonePlayerMove(void)
 
 	// 移動処理
 	MoveVectorNonePlayer(RouteData[ai->routeIndex], 1.0f);
+
+	PrintDebugProc("ルート[%d]", ai->routeIndex);
 
 }
 
@@ -317,9 +319,9 @@ void NonePlayerFuzzy(void)
 		ai->routine[PATTERN3] = FuzzyTrapezoid(player[P2].life, MOVE_NPCLIFE_ROUTINE_FUZZY_X1, MOVE_NPCLIFE_ROUTINE_FUZZY_X2,
 			MOVE_NPCLIFE_ROUTINE_FUZZY_X3, MOVE_NPCLIFE_ROUTINE_FUZZY_X4);
 		// 結果反映
-		ai->cmpPattern[CHASE] *= ai->chase[PATTERN3];
-		ai->cmpPattern[ESCAPE] *= ai->escape[PATTERN3];
-		ai->cmpPattern[ROUTINE] *= ai->routine[PATTERN3];
+		ai->cmpPattern[CHASE] = ai->chase[PATTERN1] * ai->chase[PATTERN2] * ai->chase[PATTERN3];
+		ai->cmpPattern[ESCAPE] = ai->escape[PATTERN1] * ai->escape[PATTERN2] * ai->escape[PATTERN3];
+		ai->cmpPattern[ROUTINE] = ai->routine[PATTERN1] * ai->routine[PATTERN2] * ai->routine[PATTERN3];
 
 	}
 	// 相手ライフが最高値の時は考慮しない
@@ -395,7 +397,7 @@ void SwitchRoutePlayer(int pattern, D3DXVECTOR3 vec)
 			break;
 
 		case ROUTE01:
-			// 5,6のルートデータを比較
+			// 5,7のルートデータを比較
 			DistanceRoutePlayer01(vec, ROUTE05, ROUTE08, 1);
 			break;
 
@@ -572,9 +574,9 @@ void DistanceRoutePlayer02(D3DXVECTOR3 vec , int cnt, int cntMax, int raiseCnt)
 		// 結果が逃走だった場合
 		else if (ai->decision == ai->cmpPattern[ESCAPE])
 		{
-			vestRoute02 = max(ai->lenVec[arrey], vestRoute02);
+			vestRoute01 = max(ai->lenVec[arrey], vestRoute01);
 
-			if (vestRoute02 == ai->lenVec[arrey])
+			if (vestRoute01 == ai->lenVec[arrey])
 			{
 				ai->routeIndex = arrey;
 			}
@@ -598,7 +600,7 @@ void NonePlayerDest(D3DXVECTOR3 vecDest,int index)
 {
 	PLAYER *player = GetPlayer(index);
 	CAMERA *camera = GetCamera();
-	D3DXVECTOR3 vec = vecDest - player->pos;	// 進行方向ベクトル
+	D3DXVECTOR3 vec = vecDest - player->pos;					// 進行方向ベクトル
 	D3DXVec3Normalize(&vec, &vec);
 	D3DXVec3Normalize(&player->frontVec, &player->frontVec);	// 現在のモデルの正面
 

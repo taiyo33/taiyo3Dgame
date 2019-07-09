@@ -27,10 +27,11 @@ void InitPosField(void);
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9		D3DTextureField = NULL;	// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffField = NULL;	// 頂点バッファへのポインタ
-
-
+LPDIRECT3DVERTEXBUFFER9 D3DVtxBuffField[FIELD_MAX];	// 頂点バッファへのポインタ
 D3DXMATRIX				MtxWorldField;			// ワールドマトリックス
+
+
+static int				PrevFno;				// 前回色変更をしたフィールドのアドレス番号
 D3DXVECTOR3				PosField[FIELD_MAX];	// 現在の位置
 //=============================================================================
 // 初期化処理
@@ -61,16 +62,19 @@ HRESULT InitField(int type)
 //=============================================================================
 void UninitField(void)
 {
-	if(D3DTextureField != NULL)
+	if (D3DTextureField != NULL)
 	{// テクスチャの開放
 		D3DTextureField->Release();
 		D3DTextureField = NULL;
 	}
 
-	if(D3DVtxBuffField != NULL)
-	{// 頂点バッファの開放
-		D3DVtxBuffField->Release();
-		D3DVtxBuffField = NULL;
+	for (int i = 0; i < FIELD_MAX; i++)
+	{
+		if (D3DVtxBuffField != NULL)
+		{// 頂点バッファの開放
+			D3DVtxBuffField[i]->Release();
+			D3DVtxBuffField[i] = NULL;
+		}
 	}
 }
 
@@ -102,7 +106,7 @@ void DrawField(void)
 		pDevice->SetTransform(D3DTS_WORLD, &MtxWorldField);
 
 		// 頂点バッファをデバイスのデータストリームにバインド
-		pDevice->SetStreamSource(0, D3DVtxBuffField, 0, sizeof(VERTEX_3D));
+		pDevice->SetStreamSource(0, D3DVtxBuffField[i], 0, sizeof(VERTEX_3D));
 
 		// 頂点フォーマットの設定
 		pDevice->SetFVF(FVF_VERTEX_3D);
@@ -120,51 +124,56 @@ void DrawField(void)
 //=============================================================================
 HRESULT MakeVertexField(LPDIRECT3DDEVICE9 pDevice)
 {
-	// オブジェクトの頂点バッファを生成
-	if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX * FIELD_MAX,	// 頂点データ用に確保するバッファサイズ(バイト単位)
-		D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
-		FVF_VERTEX_3D,				// 使用する頂点フォーマット
-		D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
-		&D3DVtxBuffField,			// 頂点バッファインターフェースへのポインタ
-		NULL)))						// NULLに設定
+
+	for (int i = 0; i < FIELD_MAX; i++)
 	{
-		return E_FAIL;
-	}
 
-	{	
-		//頂点バッファの中身を埋める
-		VERTEX_3D			   *pVtx;
-		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-		D3DVtxBuffField->Lock(0, 0, (void**)&pVtx, 0);
-
-		for (int i = 0; i < FIELD_MAX; i++, pVtx += 4)
+		// オブジェクトの頂点バッファを生成
+		if (FAILED(pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX ,	// 頂点データ用に確保するバッファサイズ(バイト単位)
+			D3DUSAGE_WRITEONLY,			// 頂点バッファの使用法　
+			FVF_VERTEX_3D,				// 使用する頂点フォーマット
+			D3DPOOL_MANAGED,			// リソースのバッファを保持するメモリクラスを指定
+			&D3DVtxBuffField[i],			// 頂点バッファインターフェースへのポインタ
+			NULL)))						// NULLに設定
 		{
-			// 頂点座標の設定
-			pVtx[0].vtx = D3DXVECTOR3(-FIELD_SIZE_X, FIELD_SIZE_Y, FIELD_SIZE_Z);
-			pVtx[1].vtx = D3DXVECTOR3(FIELD_SIZE_X, FIELD_SIZE_Y, FIELD_SIZE_Z);
-			pVtx[2].vtx = D3DXVECTOR3(-FIELD_SIZE_X, FIELD_SIZE_Y, -FIELD_SIZE_Z);
-			pVtx[3].vtx = D3DXVECTOR3(FIELD_SIZE_X, FIELD_SIZE_Y, -FIELD_SIZE_Z);
-
-			// 法線ベクトルの設定
-			pVtx[0].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-			pVtx[1].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-			pVtx[2].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-			pVtx[3].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-
-			// 反射光の設定
-			pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-			// テクスチャ座標の設定
-			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+			return E_FAIL;
 		}
+
+		{	
+			//頂点バッファの中身を埋める
+			VERTEX_3D			   *pVtx;
+			// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
+			D3DVtxBuffField[i]->Lock(0, 0, (void**)&pVtx, 0);
+
+				// 頂点座標の設定
+				pVtx[0].vtx = D3DXVECTOR3(-FIELD_SIZE_X, FIELD_SIZE_Y, FIELD_SIZE_Z);
+				pVtx[1].vtx = D3DXVECTOR3(FIELD_SIZE_X, FIELD_SIZE_Y, FIELD_SIZE_Z);
+				pVtx[2].vtx = D3DXVECTOR3(-FIELD_SIZE_X, FIELD_SIZE_Y, -FIELD_SIZE_Z);
+				pVtx[3].vtx = D3DXVECTOR3(FIELD_SIZE_X, FIELD_SIZE_Y, -FIELD_SIZE_Z);
+
+				// 法線ベクトルの設定
+				pVtx[0].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+				pVtx[1].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+				pVtx[2].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+				pVtx[3].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+
+				// 反射光の設定
+				pVtx[0].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+				pVtx[1].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+				pVtx[2].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+				pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+				// テクスチャ座標の設定
+				pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+				pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+				pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+				pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+
+		}
+
 		// 頂点データをアンロックする
-		D3DVtxBuffField->Unlock();
+		D3DVtxBuffField[i]->Unlock();
 	}
 
 	return S_OK;
@@ -178,37 +187,58 @@ HRESULT MakeVertexField(LPDIRECT3DDEVICE9 pDevice)
 void InitPosField(void)
 {
 	PosField[0] = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	PosField[1] = D3DXVECTOR3(FIELD_SIZE_X + FIELD_SIZE_X, 0.0f, FIELD_SIZE_Z + FIELD_SIZE_Z);
-	PosField[2] = D3DXVECTOR3(-FIELD_SIZE_X - FIELD_SIZE_X, 0.0f, FIELD_SIZE_Z + FIELD_SIZE_Z);
-	PosField[3] = D3DXVECTOR3(FIELD_SIZE_X + FIELD_SIZE_X, 0.0f, -FIELD_SIZE_Z - FIELD_SIZE_Z);
-	PosField[4] = D3DXVECTOR3(-FIELD_SIZE_X - FIELD_SIZE_X, 0.0f, -FIELD_SIZE_Z - FIELD_SIZE_Z);
-	PosField[5] = D3DXVECTOR3(FIELD_SIZE_X + FIELD_SIZE_X, 0.0f, 0.0f);
-	PosField[6] = D3DXVECTOR3(-FIELD_SIZE_X - FIELD_SIZE_X, 0.0f, 0.0f);
+	PosField[1] = D3DXVECTOR3(-FIELD_SIZE_X - FIELD_SIZE_X, 0.0f, FIELD_SIZE_Z + FIELD_SIZE_Z);
+	PosField[2] = D3DXVECTOR3(FIELD_SIZE_X + FIELD_SIZE_X, 0.0f, FIELD_SIZE_Z + FIELD_SIZE_Z);
+	PosField[3] = D3DXVECTOR3(-FIELD_SIZE_X - FIELD_SIZE_X, 0.0f, -FIELD_SIZE_Z - FIELD_SIZE_Z);
+	PosField[4] = D3DXVECTOR3(FIELD_SIZE_X + FIELD_SIZE_X, 0.0f, -FIELD_SIZE_Z - FIELD_SIZE_Z);
+	PosField[5] = D3DXVECTOR3(-FIELD_SIZE_X - FIELD_SIZE_X, 0.0f, 0.0f);
+	PosField[6] = D3DXVECTOR3(FIELD_SIZE_X + FIELD_SIZE_X, 0.0f, 0.0f);
 	PosField[7] = D3DXVECTOR3(0.0f, 0.0f, FIELD_SIZE_Z + FIELD_SIZE_Z);
 	PosField[8] = D3DXVECTOR3(0.0f, 0.0f, -FIELD_SIZE_Z - FIELD_SIZE_Z);
 }
 
 //=============================================================================
-// フィールドの初期位置
-// 引　数：な　し
+// フィールド色の変更
+// 引　数：int fno(フィールドのアドレス番号)、float colR(赤色の濃度値)、
+//		   float colG(緑の濃度値)、 float colB(青色の濃度値)
 // 戻り値：な　し
 //=============================================================================
-void SetCollarField(int fno, float colR, float colB, float colG)
+void SetCollarField(int fno, float colR, float colG, float colB)
 {
 	//頂点バッファの中身を埋める
 	VERTEX_3D			   *pVtx;
-	// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
-	D3DVtxBuffField->Lock(0, 0, (void**)&pVtx, 0);
 
-	pVtx += (fno * 4);
-	
-	// 反射光の設定
-	pVtx[0].diffuse = D3DXCOLOR(colR, colB, colG, 1.0f);
-	pVtx[1].diffuse = D3DXCOLOR(colR, colB, colG, 1.0f);
-	pVtx[2].diffuse = D3DXCOLOR(colR, colB, colG, 1.0f);
-	pVtx[3].diffuse = D3DXCOLOR(colR, colB, colG, 1.0f);
+	// 前回変更したフィールドを初期化
+	{
+		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
+		D3DVtxBuffField[PrevFno]->Lock(0, 0, (void**)&pVtx, 0);
 
-	// 頂点データをアンロックする
-	D3DVtxBuffField->Unlock();
+		// 反射光の設定
+		pVtx[0].diffuse =
+		pVtx[1].diffuse =
+		pVtx[2].diffuse =
+		pVtx[3].diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+		// 頂点データをアンロックする
+		D3DVtxBuffField[PrevFno]->Unlock();
+	}
+
+	// 今回変更するフィールド
+	{
+		// 頂点データの範囲をロックし、頂点バッファへのポインタを取得
+		D3DVtxBuffField[fno]->Lock(0, 0, (void**)&pVtx, 0);
+
+		// 反射光の設定
+		pVtx[0].diffuse =
+			pVtx[1].diffuse =
+			pVtx[2].diffuse =
+			pVtx[3].diffuse = D3DXCOLOR(colR, colG, colB, 1.0f);
+
+		// 頂点データをアンロックする
+		D3DVtxBuffField[fno]->Unlock();
+	}
+
+	// 前回変更したフィールドアドレスを保存
+	PrevFno = fno;
 
 }

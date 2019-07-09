@@ -218,6 +218,7 @@ void FinishGameCall(int frame)
 		StopSound(GetGameBGM02());
 		PlaySound(FinishSE, E_DS8_FLAG_NONE);
 	}
+
 	// SE‚Ì’âŽ~
 	else if (frame % STOP_FINISH_FRAME == 0)
 	{

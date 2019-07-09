@@ -334,7 +334,7 @@ HRESULT UpdateMouse()
 
 	if (GetStage() == START)
 	{
-		ShowCursor(FALSE);
+		ShowCursor(TRUE);
 	}
 
 	// ƒf[ƒ^æ“¾
